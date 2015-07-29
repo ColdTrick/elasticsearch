@@ -22,7 +22,9 @@ return array(
 	
 	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
 	'elasticsearch:logging:root' => "Logging root",
-	'' => "",
-	'' => "",
+
+	// forms
+	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
+	
 	'' => "",
 );

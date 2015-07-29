@@ -22,4 +22,7 @@ function elasticsearch_init() {
 	
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
+	
+	// actions
+	elgg_register_action('elasticsearch/admin_search', dirname(__FILE__) . '/actions/admin_search.php', 'admin');
 }
