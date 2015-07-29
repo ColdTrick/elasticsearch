@@ -18,6 +18,7 @@ function elasticsearch_get_client() {
 		if (!empty($host)) {
 			
 			$params['hosts'] = array($host);
+			
 			$params['logging'] = true;
 			$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
 			

@@ -26,9 +26,9 @@ class DatarootLogger extends \Monolog\Logger {
 			0,
 			_elgg_services()->logger->getLevel()
 		);
-		var_dump(_elgg_services()->logger->getLevel());
 		
 		$handler->setFilenameFormat('{date}_{filename}', 'Y/m/d');
+		$this->pushHandler($handler);
 		
 		// set logging processor
 		$processor = new IntrospectionProcessor();
