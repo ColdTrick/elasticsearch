@@ -11,7 +11,7 @@ try {
 } catch (Exception $e) {
 
 }
-var_dump($client);
+
 echo '<table class="elgg-table">';
 
 echo '<tr>';
