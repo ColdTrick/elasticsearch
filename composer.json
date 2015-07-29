@@ -1,0 +1,18 @@
+{
+	"name": "coldtrick/elasticsearch",
+	"description": "An Elasticsearch implementation for Elgg",
+	"type": "elgg-plugin",
+	"keywords": ["elgg", "plugin", "search", "lucene", "elasticsearch"],
+	"license": "GPL-2.0",
+	"support": {
+		"source": "https://github.com/ColdTrick/elasticsearch",
+		"issues": "https://github.com/ColdTrick/elasticsearch/issues"
+	},
+	"require": {
+		"composer/installers": "^1.0.8",
+		"elasticsearch/elasticsearch": "^1.0"
+	},
+	"require-dev": {
+		"coldtrick/sniffs": "dev-master"
+	}
+}
