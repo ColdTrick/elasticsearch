@@ -5,6 +5,7 @@ return array(
 	'admin:elasticsearch:statistics' => "Statistics",
 	'admin:elasticsearch:search' => "Search",
 	'admin:elasticsearch:logging' => "Logging",
+	'admin:elasticsearch:indices' => "Indices",
 	
 	'elasticsearch:error:no_client' => "Unable to create an ElasticSearch client",
 	'elasticsearch:error:host_unavailable' => "ElasticSearch API host unavailable",
