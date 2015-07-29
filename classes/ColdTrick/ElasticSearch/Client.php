@@ -49,7 +49,7 @@ class Client extends \Elasticsearch\Client {
 			return false;
 		}
 		
-		$params['body'] = $this->getBodyFromEntity($guid);
+		$params['body']['doc'] = $this->getBodyFromEntity($guid);
 		
 		try {
 			return parent::update($params);
