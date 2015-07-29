@@ -45,6 +45,14 @@ class Admin {
 		));
 		
 		$returnvalue[] = \ElggMenuItem::factory(array(
+			'name' => 'elasticsearch:logging',
+			'href' => 'admin/elasticsearch/logging',
+			'text' => elgg_echo('admin:elasticsearch:logging'),
+			'parent_name' => 'elasticsearch',
+			'section' => 'administer',
+		));
+		
+		$returnvalue[] = \ElggMenuItem::factory(array(
 			'name' => 'elasticsearch:settings',
 			'href' => 'admin/plugin_settings/elasticsearch',
 			'text' => elgg_echo('settings'),
