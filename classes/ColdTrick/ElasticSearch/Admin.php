@@ -37,6 +37,14 @@ class Admin {
 		));
 		
 		$returnvalue[] = \ElggMenuItem::factory(array(
+			'name' => 'elasticsearch:indices',
+			'href' => 'admin/elasticsearch/indices',
+			'text' => elgg_echo('admin:elasticsearch:indices'),
+			'parent_name' => 'elasticsearch',
+			'section' => 'administer',
+		));
+		
+		$returnvalue[] = \ElggMenuItem::factory(array(
 			'name' => 'elasticsearch:search',
 			'href' => 'admin/elasticsearch/search',
 			'text' => elgg_echo('admin:elasticsearch:search'),

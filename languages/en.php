@@ -12,6 +12,8 @@ return array(
 	
 	'elasticsearch:error:no_client' => "Unable to create an ElasticSearch client",
 	'elasticsearch:error:host_unavailable' => "ElasticSearch API host unavailable",
+	'elasticsearch:error:no_index' => "No index provided for the given action",
+	'elasticsearch:error:index_not_exists' => "The given index doesn't exist: %s",
 	
 	'elasticsearch:settings:host' => "ElasticSearch API host",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
@@ -27,8 +29,24 @@ return array(
 	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
 	'elasticsearch:logging:root' => "Logging root",
 
+	'elasticsearch:indices:index' => "Index",
+	'elasticsearch:indices:create' => "Create",
+	'elasticsearch:indices:optimize' => "Optimize",
+	'elasticsearch:indices:flush' => "Flush",
+	
 	// forms
 	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
 	
+	// actions
+	'elasticsearch:action:admin:index_management:error:flush' => "An error occured during the flush of the index: %s",
+	'elasticsearch:action:admin:index_management:error:optimize' => "An error occured during the optimization of the index: %s",
+	'elasticsearch:action:admin:index_management:error:delete' => "An error occured during the deletion of the index: %s",
+	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
+	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
+	'elasticsearch:action:admin:index_management:error:task' => "The task '%s' is not supported",
+	'elasticsearch:action:admin:index_management:flush' => "The index '%s' was flushed",
+	'elasticsearch:action:admin:index_management:optimize' => "The index '%s' was optimized",
+	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
+	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
 	'' => "",
 );

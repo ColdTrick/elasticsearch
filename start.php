@@ -25,4 +25,6 @@ function elasticsearch_init() {
 	
 	// actions
 	elgg_register_action('elasticsearch/admin_search', dirname(__FILE__) . '/actions/admin_search.php', 'admin');
+	
+	elgg_register_action('elasticsearch/admin/index_management', dirname(__FILE__) . '/actions/admin/index_management.php', 'admin');
 }
