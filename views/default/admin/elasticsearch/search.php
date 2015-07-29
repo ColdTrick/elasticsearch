@@ -2,4 +2,4 @@
 
 echo elgg_view_form('elasticsearch/admin_search');
 
-echo elgg_view_module('inline', 'Search Results', 'Results will be shown here', ['id' => 'elasticsearch-admin-search-results']);
+echo elgg_view_module('inline', elgg_echo('elasticsearch:admin_search:results'), elgg_echo('elasticsearch:admin_search:results:info'), ['id' => 'elasticsearch-admin-search-results']);
