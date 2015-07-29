@@ -20,11 +20,35 @@ class Admin {
 			return;
 		}
 		
+		// parent
+		$returnvalue[] = \ElggMenuItem::factory(array(
+			'name' => 'elasticsearch',
+			'href' => '',
+			'text' => elgg_echo('admin:elasticsearch'),
+			'section' => 'administer',
+		));
+		
 		$returnvalue[] = \ElggMenuItem::factory(array(
 			'name' => 'elasticsearch:stats',
-			'href' => 'admin/statistics/elasticsearch',
-			'text' => elgg_echo('admin:statistics:elasticsearch'),
-			'parent_name' => 'statistics',
+			'href' => 'admin/elasticsearch/statistics',
+			'text' => elgg_echo('admin:elasticsearch:statistics'),
+			'parent_name' => 'elasticsearch',
+			'section' => 'administer',
+		));
+		
+		$returnvalue[] = \ElggMenuItem::factory(array(
+			'name' => 'elasticsearch:search',
+			'href' => 'admin/elasticsearch/search',
+			'text' => elgg_echo('admin:elasticsearch:search'),
+			'parent_name' => 'elasticsearch',
+			'section' => 'administer',
+		));
+		
+		$returnvalue[] = \ElggMenuItem::factory(array(
+			'name' => 'elasticsearch:settings',
+			'href' => 'admin/plugin_settings/elasticsearch',
+			'text' => elgg_echo('settings'),
+			'parent_name' => 'elasticsearch',
 			'section' => 'administer',
 		));
 		
