@@ -19,9 +19,9 @@ return array(
 	'elasticsearch:stats:index:stat' => "Statistic",
 	'elasticsearch:stats:index:value' => "Value",
 	
-	'' => "",
-	'' => "",
-	'' => "",
-	'' => "",
+	
+	// forms
+	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
+	
 	'' => "",
 );
