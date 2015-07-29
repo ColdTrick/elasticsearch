@@ -28,7 +28,7 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function createDocument($guid) {
-		$params = getDefaultDocumentParams($guid);
+		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {
 			return false;
 		}
@@ -44,7 +44,7 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function updateDocument($guid) {
-		$params = getDefaultDocumentParams($guid);
+		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {
 			return false;
 		}
@@ -60,7 +60,7 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function deleteDocument($guid) {
-		$params = getDefaultDocumentParams($guid);
+		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {
 			return false;
 		}
