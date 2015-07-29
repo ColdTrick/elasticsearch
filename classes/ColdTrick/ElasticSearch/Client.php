@@ -20,11 +20,100 @@ class Client extends \Elasticsearch\Client {
 		}
 		
 		try {
-			$result = parent::search($params);
+			return parent::search($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
 		}
+	}
+	
+	public function createDocument($guid) {
+		$params = getDefaultDocumentParams($guid);
+		if (empty($params)) {
+			return false;
+		}
+		
+		$params['body'] = $this->getBodyFromEntity($guid);
+		
+		try {
+			return parent::create($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
+	}
+	
+	public function updateDocument($guid) {
+		$params = getDefaultDocumentParams($guid);
+		if (empty($params)) {
+			return false;
+		}
+		
+		$params['body'] = $this->getBodyFromEntity($guid);
+		
+		try {
+			return parent::update($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
+	}
+	
+	public function deleteDocument($guid) {
+		$params = getDefaultDocumentParams($guid);
+		if (empty($params)) {
+			return false;
+		}
+		
+		try {
+			return parent::delete($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
+	}
+	
+	private function getDefaultDocumentParams($guid) {
+		if (empty($guid)) {
+			return;
+		}
+		
+		$entity = get_entity($guid);
+		if (!$entity) {
+			return;
+		}
+		
+		$params = [
+			'id' => $guid,
+			'index' => $this->default_index,
+			'type' => $this->getDocumentTypeFromEntity($entity),
+		];
+		
+		return $params;
+	}
+	
+	private function getDocumentTypeFromEntity(\ElggEntity $entity) {
+		$type = $entity->getType();
+		$subtype = $entity->getSubType();
+		
+		if (empty($subtype)) {
+			return "$type";
+		}
+		
+		return "$type.$subtype";
+	}
+
+	private function getBodyFromEntity($guid) {
+		if (empty($guid)) {
+			return;
+		}
+		
+		$entity = get_entity($guid);
+		if (!$entity) {
+			return;
+		}
+		
+		$result = (array) $entity->toObject();
 		
 		return $result;
 	}
