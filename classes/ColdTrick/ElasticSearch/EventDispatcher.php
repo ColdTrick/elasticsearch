@@ -86,11 +86,11 @@ class EventDispatcher {
 		if (empty($client)) {
 			return;
 		}
-		system_message('1');
+		
 		if (!self::isSearchableEntity($entity)) {
 			return;
 		}
-		system_message('2');
+		
 		$client->updateDocument($entity->getGUID());
 	}
 	
