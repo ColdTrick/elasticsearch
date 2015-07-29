@@ -20,7 +20,7 @@ class Client extends \Elasticsearch\Client {
 		}
 		
 		try {
-			return parent::search($params);
+			return $this->search($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
@@ -36,7 +36,7 @@ class Client extends \Elasticsearch\Client {
 		$params['body'] = $this->getBodyFromEntity($guid);
 		
 		try {
-			return parent::create($params);
+			return $this->create($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
@@ -49,10 +49,14 @@ class Client extends \Elasticsearch\Client {
 			return false;
 		}
 		
-		$params['body']['doc'] = $this->getBodyFromEntity($guid);
+		if (!$this->exists($params)) {
+			return $this->createDocument($guid);
+		}
+		
+		$params['body'] = $this->getBodyFromEntity($guid);
 		
 		try {
-			return parent::update($params);
+			return $this->index($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
@@ -65,8 +69,12 @@ class Client extends \Elasticsearch\Client {
 			return false;
 		}
 		
+		if (!$this->exists($params)) {
+			return true;
+		}
+		
 		try {
-			return parent::delete($params);
+			return $this->delete($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
