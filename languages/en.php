@@ -1,7 +1,9 @@
 <?php
 
 return array(
-	'admin:statistics:elasticsearch' => "ElasticSearch",
+	'admin:elasticsearch' => "ElasticSearch",
+	'admin:elasticsearch:statistics' => "Statistics",
+	'admin:elasticsearch:search' => "Search",
 	
 	'elasticsearch:error:no_client' => "Unable to create an ElasticSearch client",
 	'elasticsearch:error:host_unavailable' => "ElasticSearch API host unavailable",
