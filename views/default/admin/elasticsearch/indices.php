@@ -73,7 +73,7 @@ foreach ($indices as $name => $status) {
 
 if (!$elgg_index_found) {
 	echo '<tr>';
-	echo '<td>' . $elgg_index . '</td>';
+	echo '<td><b>' . $elgg_index . '</b></td>';
 	echo '<td class="center">' . elgg_view('output/url', array(
 		'text' => elgg_view_icon('star-empty'),
 		'href' => "action/elasticsearch/admin/index_management?task=create&index={$elgg_index}",
