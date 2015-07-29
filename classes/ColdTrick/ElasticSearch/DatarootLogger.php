@@ -27,7 +27,11 @@ class DatarootLogger extends \Monolog\Logger {
 			_elgg_services()->logger->getLevel()
 		);
 		
+		// create correct folder structure
+		$date = date('Y/m/');
+		mkdir(elgg_get_data_path() . "elasticsearch/{$date}", 0755, true);
 		$handler->setFilenameFormat('{date}_{filename}', 'Y/m/d');
+		
 		$this->pushHandler($handler);
 		
 		// set logging processor
