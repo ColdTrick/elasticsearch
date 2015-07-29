@@ -86,11 +86,11 @@ class EventDispatcher {
 		if (empty($client)) {
 			return;
 		}
-		
+		system_message('1');
 		if (!self::isSearchableEntity($entity)) {
 			return;
 		}
-		
+		system_message('2');
 		$client->updateDocument($entity->getGUID());
 	}
 	
@@ -125,8 +125,8 @@ class EventDispatcher {
 		}
 		
 		$type = $entity->getType();
-		$subtypes = get_registered_entity_types($type);
-		if (empty($subtypes)) {
+		$type_subtypes = get_registered_entity_types();
+		if (!isset($type_subtypes[$type])) {
 			return false;
 		}
 		
@@ -136,6 +136,6 @@ class EventDispatcher {
 			return true;
 		}
 		
-		return in_array($subtype, $subtypes);
+		return in_array($subtype, $type_subtypes[$type]);
 	}
 }
