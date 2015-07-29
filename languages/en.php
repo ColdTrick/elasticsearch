@@ -4,6 +4,7 @@ return array(
 	'admin:elasticsearch' => "ElasticSearch",
 	'admin:elasticsearch:statistics' => "Statistics",
 	'admin:elasticsearch:search' => "Search",
+	'admin:elasticsearch:logging' => "Logging",
 	
 	'elasticsearch:error:no_client' => "Unable to create an ElasticSearch client",
 	'elasticsearch:error:host_unavailable' => "ElasticSearch API host unavailable",
@@ -19,8 +20,8 @@ return array(
 	'elasticsearch:stats:index:stat' => "Statistic",
 	'elasticsearch:stats:index:value' => "Value",
 	
-	'' => "",
-	'' => "",
+	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
+	'elasticsearch:logging:root' => "Logging root",
 	'' => "",
 	'' => "",
 	'' => "",

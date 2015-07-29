@@ -17,6 +17,9 @@ elgg_register_event_handler("init", "system", "elasticsearch_init");
  */
 function elasticsearch_init() {
 	
+	// ajax views
+	elgg_register_ajax_view('elasticsearch/logging/view');
+	
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
 }
