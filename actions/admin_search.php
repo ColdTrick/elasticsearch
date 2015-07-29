@@ -17,11 +17,9 @@ $q = get_input('q');
  *
  */
 
-$index = elgg_get_plugin_setting('index', 'elasticsearch');
-
 $client = elasticsearch_get_client();
 
-$searchParams = ['index' => $index];
+$searchParams = [];
 
 $json_data = @json_decode($q, true);
 
@@ -39,7 +37,5 @@ if (is_array($json_data)) {
 
 $result = $client->search($searchParams);
 if ($result) {
-	echo var_export($result, true);
-	
-	echo time();
+	echo elgg_view('elasticsearch/admin_search/result', ['result' => $result]);
 }
