@@ -1,5 +1,7 @@
 <?php
 
+elgg_load_css('elgg.icons');
+
 $logging_base_dir = elgg_get_data_path() . 'elasticsearch/';
 $path = get_input('path');
 $path = sanitise_filepath($path);

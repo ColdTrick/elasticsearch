@@ -19,6 +19,9 @@ elgg_register_event_handler("init", "system", "elasticsearch_init");
  */
 function elasticsearch_init() {
 	
+	// css
+	elgg_register_css('elgg.icons', elgg_get_simplecache_url('css', 'elements/icons'));
+	
 	// ajax views
 	elgg_register_ajax_view('elasticsearch/logging/view');
 	
