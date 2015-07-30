@@ -19,6 +19,9 @@ if (!$alive) {
 	return;
 }
 
+// Elgg configuration
+echo elgg_view('elasticsearch/stats/elgg');
+
 // cluster info
 echo elgg_view('elasticsearch/stats/cluster', array('client' => $client));
 

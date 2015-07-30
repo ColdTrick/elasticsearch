@@ -39,3 +39,105 @@ function elasticsearch_get_client() {
 	
 	return $client;
 }
+
+/**
+ * Get the type/subtypes to index in ElasticSearch
+ *
+ *  @return false|array
+ */
+function elasticsearch_get_registered_entity_types() {
+	
+	$type_subtypes = get_registered_entity_types();
+	foreach ($type_subtypes as $type => $subtypes) {
+		if (empty($subtypes)) {
+			// repair so it can be used in elgg_get_entities*
+			$type_subtypes[$type] = ELGG_ENTITIES_ANY_VALUE;
+		}
+	}
+	
+	return elgg_trigger_plugin_hook('index_entity_type_subtypes', 'elasticsearch', $type_subtypes, $type_subtypes);
+}
+
+/**
+ * Get the $options for elgg_get_entities* in order to update the ElasticSearch index
+ *
+ * @param string $type which options to get
+ *
+ * @return false|array
+ */
+function elasticsearch_get_bulk_options($type = 'no_index_ts') {
+	
+	$type_subtypes = elasticsearch_get_registered_entity_types();
+	if (empty($type_subtypes)) {
+		return false;
+	}
+	
+	$dbprefix = elgg_get_config('dbprefix');
+	
+	switch ($type) {
+		case 'no_index_ts':
+			// new or updated entities
+			return array(
+				'type_subtype_pairs' => $type_subtypes,
+				'limit' => false,
+				'wheres' => array(
+					"NOT EXISTS (
+						SELECT 1 FROM {$dbprefix}private_settings ps
+						WHERE ps.entity_guid = e.guid
+						AND ps.name = '" . ELASTICSEARCH_INDEXED_NAME . "'
+					)"
+				),
+			);
+			
+			break;
+		case 'reindex':
+			// a reindex has been initiated, so update all out of date entities
+			$setting = (int) elgg_get_plugin_setting('reindex_ts', 'elasticsearch');
+			if (empty($setting)) {
+				return false;
+			}
+			
+			return array(
+				'type_subtype_pairs' => $type_subtypes,
+				'limit' => false,
+				'private_setting_name_value_pairs' => array(
+					array(
+						'name' => ELASTICSEARCH_INDEXED_NAME,
+						'value' => $setting,
+						'operand' => '<'
+					),
+					array(
+						'name' => ELASTICSEARCH_INDEXED_NAME,
+						'value' => 0,
+						'operand' => '>'
+					),
+				)
+			);
+			
+			break;
+		case 'update':
+			// content that was updated in Elgg and needs to be reindexed
+			return array(
+				'type_subtype_pairs' => $type_subtypes,
+				'limit' => false,
+				'private_setting_name_value_pairs' => array(
+					array(
+						'name' => ELASTICSEARCH_INDEXED_NAME,
+						'value' => 0,
+					),
+				)
+			);
+			
+			break;
+		case 'count':
+			// content that needs to be indexed
+			return array(
+				'type_subtype_pairs' => $type_subtypes,
+				'count' => true,
+			);
+			
+			break;
+	}
+	
+	return false;
+}

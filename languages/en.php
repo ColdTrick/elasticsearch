@@ -19,13 +19,23 @@ return array(
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
 	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to user, maybe '%s' is a suggestion?",
+	'elasticsearch:settings:sync' => "Synchronize Elgg data to ElasticSearch",
+	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
 	
+	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",
 	'elasticsearch:stats:es_version' => "ElasticSearch version",
 	'elasticsearch:stats:lucene_version' => "Lucene version",
 	
+	'elasticsearch:stats:index:index' => "Index: %s",
 	'elasticsearch:stats:index:stat' => "Statistic",
 	'elasticsearch:stats:index:value' => "Value",
+	
+	'elasticsearch:stats:elgg' => "Elgg information",
+	'elasticsearch:stats:elgg:total' => "Content that should be indexed",
+	'elasticsearch:stats:elgg:no_index_ts' => "New content to be indexed",
+	'elasticsearch:stats:elgg:update' => "Updated content to be reindexed",
+	'elasticsearch:stats:elgg:reindex' => "Content to be reindexed",
 	
 	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
 	'elasticsearch:logging:root' => "Logging root",

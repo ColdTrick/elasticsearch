@@ -3,6 +3,8 @@
  * Main file for the Elasticsearch plugin
  */
 
+define('ELASTICSEARCH_INDEXED_NAME', 'elasticsearch_last_indexed');
+
 @include_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 require_once(dirname(__FILE__) . '/lib/functions.php');
@@ -22,6 +24,7 @@ function elasticsearch_init() {
 	
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
+	elgg_register_plugin_hook_handler('cron', 'minute', array('ColdTrick\ElasticSearch\Cron', 'minuteSync'));
 	
 	// events
 	elgg_register_event_handler('create', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'create'));
@@ -32,4 +35,6 @@ function elasticsearch_init() {
 	elgg_register_action('elasticsearch/admin_search', dirname(__FILE__) . '/actions/admin_search.php', 'admin');
 	
 	elgg_register_action('elasticsearch/admin/index_management', dirname(__FILE__) . '/actions/admin/index_management.php', 'admin');
+	
+	elasticsearch_get_registered_entity_types();
 }
