@@ -47,7 +47,24 @@ if (!empty($options)) {
 }
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:reindex') . '</td>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:reindex');
+
+$reindex_title = elgg_echo('elasticsearch:stats:elgg:reindex:action');
+$last_ts = elgg_get_plugin_setting('reindex_ts', 'elasticsearch');
+
+if (!empty($last_ts)) {
+	$reindex_title .= '&#10;&#10;' . elgg_echo('elasticsearch:stats:elgg:reindex:last_ts', [date('c', $last_ts)]);
+}
+
+$content .= elgg_view('output/url', [
+	'confirm' => true,
+	'href' => 'action/elasticsearch/admin/reindex',
+	'text' => elgg_view_icon('refresh'),
+	'title' => $reindex_title,
+	'class' => 'mlm'
+]);
+
+$content .= '</td>';
 $content .= "<td>{$count}</td>";
 $content .= '</tr>';
 

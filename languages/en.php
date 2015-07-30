@@ -36,6 +36,8 @@ return array(
 	'elasticsearch:stats:elgg:no_index_ts' => "New content to be indexed",
 	'elasticsearch:stats:elgg:update' => "Updated content to be reindexed",
 	'elasticsearch:stats:elgg:reindex' => "Content to be reindexed",
+	'elasticsearch:stats:elgg:reindex:action' => "You can force a refresh of all already indexed entities by clicking on this action.",
+	'elasticsearch:stats:elgg:reindex:last_ts' => "Current time to be used to compare if reindex is needed: %s",
 	
 	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
 	'elasticsearch:logging:root' => "Logging root",

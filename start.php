@@ -35,6 +35,5 @@ function elasticsearch_init() {
 	elgg_register_action('elasticsearch/admin_search', dirname(__FILE__) . '/actions/admin_search.php', 'admin');
 	
 	elgg_register_action('elasticsearch/admin/index_management', dirname(__FILE__) . '/actions/admin/index_management.php', 'admin');
-	
-	elasticsearch_get_registered_entity_types();
+	elgg_register_action('elasticsearch/admin/reindex', dirname(__FILE__) . '/actions/admin/reindex.php', 'admin');
 }
