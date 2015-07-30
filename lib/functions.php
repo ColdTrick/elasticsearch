@@ -26,7 +26,8 @@ function elasticsearch_get_client() {
 			$params['logging'] = true;
 			$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
 			
-			// @todo trigger hook for all params
+			// trigger hook so other plugins can infuence the params
+			$params = elgg_trigger_plugin_hook('params', 'elasticsearch', $params, $params);
 			
 			try {
 				$client = new ColdTrick\ElasticSearch\Client($params);
