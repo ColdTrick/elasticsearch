@@ -15,9 +15,6 @@ class EventDispatcher {
 	 */
 	public static function create($event, $type, $object) {
 		
-		if ($object instanceof \ElggEntity) {
-			self::createEntity($object);
-		}
 	}
 	
 	/**
@@ -53,27 +50,6 @@ class EventDispatcher {
 	}
 	
 	/**
-	 * Handle the creation of an ElggEntity
-	 *
-	 * @param \ElggEntity $entity the entity
-	 *
-	 * @return void
-	 */
-	protected static function createEntity(\ElggEntity $entity) {
-		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
-			return;
-		}
-		
-		if (!self::isSearchableEntity($entity)) {
-			return;
-		}
-		
-		$client->indexDocument($entity->getGUID());
-	}
-	
-	/**
 	 * Handle the update of an ElggEntity
 	 *
 	 * @param \ElggEntity $entity the entity
@@ -82,16 +58,7 @@ class EventDispatcher {
 	 */
 	protected static function updateEntity(\ElggEntity $entity) {
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
-			return;
-		}
-		
-		if (!self::isSearchableEntity($entity)) {
-			return;
-		}
-		
-		$client->indexDocument($entity->getGUID());
+		$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
 	}
 	
 	/**
