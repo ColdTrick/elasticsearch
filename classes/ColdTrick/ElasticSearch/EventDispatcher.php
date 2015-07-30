@@ -125,7 +125,7 @@ class EventDispatcher {
 		}
 		
 		$type = $entity->getType();
-		$type_subtypes = get_registered_entity_types();
+		$type_subtypes = elasticsearch_get_registered_entity_types();
 		if (!isset($type_subtypes[$type])) {
 			return false;
 		}
