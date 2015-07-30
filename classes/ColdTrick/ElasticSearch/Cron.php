@@ -73,6 +73,10 @@ class Cron {
 			$getter = 'elgg_get_entities_from_private_settings';
 		}
 		
+		if (!is_callable($getter)) {
+			return false;
+		}
+		
 		$client = elasticsearch_get_client();
 		if (empty($client)) {
 			return;
@@ -89,15 +93,37 @@ class Cron {
 		
 		set_time_limit(40);
 		$ia = elgg_set_ignore_access(true);
-		
 		$time_left = true;
-		$batch = new \ElggBatch($getter, $options);
-		$batch->setIncrementOffset(false);
+		$batch_size = 50;
 		
-		foreach ($batch as $entity) {
+		$options['callback'] = false;
+		
+		while ($time_left && ($rows = call_user_func($getter, $options))) {
 			
-			if ($client->updateDocument($entity->getGUID())) {
-				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
+			$guids = array();
+			foreach ($rows as $row) {
+				$guids[] = (int) $row->guid;
+			}
+			
+			$result = $client->bulkIndexDocuments($guids);
+			if (empty($result)) {
+				break;
+			}
+			
+			$items = elgg_extract('items', $result);
+			foreach ($items as $item) {
+				$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
+				$status = elgg_extract('status', elgg_extract('index', $item));
+				
+				if ($status !== 200) {
+					continue;
+				}
+				
+				if (empty($guid)) {
+					continue;
+				}
+				
+				set_private_setting($guid, ELASTICSEARCH_INDEXED_NAME, time());
 			}
 			
 			if ((time() - $crontime) >= 30) {
