@@ -20,10 +20,10 @@ class Client extends \Elasticsearch\Client {
 		}
 		
 		try {
-			return $this->search($params);
+			return parent::search($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
-			return false;
+			return array();
 		}
 	}
 	
