@@ -25,9 +25,7 @@ if (empty($indices)) {
 
 foreach ($indices as $index => $index_stats) {
 	
-	$content = '<table class="elgg-table">';
-	
-	$content .= '<tr>';
+	$content = '<tr>';
 	$content .= '<th>' . elgg_echo('elasticsearch:stats:index:stat') . '</th>';
 	$content .= '<th>' . elgg_echo('elasticsearch:stats:index:value') . '</th>';
 	$content .= '</tr>';
@@ -46,7 +44,13 @@ foreach ($indices as $index => $index_stats) {
 		$content .= '</tr>';
 	}
 	
-	$content .= '</table>';
+	$content = elgg_format_element('table', array('class' => 'elgg-table hidden', 'id' => "index_{$index}"), $content);
 	
-	echo elgg_view_module('inline', $index, $content);
+	$title = elgg_view('output/url', array(
+		'text' => elgg_echo('elasticsearch:stats:index:index', array($index)),
+		'href' => "#index_{$index}",
+		'rel' => 'toggle',
+	));
+	
+	echo elgg_view_module('inline', $title, $content);
 }
