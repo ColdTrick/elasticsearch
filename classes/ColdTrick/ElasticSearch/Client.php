@@ -36,7 +36,7 @@ class Client extends \Elasticsearch\Client {
 		$params['body'] = $this->getBodyFromEntity($guid);
 		
 		try {
-			return $this->create($params);
+			return $this->index($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
@@ -44,23 +44,7 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function updateDocument($guid) {
-		$params = $this->getDefaultDocumentParams($guid);
-		if (empty($params)) {
-			return false;
-		}
-		
-		if (!$this->exists($params)) {
-			return $this->createDocument($guid);
-		}
-		
-		$params['body'] = $this->getBodyFromEntity($guid);
-		
-		try {
-			return $this->index($params);
-		} catch(\Exception $e) {
-			$this->registerErrorForException($e);
-			return false;
-		}
+		return $this->createDocument($guid);
 	}
 	
 	public function deleteDocument($guid) {
