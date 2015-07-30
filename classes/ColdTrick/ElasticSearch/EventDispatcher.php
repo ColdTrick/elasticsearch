@@ -70,7 +70,7 @@ class EventDispatcher {
 			return;
 		}
 		
-		$client->createDocument($entity->getGUID());
+		$client->indexDocument($entity->getGUID());
 	}
 	
 	/**
@@ -91,7 +91,7 @@ class EventDispatcher {
 			return;
 		}
 		
-		$client->updateDocument($entity->getGUID());
+		$client->indexDocument($entity->getGUID());
 	}
 	
 	/**

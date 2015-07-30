@@ -27,36 +27,60 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	public function createDocument($guid) {
+	public function indexDocument($guid) {
 		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {
 			return false;
-		}
-		
-		$params['body'] = $this->getBodyFromEntity($guid);
-		
-		try {
-			return $this->create($params);
-		} catch(\Exception $e) {
-			$this->registerErrorForException($e);
-			return false;
-		}
-	}
-	
-	public function updateDocument($guid) {
-		$params = $this->getDefaultDocumentParams($guid);
-		if (empty($params)) {
-			return false;
-		}
-		
-		if (!$this->exists($params)) {
-			return $this->createDocument($guid);
 		}
 		
 		$params['body'] = $this->getBodyFromEntity($guid);
 		
 		try {
 			return $this->index($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
+	}
+	
+	public function bulkIndexDocuments($guids = array()) {
+		if (!is_array($guids)) {
+			return false;
+		}
+		
+		if (empty($guids)) {
+			return $guids;
+		}
+		
+		$params = [];
+		foreach ($guids as $guid) {
+			$doc_params = $this->getDefaultDocumentParams($guid);
+			if (empty($doc_params)) {
+				continue;
+			}
+			$doc_params['body'] = $this->getBodyFromEntity($guid);
+			
+			
+			$params['body'][] = array(
+				'index' => array(
+					'_index' => $doc_params['index'],
+					'_type' => $doc_params['type'],
+					'_id' => $doc_params['id']
+				)
+			);
+			$params['body'][] = array(
+				'body' => $doc_params
+			);
+		}
+		
+		register_error(var_export($params, true));
+		
+		if (empty($params)) {
+			return false;
+		}
+		
+		try {
+			return $this->bulk($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return false;
