@@ -8,6 +8,7 @@ echo elgg_view('input/text', array(
 	'name' => 'params[host]',
 	'value' => $plugin->host,
 ));
+echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:host:description') . '</div>';
 echo '</div>';
 
 echo '<div>';

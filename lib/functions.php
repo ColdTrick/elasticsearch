@@ -16,8 +16,12 @@ function elasticsearch_get_client() {
 		
 		$host = elgg_get_plugin_setting('host', 'elasticsearch');
 		if (!empty($host)) {
+			$params = array();
 			
-			$params['hosts'] = array($host);
+			$hosts = explode(',', $host);
+			array_walk($hosts, 'trim');
+			
+			$params['hosts'] = $hosts;
 			
 			$params['logging'] = true;
 			$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');

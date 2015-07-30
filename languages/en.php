@@ -16,6 +16,7 @@ return array(
 	'elasticsearch:error:index_not_exists' => "The given index doesn't exist: %s",
 	
 	'elasticsearch:settings:host' => "ElasticSearch API host",
+	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
 	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to user, maybe '%s' is a suggestion?",
 	
