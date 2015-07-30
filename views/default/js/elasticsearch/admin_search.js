@@ -15,7 +15,7 @@ elgg.elasticsearch.init_admin_search = function() {
 				success: function(data) {
 					$('#elasticsearch-admin-search-results > .elgg-body').html(data.output);
 				}
-			})
+			});
 		});
 	});
 };
