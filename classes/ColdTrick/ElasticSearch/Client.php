@@ -10,7 +10,7 @@ class Client extends \Elasticsearch\Client {
 		
 		$this->default_index = elgg_get_plugin_setting('index', 'elasticsearch');
 		
-		return parent::__construct($params);
+		parent::__construct($params);
 	}
 	
 	public function search($params = array()) {
