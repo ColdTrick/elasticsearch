@@ -21,10 +21,16 @@ class DatarootLogger extends \Monolog\Logger {
 		parent::__construct($name, $handlers, $processors);
 		
 		// set handler
+		$elgg_log_level = _elgg_services()->logger->getLevel();
+		if ($elgg_log_level == \Elgg\Logger::OFF) {
+			// always log errors
+			$elgg_log_level = \Elgg\Logger::ERROR;
+		}
+		
 		$handler = new RotatingFileHandler(
 			elgg_get_data_path() . 'elasticsearch/client.log',
 			0,
-			_elgg_services()->logger->getLevel()
+			$elgg_log_level
 		);
 		
 		// create correct folder structure
