@@ -27,7 +27,7 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	public function createDocument($guid) {
+	public function indexDocument($guid) {
 		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {
 			return false;
@@ -43,8 +43,8 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	public function updateDocument($guid) {
-		return $this->createDocument($guid);
+	public function bulkIndexDocument($guids = array()) {
+		
 	}
 	
 	public function deleteDocument($guid) {
