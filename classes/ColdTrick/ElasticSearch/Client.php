@@ -43,8 +43,48 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	public function bulkIndexDocument($guids = array()) {
+	public function bulkIndexDocuments($guids = array()) {
+		if (!is_array($guids)) {
+			return false;
+		}
 		
+		if (empty($guids)) {
+			return $guids;
+		}
+		
+		$params = [];
+		foreach ($guids as $guid) {
+			$doc_params = $this->getDefaultDocumentParams($guid);
+			if (empty($doc_params)) {
+				continue;
+			}
+			$doc_params['body'] = $this->getBodyFromEntity($guid);
+			
+			
+			$params['body'][] = array(
+				'index' => array(
+					'_index' => $doc_params['index'],
+					'_type' => $doc_params['type'],
+					'_id' => $doc_params['id']
+				)
+			);
+			$params['body'][] = array(
+				'body' => $doc_params
+			);
+		}
+		
+		register_error(var_export($params, true));
+		
+		if (empty($params)) {
+			return false;
+		}
+		
+		try {
+			return $this->bulk($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
 	}
 	
 	public function deleteDocument($guid) {
