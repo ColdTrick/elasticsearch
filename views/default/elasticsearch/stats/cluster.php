@@ -12,38 +12,42 @@ try {
 
 }
 
-echo '<table class="elgg-table">';
+$content = '<table class="elgg-table">';
 
-echo '<tr>';
-echo '<td>' . elgg_echo('status') . '</td>';
+$content .= '<tr>';
+$content .= '<td>' . elgg_echo('status') . '</td>';
 if ($alive) {
-	echo '<td>' . elgg_echo('ok') . '</td>';
+	$content .= '<td>' . elgg_echo('ok') . '</td>';
 } else {
-	echo '<td>' . elgg_echo('unknown_error') . '</td>';
+	$content .= '<td>' . elgg_echo('unknown_error') . '</td>';
 }
-echo '</tr>';
+$content .= '</tr>';
 
 if (!$alive) {
-	echo '</table>';
+	$content .= '</table>';
+	
+	echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:cluster'), $content);
 	return;
 }
 
 // get server info
 $info = $client->info();
 
-echo '<tr>';
-echo '<td>' . elgg_echo('elasticsearch:stats:cluster_name') . '</td>';
-echo '<td>' . elgg_extract('cluster_name', $info) . '</td>';
-echo '</tr>';
+$content .= '<tr>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:cluster_name') . '</td>';
+$content .= '<td>' . elgg_extract('cluster_name', $info) . '</td>';
+$content .= '</tr>';
 
-echo '<tr>';
-echo '<td>' . elgg_echo('elasticsearch:stats:es_version') . '</td>';
-echo '<td>' . elgg_extract('number', elgg_extract('version', $info)) . '</td>';
-echo '</tr>';
+$content .= '<tr>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:es_version') . '</td>';
+$content .= '<td>' . elgg_extract('number', elgg_extract('version', $info)) . '</td>';
+$content .= '</tr>';
 
-echo '<tr>';
-echo '<td>' . elgg_echo('elasticsearch:stats:lucene_version') . '</td>';
-echo '<td>' . elgg_extract('lucene_version', elgg_extract('version', $info)) . '</td>';
-echo '</tr>';
+$content .= '<tr>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:lucene_version') . '</td>';
+$content .= '<td>' . elgg_extract('lucene_version', elgg_extract('version', $info)) . '</td>';
+$content .= '</tr>';
 
-echo '</table>';
+$content .= '</table>';
+
+echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:cluster'), $content);
