@@ -94,9 +94,10 @@ class Cron {
 		set_time_limit(40);
 		$ia = elgg_set_ignore_access(true);
 		$time_left = true;
-		$batch_size = 50;
+		$batch_size = 100;
 		
 		$options['callback'] = false;
+		$options['limit'] = $batch_size;
 		
 		while ($time_left && ($rows = call_user_func($getter, $options))) {
 			
