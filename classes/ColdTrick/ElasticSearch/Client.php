@@ -73,8 +73,6 @@ class Client extends \Elasticsearch\Client {
 			);
 		}
 		
-		register_error(var_export($params, true));
-		
 		if (empty($params)) {
 			return false;
 		}
