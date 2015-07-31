@@ -32,7 +32,7 @@ return array(
 	'elasticsearch:stats:index:value' => "Value",
 	
 	'elasticsearch:stats:elgg' => "Elgg information",
-	'elasticsearch:stats:elgg:total' => "Content that should be indexed",
+	'elasticsearch:stats:elgg:total' => "Content that should have been indexed",
 	'elasticsearch:stats:elgg:no_index_ts' => "New content to be indexed",
 	'elasticsearch:stats:elgg:update' => "Updated content to be reindexed",
 	'elasticsearch:stats:elgg:reindex' => "Content to be reindexed",

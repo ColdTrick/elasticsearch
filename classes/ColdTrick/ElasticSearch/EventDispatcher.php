@@ -50,6 +50,22 @@ class EventDispatcher {
 	}
 	
 	/**
+	 * Listen to all disable events and update Elasticsearch as needed
+	 *
+	 * @param string        $event  the name of the event
+	 * @param string        $type   the type of the event
+	 * @param \ElggExtender $object the affected content
+	 *
+	 * @return void
+	 */
+	public static function disable($event, $type, $object) {
+	
+		if ($object instanceof \ElggEntity) {
+			self::disableEntity($object);
+		}
+	}
+	
+	/**
 	 * Handle the update of an ElggEntity
 	 *
 	 * @param \ElggEntity $entity the entity
@@ -76,6 +92,27 @@ class EventDispatcher {
 		}
 		
 		$client->deleteDocument($entity->getGUID());
+	}
+	
+	/**
+	 * Handle the disable of an ElggEntity
+	 *
+	 * @param \ElggEntity $entity the entity
+	 *
+	 * @return void
+	 */
+	protected static function disableEntity(\ElggEntity $entity) {
+	
+		$client = elasticsearch_get_client();
+		if (empty($client)) {
+			return;
+		}
+	
+		// remove from index
+		$client->deleteDocument($entity->getGUID());
+
+		// remove indexed ts, so when reenabled it will get indexed automatically
+		$entity->removePrivateSetting(ELASTICSEARCH_INDEXED_NAME);
 	}
 	
 	/**
