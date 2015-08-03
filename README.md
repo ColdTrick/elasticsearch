@@ -1,6 +1,5 @@
 # Elasticsearch
 
-
 [![Build Status](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/coldtrick/elasticsearch/v/stable.svg)](https://packagist.org/packages/coldtrick/elasticsearch)
@@ -20,12 +19,14 @@ The plugin settings allow you to configure the following:
 
  - Hosts: 1 or more hosts need to be configured (full URL + optional portnumber). You can provide more hosts comma seperated.
  - Index: Name of the index used for indexing Elgg data and search queries
+ - Search alias (optional): Name of the alias to use in search queries, this allows for easy searching across multiple indices
 
 ### Index Management
 
 The index management page (found under Administer -> ElasticSearch -> Indices in the admin sidebar) allows you to perform various actions on all the indexes available on the ElastisSearch server. The following actions are supported:
 
 - Create: This action can only be performed if the index configured in the plugin settings page is not yet available. It will create the default index configuration to be used for search.
+- Alias: Add/remove the configured alias to the index (this allows searching across multiple indices)
 - Delete: This will remove the index from the server (this action can not be undone)
 - Optimize: This performs the [optimize](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-optimize.html) operation on the index
 - Flush: The performs the [flush](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-flush.html) operation on the index
