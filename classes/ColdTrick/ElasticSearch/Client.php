@@ -4,11 +4,24 @@ namespace ColdTrick\ElasticSearch;
 
 class Client extends \Elasticsearch\Client {
 	
+	/**
+	 * The default index to use
+	 *
+	 * @var string
+	 */
 	protected $default_index;
+	
+	/**
+	 * The default search index alias to use
+	 *
+	 * @var string
+	 */
+	protected $search_alias;
 	
 	public function __construct($params) {
 		
 		$this->default_index = elgg_get_plugin_setting('index', 'elasticsearch');
+		$this->search_alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 		
 		parent::__construct($params);
 	}
@@ -16,7 +29,11 @@ class Client extends \Elasticsearch\Client {
 	public function search($params = array()) {
 		
 		if (!isset($params['index'])) {
-			$params['index'] = $this->default_index;
+			if ($this->search_alias) {
+				$params['index'] = $this->search_alias;
+			} else {
+				$params['index'] = $this->default_index;
+			}
 		}
 		
 		try {

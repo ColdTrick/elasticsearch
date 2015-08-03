@@ -26,6 +26,15 @@ echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:index:sugg
 echo '</div>';
 
 echo '<div>';
+echo elgg_echo('elasticsearch:settings:search_alias');
+echo elgg_view('input/text', array(
+	'name' => 'params[search_alias]',
+	'value' => $plugin->search_alias,
+));
+echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:search_alias:description') . '</div>';
+echo '</div>';
+
+echo '<div>';
 echo elgg_echo('elasticsearch:settings:sync');
 echo elgg_view('input/select', array(
 	'name' => 'params[sync]',

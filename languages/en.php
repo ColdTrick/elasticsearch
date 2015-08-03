@@ -19,6 +19,8 @@ return array(
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
 	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to user, maybe '%s' is a suggestion?",
+	'elasticsearch:settings:search_alias' => "Search index alias (optional)",
+	'elasticsearch:settings:search_alias:description' => "If you wish to search in more then one index, you can configure an alias to seach in. This alias will also be applied to the Elgg index.",
 	'elasticsearch:settings:sync' => "Synchronize Elgg data to ElasticSearch",
 	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
 	
@@ -43,6 +45,7 @@ return array(
 	'elasticsearch:logging:root' => "Logging root",
 
 	'elasticsearch:indices:index' => "Index",
+	'elasticsearch:indices:alias' => "Alias",
 	'elasticsearch:indices:create' => "Create",
 	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
@@ -57,9 +60,13 @@ return array(
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
 	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
 	'elasticsearch:action:admin:index_management:error:task' => "The task '%s' is not supported",
+	'elasticsearch:action:admin:index_management:error:add_alias:no_alias' => "No alias configured in the plugin settings",
+	'elasticsearch:action:admin:index_management:error:add_alias:exists' => "The alias '%s' already exists on the index '%s'",
+	'elasticsearch:action:admin:index_management:error:add_alias' => "An error occured while adding the alias '%s' to the index '%s'",
 	'elasticsearch:action:admin:index_management:flush' => "The index '%s' was flushed",
 	'elasticsearch:action:admin:index_management:optimize' => "The index '%s' was optimized",
 	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
 	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
+	'elasticsearch:action:admin:index_management:add_alias' => "The alias '%s' was added to the index '%s'",
 	'' => "",
 );
