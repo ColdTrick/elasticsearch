@@ -70,6 +70,12 @@ foreach ($indices as $name => $status) {
 			'href' => "action/elasticsearch/admin/index_management?task=add_alias&index={$name}",
 			'confirm' => true,
 		)) . '</td>';
+	} elseif (!empty($search_alias) && $alias_configured) {
+		echo '<td class="center">' . elgg_view('output/url', array(
+			'text' => elgg_view_icon('delete-alt'),
+			'href' => "action/elasticsearch/admin/index_management?task=delete_alias&index={$name}",
+			'confirm' => true,
+		)) . '</td>';
 	} else {
 		echo '<td>&nbsp;</td>';
 	}

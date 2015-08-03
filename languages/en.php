@@ -14,6 +14,7 @@ return array(
 	'elasticsearch:error:host_unavailable' => "ElasticSearch API host unavailable",
 	'elasticsearch:error:no_index' => "No index provided for the given action",
 	'elasticsearch:error:index_not_exists' => "The given index doesn't exist: %s",
+	'elasticsearch:error:alias_not_configured' => "No alias is configured in the plugin settings",
 	
 	'elasticsearch:settings:host' => "ElasticSearch API host",
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
@@ -60,13 +61,16 @@ return array(
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
 	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
 	'elasticsearch:action:admin:index_management:error:task' => "The task '%s' is not supported",
-	'elasticsearch:action:admin:index_management:error:add_alias:no_alias' => "No alias configured in the plugin settings",
 	'elasticsearch:action:admin:index_management:error:add_alias:exists' => "The alias '%s' already exists on the index '%s'",
 	'elasticsearch:action:admin:index_management:error:add_alias' => "An error occured while adding the alias '%s' to the index '%s'",
+	'elasticsearch:action:admin:index_management:error:delete_alias:exists' => "The alias '%s' doesn't exists on the index '%s'",
+	'elasticsearch:action:admin:index_management:error:delete_alias' => "An error occured while deleting the alias '%s' from the index '%s'",
+	
 	'elasticsearch:action:admin:index_management:flush' => "The index '%s' was flushed",
 	'elasticsearch:action:admin:index_management:optimize' => "The index '%s' was optimized",
 	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
 	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
 	'elasticsearch:action:admin:index_management:add_alias' => "The alias '%s' was added to the index '%s'",
+	'elasticsearch:action:admin:index_management:delete_alias' => "The alias '%s' was deleted from the index '%s'",
 	'' => "",
 );

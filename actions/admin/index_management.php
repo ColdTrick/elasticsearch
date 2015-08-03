@@ -102,7 +102,7 @@ switch ($task) {
 		
 		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 		if (empty($alias)) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_alias:no_alias'));
+			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
 			break;
 		}
 		
@@ -126,6 +126,41 @@ switch ($task) {
 		}
 		
 		system_message(elgg_echo('elasticsearch:action:admin:index_management:add_alias', array($alias, $index)));
+		
+		break;
+	case 'delete_alias':
+		
+		if (!$exists) {
+			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
+			break;
+		}
+		
+		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
+		if (empty($alias)) {
+			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
+			break;
+		}
+		
+		$alias_exists = $client->indices()->existsAlias(array(
+			'name' => $alias,
+			'index' => $index,
+		));
+		if (!$alias_exists) {
+			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias:exists', array($alias, $index)));
+			break;
+		}
+		
+		try {
+			$client->indices()->deleteAlias(array(
+				'index' => $index,
+				'name' => $alias,
+			));
+		} catch (Exception $e) {
+			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias', array($alias, $index)));
+			break;
+		}
+		
+		system_message(elgg_echo('elasticsearch:action:admin:index_management:delete_alias', array($alias, $index)));
 		
 		break;
 	default:
