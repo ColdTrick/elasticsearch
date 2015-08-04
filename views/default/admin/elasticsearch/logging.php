@@ -35,7 +35,6 @@ if (!empty($path)) {
 	echo elgg_format_element('div', array('class' => 'mbs'), implode(' > ', $urls));
 }
 
-
 try {
 	$flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS;
 	$fs_it = new FilesystemIterator($logging_dir, $flags);
@@ -54,21 +53,22 @@ foreach ($fs_it as $file => $info) {
 	$path = str_ireplace($logging_base_dir, '', $file);
 	
 	if ($fs_it->isDir()) {
-		$li .= elgg_view_icon('folder', array('class' => 'mrs'));
+		$li .= elgg_view_icon('list');
 		$li .= elgg_view('output/url', array(
 			'text' => $basename,
 			'href' => "admin/elasticsearch/logging?path={$path}",
 			'is_trusted' => true,
+			'class' => 'mls',
 		));
 	} else {
 		elgg_load_css('lightbox');
 		elgg_load_js('lightbox');
 		
-		$li .= elgg_view_icon('file', array('class' => 'mrs'));
+		$li .= elgg_view_icon('download');
 		$li .= elgg_view('output/url', array(
 			'text' => $basename,
 			'href' => "ajax/view/elasticsearch/logging/view?path={$path}",
-			'class' => 'elgg-lightbox',
+			'class' => 'elgg-lightbox mls',
 			'is_trusted' => true,
 			'data-colorbox-opts' => json_encode(array(
 				'maxWidth' => '60%'
