@@ -2,6 +2,10 @@
 
 elgg_load_css('elgg.icons');
 
+// Elgg configuration
+echo elgg_view('elasticsearch/stats/elgg');
+
+// Elasticsearch stats require client
 $client = elasticsearch_get_client();
 if (empty($client)) {
 	echo elgg_echo('elasticsearch:error:no_client');
@@ -20,9 +24,6 @@ if (!$alive) {
 	echo elgg_echo('elasticsearch:error:host_unavailable');
 	return;
 }
-
-// Elgg configuration
-echo elgg_view('elasticsearch/stats/elgg');
 
 // cluster info
 echo elgg_view('elasticsearch/stats/cluster', array('client' => $client));
