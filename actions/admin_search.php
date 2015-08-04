@@ -18,6 +18,10 @@ $q = get_input('q');
  */
 
 $client = elasticsearch_get_client();
+if (!$client) {
+	register_error(elgg_echo('elasticsearch:error:no_client'));
+	forward(REFERER);
+}
 
 $searchParams = [];
 
