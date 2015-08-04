@@ -4,13 +4,14 @@ elgg_load_css('elgg.icons');
 
 $logging_base_dir = elgg_get_data_path() . 'elasticsearch/';
 $path = get_input('path');
-$path = sanitise_filepath($path);
 
 $logging_dir = $logging_base_dir . $path;
 
 echo elgg_view('output/longtext', array('value' => elgg_echo('elasticsearch:logging:description')));
 
 if (!empty($path)) {
+	$path = sanitise_filepath($path);
+	
 	$parts = explode('/', trim($path, '/'));
 	
 	$urls = array();
