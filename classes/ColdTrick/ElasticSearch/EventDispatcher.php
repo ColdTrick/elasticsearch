@@ -74,6 +74,10 @@ class EventDispatcher {
 	 */
 	protected static function updateEntity(\ElggEntity $entity) {
 		
+		if (!$entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME)) {
+			return;
+		}
+		
 		$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
 	}
 	
