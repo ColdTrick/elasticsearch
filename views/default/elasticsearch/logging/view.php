@@ -13,6 +13,8 @@ if (!is_file($logging_file)) {
 	return;
 }
 
-$content = nl2br(file_get_contents($logging_file));
+$content = file_get_contents($logging_file);
+$content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8', false);
+$content = nl2br($content);
 
 echo elgg_format_element('div', array('style' => 'max-height: 600px; scroll:auto; width: 100000000px;'), $content);
