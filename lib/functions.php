@@ -19,7 +19,7 @@ function elasticsearch_get_client() {
 			$params = array();
 			
 			$hosts = explode(',', $host);
-			array_walk($hosts, 'trim');
+			array_walk($hosts, 'elasticsearch_cleanup_host');
 			
 			$params['hosts'] = $hosts;
 			
@@ -140,4 +140,22 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 	}
 	
 	return false;
+}
+
+/**
+ * Do some cleanup on the host for use in the ElasticSearch client
+ *
+ * @param string $host the host url
+ *
+ * @return void
+ */
+function elasticsearch_cleanup_host(&$host) {
+	// Elgg saves html encoded
+	$host = html_entity_decode($host, ENT_QUOTES, 'UTF-8');
+
+	// remove spaces
+	$host = trim($host);
+
+	// remove trailing / (ElasticSearch adds it again)
+	$host = rtrim($host, '/');
 }
