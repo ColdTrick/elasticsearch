@@ -120,7 +120,7 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	private function getDefaultDocumentParams($guid) {
+	protected function getDefaultDocumentParams($guid) {
 		if (empty($guid)) {
 			return;
 		}
@@ -139,7 +139,7 @@ class Client extends \Elasticsearch\Client {
 		return $params;
 	}
 	
-	private function getDocumentTypeFromEntity(\ElggEntity $entity) {
+	protected function getDocumentTypeFromEntity(\ElggEntity $entity) {
 		$type = $entity->getType();
 		$subtype = $entity->getSubType();
 		
@@ -150,7 +150,7 @@ class Client extends \Elasticsearch\Client {
 		return "$type.$subtype";
 	}
 
-	private function getBodyFromEntity($guid) {
+	protected function getBodyFromEntity($guid) {
 		if (empty($guid)) {
 			return;
 		}
@@ -160,12 +160,13 @@ class Client extends \Elasticsearch\Client {
 			return;
 		}
 		
+		elgg_push_context('search:index');
 		$result = (array) $entity->toObject();
-		
+		elgg_pop_context();
 		return $result;
 	}
 	
-	private function registerErrorForException(\Exception $e) {
+	protected function registerErrorForException(\Exception $e) {
 		$message = $e->getMessage();
 		
 		$json_data = json_decode($message, true);
@@ -174,5 +175,29 @@ class Client extends \Elasticsearch\Client {
 		}
 		
 		register_error($message);
+	}
+	
+	/**
+	 * Hook to adjust exportable values of basic entities for search
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function entityToObject($hook, $type, $returnvalue, $params) {
+		if (!elgg_in_context('search:index')) {
+			return;
+		}
+		
+		$entity = elgg_extract('entity', $params);
+		if (!$entity) {
+			return;
+		}
+		
+		// add some extra values to be submitted to the search index
+		$returnvalue->last_action = date('c', $entity->last_action);
 	}
 }

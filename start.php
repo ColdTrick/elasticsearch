@@ -28,6 +28,21 @@ function elasticsearch_init() {
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
 	elgg_register_plugin_hook_handler('cron', 'minute', array('ColdTrick\ElasticSearch\Cron', 'minuteSync'));
+
+	// search hooks
+	// unregister some default search hooks
+	elgg_unregister_plugin_hook_handler('search', 'object', 'search_objects_hook');
+	elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
+	elgg_unregister_plugin_hook_handler('search', 'group', 'search_groups_hook');
+	
+	// register own search hooks
+	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchGroups'));
+	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchUsers'));
+	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchObjects'));
+	
+	elgg_register_plugin_hook_handler('search_types', 'get_types', array('ColdTrick\ElasticSearch\Search', 'getCustomTypes'), 9999);
+
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));
 	
 	// events
 	elgg_register_event_handler('create', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'create'));
