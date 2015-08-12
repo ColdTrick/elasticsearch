@@ -35,13 +35,15 @@ function elasticsearch_init() {
 	elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
 	elgg_unregister_plugin_hook_handler('search', 'group', 'search_groups_hook');
 	
+	// no need for special tags search
+	elgg_unregister_plugin_hook_handler('search_types', 'get_types', 'search_custom_types_tags_hook');
+	elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
+	
 	// register own search hooks
 	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchGroups'));
 	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchUsers'));
 	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchObjects'));
 	
-	elgg_register_plugin_hook_handler('search_types', 'get_types', array('ColdTrick\ElasticSearch\Search', 'getCustomTypes'), 9999);
-
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));
 	
 	// events

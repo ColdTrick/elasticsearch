@@ -83,30 +83,6 @@ class Search {
 		return self::performSearch($search_params);
 	}
 	
-	/**
-	 * Hook to change the custom types that need to be searched
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function getCustomTypes($hook, $type, $returnvalue, $params) {
-		if (!is_array($returnvalue)) {
-			return;
-		}
-		
-		$tags_key = array_search('tags', $returnvalue);
-		if ($tags_key === false) {
-			return;
-		}
-		
-		unset($returnvalue[$tags_key]);
-		return $returnvalue;
-	}
-	
 	protected static function performSearch($params = []) {
 		$client = elasticsearch_get_client();
 		
