@@ -14,6 +14,12 @@ function elasticsearch_get_client() {
 	if (!isset($client)) {
 		$client = false;
 		
+		// Check if the function 'curl_multi_exec' isn't blocked (for security reasons), this prevents error_log overflow
+		// this isn't caught by the \Elasticseach\Client
+		if (!function_exists('curl_multi_exec')) {
+			return false;
+		}
+		
 		$host = elgg_get_plugin_setting('host', 'elasticsearch');
 		if (!empty($host)) {
 			$params = array();
