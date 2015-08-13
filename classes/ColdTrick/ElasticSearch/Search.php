@@ -170,9 +170,23 @@ class Search {
 		// enabled attribute is not stored in elasticsearch by default
 		$row->enabled = 'yes';
 		
+		// specials types
+		if ($row->type == 'user') {
+			// makes sure all attributes are loaded to prevent a db call
+			$external_attributes = \ElggUser::getExternalAttributes();
+			foreach($external_attributes as $key => $value) {
+				if (isset($row->$key)) {
+					continue;
+				}
+				
+				$row->$key = $value;
+			}
+		}
+		
 		try {
 			$result = entity_row_to_elggstar($row);
 		} catch (\Exception $e) {
+			elgg_log($e->getMessage(), 'NOTICE');
 			return false;
 		}
 		
