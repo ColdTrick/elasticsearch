@@ -16,6 +16,12 @@
 		<version>1.11</version>
 	</requires>
 	
+	<requires>
+		<type>priority</type>
+		<plugin>search</plugin>
+		<priority>after</priority>
+	</requires>
+	
 	<category>ColdTrick</category>
 	<category>search</category>
 </plugin_manifest>
