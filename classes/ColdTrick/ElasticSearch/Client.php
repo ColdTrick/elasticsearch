@@ -102,6 +102,10 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
+	public function getIndex() {
+		return $this->default_index;
+	}
+	
 	public function deleteDocument($guid) {
 		$params = $this->getDefaultDocumentParams($guid);
 		if (empty($params)) {

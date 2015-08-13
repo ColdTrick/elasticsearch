@@ -126,12 +126,14 @@ class Search {
 			}
 			
 			// set correct search highlighting
+			$query = $params['body']['query']['bool']['must']['term']['_all'];
+			
 			$title = elgg_extract('title', $body, elgg_extract('name', $body));
-			$title = search_get_highlighted_relevant_substrings($title, $params['q']);
+			$title = search_get_highlighted_relevant_substrings($title, $query);
 			$entity->setVolatileData('search_matched_title', $title);
 				
 			$desc = elgg_extract('description', $body);
-			$desc = search_get_highlighted_relevant_substrings($desc, $params['q']);
+			$desc = search_get_highlighted_relevant_substrings($desc, $query);
 			$entity->setVolatileData('search_matched_description', $desc);
 				
 			$entities[] = $entity;
@@ -194,12 +196,24 @@ class Search {
 	}
 	
 	protected static function getDefaultSearchParamsForHook($params) {
-		$result = [
-			'from' => $params['offset'],
-			'size' => $params['limit'],
-			'q' => $params['query']
-		];
+		$client = elasticsearch_get_client();
 		
+		if (!$client) {
+			return [];
+		}
+		
+		$result = [];
+		$result['from'] = $params['offset'];
+		$result['size'] = $params['limit'];
+
+ 		$result['body']['query']['indices']['index'] = $client->getIndex();
+ 		$result['body']['query']['indices']['query']['bool']['must']['term']['_all'] = $params['query'];
+ 		$result['body']['query']['indices']['no_match_query']['bool']['must']['term']['_all'] = $params['query'];
+		
+ 		
+		
+		$result = self::getAccessParamsForSearch($result);
+
 		return $result;
 	}
 	
@@ -208,4 +222,72 @@ class Search {
 		
 		return $params;
 	}
+	
+	public function getAccessParamsForSearch($result, $user_guid = 0) {
+		$client = elasticsearch_get_client();
+		
+		if (!$client) {
+			return $result;
+		}
+		
+		$user_guid = sanitise_int($user_guid, false);
+		
+		if (empty($user_guid)) {
+			$user_guid = elgg_get_logged_in_user_guid();
+		}
+		
+		if (elgg_get_ignore_access()) {
+			return $result;
+		}
+
+		$access_filter = [];
+		if (!empty($user_guid)) {
+			// check for owned content
+			$access_filter[]['term']['owner_guid'] = $user_guid;
+			
+			// add friends check
+			$friends = elgg_get_entities_from_relationship(array(
+				'type' => 'user',
+				'relationship' => 'friend',
+				'relationship_guid' => $user_guid,
+				'inverse_relationship' => true,
+				'limit' => false,
+				'callback' => function ($row) {
+					return $row->guid;
+				}
+			));
+			
+			if (!empty($friends)) {
+				$access_filter[] = [
+					'bool' => [
+						'must' => [
+				
+							'term' => [
+								'owner_guid' => $friends
+							],
+							'term' => [
+								'access_id' => ACCESS_FRIENDS
+							]
+						]
+					]
+				];
+			}
+		}
+		
+		// add acl filter
+		$access_array = get_access_array($user_guid);
+		if (!empty($access_array)) {
+			$access_filter[]['terms']['access_id'] = $access_array;
+		}
+		
+		if (empty($access_filter)) {
+			return $result;
+		}
+		
+		$result['body']['filter']['indices']['index'] = $client->getIndex();
+		$result['body']['filter']['indices']['filter']['bool']['should'] = $access_filter;
+		
+		return $result;
+	}
+	
 }
