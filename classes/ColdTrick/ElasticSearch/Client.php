@@ -199,5 +199,6 @@ class Client extends \Elasticsearch\Client {
 		
 		// add some extra values to be submitted to the search index
 		$returnvalue->last_action = date('c', $entity->last_action);
+		$returnvalue->access_id = $entity->access_id;
 	}
 }

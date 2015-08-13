@@ -152,9 +152,6 @@ class Search {
 		$row = new \stdClass();
 		foreach ($body as $key => $value) {
 			switch($key) {
-				case 'read_access':
-					$row->access_id = $value;
-					break;
 				case 'subtype':
 					// elastic stores the textual version of the subtype, entity_row_to_elggstar needs the int
 					$row->$key = get_subtype_id($body['type'], $value);
@@ -173,7 +170,13 @@ class Search {
 		// enabled attribute is not stored in elasticsearch by default
 		$row->enabled = 'yes';
 		
-		return entity_row_to_elggstar($row);
+		try {
+			$result = entity_row_to_elggstar($row);
+		} catch (\Exception $e) {
+			return false;
+		}
+		
+		return $result;
 	}
 	
 	protected static function getDefaultSearchParamsForHook($params) {
