@@ -16,14 +16,19 @@ return array(
 	'elasticsearch:error:index_not_exists' => "The given index doesn't exist: %s",
 	'elasticsearch:error:alias_not_configured' => "No alias is configured in the plugin settings",
 	
-	'elasticsearch:settings:host' => "ElasticSearch API host",
+	'elasticsearch:settings:host:header' => "ElasticSearch host settings",
+	'elasticsearch:settings:host' => "API host",
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
 	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to user, maybe '%s' is a suggestion?",
 	'elasticsearch:settings:search_alias' => "Search index alias (optional)",
 	'elasticsearch:settings:search_alias:description' => "If you wish to search in more then one index, you can configure an alias to seach in. This alias will also be applied to the Elgg index.",
+	
+	'elasticsearch:settings:features:header' => "Behaviour settings",
 	'elasticsearch:settings:sync' => "Synchronize Elgg data to ElasticSearch",
 	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
+	'elasticsearch:settings:search' => "Use ElasticSearch as the search engine",
+	'elasticsearch:settings:search:description' => "Once you've set up ElasticSearch correclty and it's populated with data, you can switch to use it as the search engine.",
 	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",

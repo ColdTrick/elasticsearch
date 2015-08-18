@@ -16,7 +16,7 @@ class Cron {
 	 */
 	public static function minuteSync($hook, $type, $returnvalue, $params) {
 		
-		$setting = elgg_get_plugin_setting('sync', 'elasticsearch');
+		$setting = elasticsearch_get_setting('sync');
 		if ($setting !== 'yes') {
 			// sync not enabled
 			return;

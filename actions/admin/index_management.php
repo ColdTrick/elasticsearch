@@ -100,7 +100,7 @@ switch ($task) {
 			break;
 		}
 		
-		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
+		$alias = elasticsearch_get_setting('search_alias');
 		if (empty($alias)) {
 			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
 			break;
@@ -135,7 +135,7 @@ switch ($task) {
 			break;
 		}
 		
-		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
+		$alias = elasticsearch_get_setting('search_alias');
 		if (empty($alias)) {
 			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
 			break;

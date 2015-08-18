@@ -20,7 +20,7 @@ function elasticsearch_get_client() {
 			return false;
 		}
 		
-		$host = elgg_get_plugin_setting('host', 'elasticsearch');
+		$host = elasticsearch_get_setting('host');
 		if (!empty($host)) {
 			$params = array();
 			
@@ -98,7 +98,7 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 			break;
 		case 'reindex':
 			// a reindex has been initiated, so update all out of date entities
-			$setting = (int) elgg_get_plugin_setting('reindex_ts', 'elasticsearch');
+			$setting = (int) elasticsearch_get_setting('reindex_ts');
 			if (empty($setting)) {
 				return false;
 			}
@@ -164,4 +164,36 @@ function elasticsearch_cleanup_host(&$host) {
 
 	// remove trailing / (ElasticSearch adds it again)
 	$host = rtrim($host, '/');
+}
+
+/**
+ * Get a plugin setting
+ *
+ * This function caches all plugin settings for efficientcy
+ *
+ * @param string $setting the plugin setting to get
+ *
+ * @return null|string
+ */
+function elasticsearch_get_setting($setting) {
+	static $settings;
+	
+	if (!isset($settings)) {
+		// default settings
+		$settings = array(
+			'host' => '',
+			'index' => '',
+			'search_alias' => '',
+			'sync' => 'no',
+			'search' => 'no',
+		);
+		
+		$plugin = elgg_get_plugin_from_id('elasticsearch');
+		$plugin_settings = $plugin->getAllSettings();
+		if (!empty($plugin_settings)) {
+			$settings = array_merge($settings, $plugin_settings);
+		}
+	}
+	
+	return elgg_extract($setting, $settings);
 }

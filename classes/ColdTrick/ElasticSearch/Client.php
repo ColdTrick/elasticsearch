@@ -20,8 +20,8 @@ class Client extends \Elasticsearch\Client {
 	
 	public function __construct($params) {
 		
-		$this->default_index = elgg_get_plugin_setting('index', 'elasticsearch');
-		$this->search_alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
+		$this->default_index = elasticsearch_get_setting('index');
+		$this->search_alias = elasticsearch_get_setting('search_alias');
 		
 		parent::__construct($params);
 	}

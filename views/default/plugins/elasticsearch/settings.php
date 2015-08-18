@@ -7,40 +7,57 @@ $noyes_options = array(
 	'yes' => elgg_echo('option:yes'),
 );
 
-echo '<div>';
-echo elgg_echo('elasticsearch:settings:host');
-echo elgg_view('input/text', array(
+// host configuration
+$host = '<div>';
+$host .= elgg_echo('elasticsearch:settings:host');
+$host .= elgg_view('input/text', array(
 	'name' => 'params[host]',
 	'value' => $plugin->host,
 ));
-echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:host:description') . '</div>';
-echo '</div>';
+$host .= '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:host:description') . '</div>';
+$host .= '</div>';
 
-echo '<div>';
-echo elgg_echo('elasticsearch:settings:index');
-echo elgg_view('input/text', array(
+$host .= '<div>';
+$host .= elgg_echo('elasticsearch:settings:index');
+$host .= elgg_view('input/text', array(
 	'name' => 'params[index]',
 	'value' => $plugin->index,
 ));
-echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:index:suggestion', array(elgg_get_config('dbname'))) . '</div>';
-echo '</div>';
+$host .= '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:index:suggestion', array(elgg_get_config('dbname'))) . '</div>';
+$host .= '</div>';
 
-echo '<div>';
-echo elgg_echo('elasticsearch:settings:search_alias');
-echo elgg_view('input/text', array(
+$host .= '<div>';
+$host .= elgg_echo('elasticsearch:settings:search_alias');
+$host .= elgg_view('input/text', array(
 	'name' => 'params[search_alias]',
 	'value' => $plugin->search_alias,
 ));
-echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:search_alias:description') . '</div>';
-echo '</div>';
+$host .= '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:search_alias:description') . '</div>';
+$host .= '</div>';
 
-echo '<div>';
-echo elgg_echo('elasticsearch:settings:sync');
-echo elgg_view('input/select', array(
+echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:host:header'), $host);
+
+// features
+$features = '<div>';
+$features .= elgg_echo('elasticsearch:settings:sync');
+$features .= elgg_view('input/select', array(
 	'name' => 'params[sync]',
 	'value' => $plugin->sync,
 	'options_values' => $noyes_options,
 	'class' => 'mls',
 ));
-echo '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:sync:description') . '</div>';
-echo '</div>';
+$features .= '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:sync:description') . '</div>';
+$features .= '</div>';
+
+$features .= '<div>';
+$features .= elgg_echo('elasticsearch:settings:search');
+$features .= elgg_view('input/select', array(
+	'name' => 'params[search]',
+	'value' => $plugin->search,
+	'options_values' => $noyes_options,
+	'class' => 'mls',
+));
+$features .= '<div class="elgg-subtext">' . elgg_echo('elasticsearch:settings:search:description') . '</div>';
+$features .= '</div>';
+
+echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:features:header'), $features);
