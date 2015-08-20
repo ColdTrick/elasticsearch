@@ -28,7 +28,7 @@ return array(
 	'elasticsearch:settings:sync' => "Synchronize Elgg data to ElasticSearch",
 	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
 	'elasticsearch:settings:search' => "Use ElasticSearch as the search engine",
-	'elasticsearch:settings:search:description' => "Once you've set up ElasticSearch correclty and it's populated with data, you can switch to use it as the search engine.",
+	'elasticsearch:settings:search:description' => "Once you've set up ElasticSearch correctly and it's populated with data, you can switch to use it as the search engine.",
 	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",

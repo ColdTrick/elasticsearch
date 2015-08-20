@@ -5,6 +5,35 @@ namespace ColdTrick\ElasticSearch;
 class Search {
 	
 	/**
+	 * Hook to fallback to default search functions
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function searchFallback($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (!in_array($type, ['object', 'user', 'group'])) {
+			return;
+		}
+		
+		switch ($type) {
+			case 'object':
+				return search_objects_hook($hook, $type, $returnvalue, $params);
+			case 'user':
+				return search_users_hook($hook, $type, $returnvalue, $params);
+			case 'group':
+				return search_groups_hook($hook, $type, $returnvalue, $params);
+		}
+	}
+
+	/**
 	 * Hook to return search results for user entity types
 	 *
 	 * @param string $hook        the name of the hook
@@ -15,6 +44,14 @@ class Search {
 	 * @return void
 	 */
 	public static function searchUsers($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
 		$search_params = self::getDefaultSearchParamsForHook($params);
 		$search_params['type'] = 'user';
 		
@@ -32,6 +69,14 @@ class Search {
 	 * @return void
 	 */
 	public static function searchObjects($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
 		$subtype = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
 		
 		if (empty($subtype)) {
@@ -61,6 +106,14 @@ class Search {
 	 * @return void
 	 */
 	public static function searchGroups($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
 		$search_params = self::getDefaultSearchParamsForHook($params);
 		$search_params['type'] = 'group';
 		
@@ -78,9 +131,45 @@ class Search {
 	 * @return void
 	 */
 	public static function searchAll($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
 		$search_params = self::getDefaultSearchParamsForHook($params);
 		
 		return self::performSearch($search_params);
+	}
+	
+	/**
+	 * Hook to adjust the custom search types
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function getTypes($hook, $type, $returnvalue, $params) {
+		if (!is_array($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
+		$tags_key = array_search('tags', $returnvalue);
+		if ($tags_key === false) {
+			return;
+		}
+		
+		unset($returnvalue[$tags_key]);
+		return $returnvalue;
 	}
 	
 	protected static function performSearch($params = []) {

@@ -30,21 +30,7 @@ function elasticsearch_init() {
 	elgg_register_plugin_hook_handler('cron', 'minute', array('ColdTrick\ElasticSearch\Cron', 'minuteSync'));
 
 	// search hooks
-	if (elasticsearch_get_setting('search') === 'yes') {
-		// unregister some default search hooks
-		elgg_unregister_plugin_hook_handler('search', 'object', 'search_objects_hook');
-		elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
-		elgg_unregister_plugin_hook_handler('search', 'group', 'search_groups_hook');
-		
-		// no need for special tags search
-		elgg_unregister_plugin_hook_handler('search_types', 'get_types', 'search_custom_types_tags_hook');
-		elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
-		
-		// register own search hooks
-		elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchGroups'));
-		elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchUsers'));
-		elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchObjects'));
-	}
+	elastic_prepare_search_hooks();
 	
 	// extend exportable values
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));

@@ -4,6 +4,28 @@
  */
 
 /**
+ * Function to (un)register various search hooks
+ */
+function elastic_prepare_search_hooks() {
+	// unregister default search hooks
+	elgg_unregister_plugin_hook_handler('search', 'object', 'search_objects_hook');
+	elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
+	elgg_unregister_plugin_hook_handler('search', 'group', 'search_groups_hook');
+
+	// register elastic search hooks
+	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchGroups'));
+	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchUsers'));
+	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchObjects'));
+
+	elgg_register_plugin_hook_handler('search_types', 'get_types', array('ColdTrick\ElasticSearch\Search', 'getTypes'), 9999);
+
+	// register fallback to default search hooks
+	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
+}
+
+/**
  * Get a working ElasticSearch client for further use
  *
  * @return false|ColdTrick\ElasticSearch\Client
