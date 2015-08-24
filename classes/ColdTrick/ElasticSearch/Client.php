@@ -36,6 +36,8 @@ class Client extends \Elasticsearch\Client {
 			}
 		}
 		
+		$this->requestToScreen($params);
+		
 		try {
 			return parent::search($params);
 		} catch(\Exception $e) {
@@ -204,5 +206,17 @@ class Client extends \Elasticsearch\Client {
 		// add some extra values to be submitted to the search index
 		$returnvalue->last_action = date('c', $entity->last_action);
 		$returnvalue->access_id = $entity->access_id;
+	}
+	
+	protected function requestToScreen($params) {
+		
+		$cache = elgg_get_config('log_cache');
+		if (empty($cache)) {
+			return;
+		}
+		
+		$json = @json_encode($params);
+		
+		$cache->insertDump('', '', true, ['msg' => $json]);
 	}
 }

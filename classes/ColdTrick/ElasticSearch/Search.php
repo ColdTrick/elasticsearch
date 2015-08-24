@@ -290,16 +290,40 @@ class Search {
 		if (!$client) {
 			return [];
 		}
-		
+				
 		$result = [];
 		$result['from'] = $params['offset'];
 		$result['size'] = $params['limit'];
 
+		// sort & order
+		$order = elgg_extract('order', $params, 'desc');
+		$sort_field = false;
+				
+		switch ($params['sort']) {
+			case 'newest':
+					$sort_field = 'time_created';
+					$order = 'desc';
+				break;
+			case 'oldest':
+					$sort_field = 'time_created';
+					$order = 'asc';
+				break;
+			default:
+				break;
+		}
+		
+		if ($sort_field) {
+			$result['body']['sort'][$sort_field] = [
+				'order' => $order,
+				'ignore_unmapped' => true,
+				'missing' => '_last',
+			];
+		}
+				
+		// query
  		$result['body']['query']['indices']['index'] = $client->getIndex();
  		$result['body']['query']['indices']['query']['bool']['must']['term']['_all'] = $params['query'];
  		$result['body']['query']['indices']['no_match_query']['bool']['must']['term']['_all'] = $params['query'];
-		
- 		
 		
 		$result = self::getAccessParamsForSearch($result);
 
@@ -379,4 +403,45 @@ class Search {
 		return $result;
 	}
 	
+	/**
+	 * Hook to add items to the search_list menu
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function registerSortMenu($hook, $type, $returnvalue, $params) {
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		$title = elgg_echo('elasticsearch:menu:search_list:sort:title');
+		$url = current_page_url();
+		
+		$current_sort = get_input('sort', 'relevance');
+		
+		$returnvalue[] = \ElggMenuItem::factory([
+			'name' => 'sort',
+			'text' => elgg_view_icon('eye'),
+			'href' => '#',
+			'title' => $title
+		]);
+		
+		$items = ['relevance', 'alpha_az', 'alpha_za', 'newest', 'oldest'];
+		
+		foreach ($items as $item) {
+			$returnvalue[] = \ElggMenuItem::factory([
+				'name' => $item,
+				'text' => elgg_echo("elasticsearch:menu:search_list:sort:{$item}"),
+				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item]),
+				'parent_name' => 'sort',
+				'selected' => ($current_sort === $item),
+				'title' => $title
+			]);
+		}
+				
+		return $returnvalue;
+	}
 }

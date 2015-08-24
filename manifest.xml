@@ -22,6 +22,11 @@
 		<priority>after</priority>
 	</requires>
 	
+	<suggests>
+		<type>plugin</type>
+		<name>search_advanced</name>
+	</suggests>
+	
 	<category>ColdTrick</category>
 	<category>search</category>
 </plugin_manifest>

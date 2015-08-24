@@ -56,6 +56,14 @@ return array(
 	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
 	
+	// menus
+	'elasticsearch:menu:search_list:sort:title' => "Change the sort order of the results",
+	'elasticsearch:menu:search_list:sort:relevance' => "Relevance",
+	'elasticsearch:menu:search_list:sort:alpha_az' => "Alphabetical (A-Z)",
+	'elasticsearch:menu:search_list:sort:alpha_za' => "Alphabetical (Z-A)",
+	'elasticsearch:menu:search_list:sort:newest' => "Newest first",
+	'elasticsearch:menu:search_list:sort:oldest' => "Oldest first",
+	
 	// forms
 	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
 	

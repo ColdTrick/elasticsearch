@@ -44,3 +44,7 @@ You can find various statistics on the Administer -> ElasticSearch -> Statistics
 Also some statistics from the Elastic Cluster are shown like the status and the version information.
 
 You can also find statistics for all available indexes on this page.
+
+## Recommendations
+
+Use the [Search Advanced](http://github.com/ColdTrick/search_advanced) plugin to add extra features to search. If both are enabled this plugin provides a menu to sort/order the results.
