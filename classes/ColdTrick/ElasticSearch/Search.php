@@ -188,6 +188,11 @@ class Search {
 		
 		$result = self::transformHits($result, $params);
 		
+		$suggest = elgg_extract('suggest', $search_result);
+		if (!empty($suggest)) {
+			$client->setSuggestions($suggest);
+		}
+		
 		return $result;
 	}
 	
@@ -294,7 +299,7 @@ class Search {
 		$result = [];
 		$result['from'] = $params['offset'];
 		$result['size'] = $params['limit'];
-
+		
 		// sort & order
 		$order = elgg_extract('order', $params, 'desc');
 		$sort_field = false;
@@ -319,10 +324,26 @@ class Search {
 				'missing' => '_last',
 			];
 		}
+		
+		if ($client->getSuggestions() == null) {
+			$result['body']['suggest']['text'] = elgg_extract('query', $params);
+			$result['body']['suggest']['suggestions']['phrase'] = [
+				"field" => "_all",
+				"max_errors" => 2,
+				"size" => 1,
+				"real_word_error_likelihood" => 0.95,
+				"gram_size" => 1,
+				"direct_generator" => [[
+					"field" => "_all",
+					"suggest_mode" => "popular",
+					"min_word_length" => 1
+				]]
+			];
+		}
 				
 		// query
  		$result['body']['query']['indices']['index'] = $client->getIndex();
- 		$result['body']['query']['indices']['query']['bool']['must']['term']['_all'] = $params['query'];
+ 		$result['body']['query']['indices']['query']['bool']['must']['match']['_all'] = $params['query'];
  		$result['body']['query']['indices']['no_match_query']['bool']['must']['term']['_all'] = $params['query'];
 		
 		$result = self::getAccessParamsForSearch($result);

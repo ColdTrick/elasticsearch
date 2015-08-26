@@ -18,6 +18,13 @@ class Client extends \Elasticsearch\Client {
 	 */
 	protected $search_alias;
 	
+	/**
+	 * The suggestions
+	 *
+	 * @var array
+	 */
+	protected $suggestions;
+	
 	public function __construct($params) {
 		
 		$this->default_index = elasticsearch_get_setting('index');
@@ -29,17 +36,28 @@ class Client extends \Elasticsearch\Client {
 	public function search($params = array()) {
 		
 		if (!isset($params['index'])) {
-			if ($this->search_alias) {
-				$params['index'] = $this->search_alias;
-			} else {
-				$params['index'] = $this->default_index;
-			}
+			$params['index'] = $this->getSearchIndex();
 		}
 		
-		$this->requestToScreen($params);
+		$this->requestToScreen($params, 'SEARCH');
 		
 		try {
 			return parent::search($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return array();
+		}
+	}
+	
+	public function suggest($params = []) {
+		if (!isset($params['index'])) {
+			$params['index'] = $this->getSearchIndex();
+		}
+
+		$this->requestToScreen($params, 'SUGGEST');
+		
+		try {
+			return parent::suggest($params);
 		} catch(\Exception $e) {
 			$this->registerErrorForException($e);
 			return array();
@@ -105,6 +123,14 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function getIndex() {
+		return $this->default_index;
+	}
+	
+	public function getSearchIndex() {
+		if ($this->search_alias) {
+			return $this->search_alias;
+		}
+		
 		return $this->default_index;
 	}
 	
@@ -208,15 +234,27 @@ class Client extends \Elasticsearch\Client {
 		$returnvalue->access_id = $entity->access_id;
 	}
 	
-	protected function requestToScreen($params) {
+	protected function requestToScreen($params, $action = '') {
 		
 		$cache = elgg_get_config('log_cache');
 		if (empty($cache)) {
 			return;
 		}
 		
-		$json = @json_encode($params);
+		$msg = @json_encode($params);
 		
-		$cache->insertDump('', '', true, ['msg' => $json]);
+		if ($action) {
+			$msg = "$action: $msg";
+		}
+		
+		$cache->insertDump('', '', true, ['msg' => $msg]);
+	}
+	
+	public function setSuggestions($data) {
+		$this->suggestions = $data;
+	}
+	
+	public function getSuggestions() {
+		return $this->suggestions;
 	}
 }

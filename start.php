@@ -25,6 +25,9 @@ function elasticsearch_init() {
 	// ajax views
 	elgg_register_ajax_view('elasticsearch/logging/view');
 	
+	// view extends
+	elgg_extend_view('forms/search_advanced/search', 'elasticsearch/search/suggest', 800);
+	
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
 	elgg_register_plugin_hook_handler('cron', 'minute', array('ColdTrick\ElasticSearch\Cron', 'minuteSync'));
