@@ -29,6 +29,9 @@ class Cron {
 		
 		$starttime = (int) elgg_extract('time', $params, time());
 		
+		// delete first
+		$client->bulkDeleteDocuments();
+		
 		$update_actions = array(
 			'no_index_ts',
 			'update',

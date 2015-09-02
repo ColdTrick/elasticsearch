@@ -219,3 +219,82 @@ function elasticsearch_get_setting($setting) {
 	
 	return elgg_extract($setting, $settings);
 }
+
+/**
+ * Saves an array of documents to be deleted from the elastic index
+ *
+ * @param int   $guid guid of the document to be deleted
+ * @param array $info an array of information needed to be saved to be able to delete it from the index
+ *
+ * @return void
+ */
+function elasticsearch_add_document_for_deletion($guid, $info) {
+	if (empty($guid) || !is_array($info)) {
+		return;
+	}
+	
+	$plugin = elgg_get_plugin_from_id('elasticsearch');
+	
+	$fh = new ElggFile();
+	$fh->owner_guid = $plugin->getGUID();
+	$fh->setFilename("documents_for_deletion/{$guid}");
+	
+	if ($fh->open("write")) {
+		$fh->write(serialize($info));
+		$fh->close();
+	}
+}
+
+/**
+ * Removes a file based on a guid
+ *
+ * @param int $guid guid of the document to be deleted
+ *
+ * @return void
+ */
+function elasticsearch_remove_document_for_deletion($guid) {
+	if (empty($guid)) {
+		return;
+	}
+	
+	$plugin = elgg_get_plugin_from_id('elasticsearch');
+	
+	$fh = new ElggFile();
+	$fh->owner_guid = $plugin->getGUID();
+	$fh->setFilename("documents_for_deletion/{$guid}");
+	
+	$fh->delete();
+}
+
+/**
+ * Returns an array of documents to be deleted from the elastic index
+ *
+ * @return array
+ */
+function elasticsearch_get_documents_for_deletion() {
+	$plugin = elgg_get_plugin_from_id('elasticsearch');
+	
+	$locator = new \Elgg\EntityDirLocator($plugin->getGUID());
+	$documents_path = elgg_get_data_path() . $locator->getPath() . 'documents_for_deletion/';
+	
+	$dir = @opendir($documents_path);
+	if (!$dir) {
+		return [];
+	}
+	
+	$documents = [];
+	while (($file = readdir($dir)) !== false) {
+		if (is_dir($file)) {
+			continue;
+		}
+		
+		$contents = unserialize(file_get_contents($documents_path . $file));
+		if (!is_array($contents)) {
+			continue;
+		}
+		$documents[$file] = $contents;
+		
+	}
+	
+	return $documents;
+}

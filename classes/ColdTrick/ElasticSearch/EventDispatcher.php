@@ -89,13 +89,21 @@ class EventDispatcher {
 	 * @return void
 	 */
 	protected static function deleteEntity(\ElggEntity $entity) {
+
+		if (!$entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME)) {
+			return;
+		}
 		
 		$client = elasticsearch_get_client();
 		if (empty($client)) {
 			return;
 		}
 		
-		$client->deleteDocument($entity->getGUID());
+		elasticsearch_add_document_for_deletion($entity->getGUID(), [
+			'_index' => $client->getIndex(),
+			'_type' => $client->getDocumentTypeFromEntity($entity),
+			'_id' => $entity->getGUID(),
+		]);
 	}
 	
 	/**
@@ -113,7 +121,7 @@ class EventDispatcher {
 		}
 	
 		// remove from index
-		$client->deleteDocument($entity->getGUID());
+		self::deleteEntity($entity);
 
 		// remove indexed ts, so when reenabled it will get indexed automatically
 		$entity->removePrivateSetting(ELASTICSEARCH_INDEXED_NAME);

@@ -68,6 +68,13 @@ $content .= '</td>';
 $content .= "<td>{$count}</td>";
 $content .= '</tr>';
 
+$count = count(elasticsearch_get_documents_for_deletion());
+
+$content .= '<tr>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:delete') . '</td>';
+$content .= "<td>{$count}</td>";
+$content .= '</tr>';
+
 $content .= '</table>';
 
 echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:elgg'), $content);

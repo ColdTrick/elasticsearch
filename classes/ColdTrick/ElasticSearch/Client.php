@@ -120,6 +120,39 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
+	/**
+	 * Deletes documents in bulk from index
+	 *
+	 * @return void
+	 */
+	public function bulkDeleteDocuments() {
+		$documents = elasticsearch_get_documents_for_deletion();
+		if (empty($documents)) {
+			return;
+		}
+		
+		$params = [];
+		foreach ($documents as $document) {
+			$params['body'][] = ['delete' => $document];
+		}
+
+		try {
+			$result = $this->bulk($params);
+			
+			if ($result) {
+				foreach ($documents as $guid => $document) {
+					elasticsearch_remove_document_for_deletion($guid);
+				}
+			}
+			
+			return $result;
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return false;
+		}
+		
+	}
+	
 	public function getIndex() {
 		return $this->default_index;
 	}
@@ -131,25 +164,7 @@ class Client extends \Elasticsearch\Client {
 		
 		return $this->default_index;
 	}
-	
-	public function deleteDocument($guid) {
-		$params = $this->getDefaultDocumentParams($guid);
-		if (empty($params)) {
-			return false;
-		}
 		
-		if (!$this->exists($params)) {
-			return true;
-		}
-		
-		try {
-			return $this->delete($params);
-		} catch(\Exception $e) {
-			$this->registerErrorForException($e);
-			return false;
-		}
-	}
-	
 	protected function getDefaultDocumentParams($guid) {
 		if (empty($guid)) {
 			return;
@@ -169,7 +184,7 @@ class Client extends \Elasticsearch\Client {
 		return $params;
 	}
 	
-	protected function getDocumentTypeFromEntity(\ElggEntity $entity) {
+	public function getDocumentTypeFromEntity(\ElggEntity $entity) {
 		$type = $entity->getType();
 		$subtype = $entity->getSubType();
 		
