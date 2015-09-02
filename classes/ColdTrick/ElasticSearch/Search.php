@@ -219,15 +219,19 @@ class Search {
 			
 			// set correct search highlighting
 			$query = $params['body']['query']['bool']['must']['term']['_all'];
-			
-			$title = elgg_extract('title', $body, elgg_extract('name', $body));
-			$title = search_get_highlighted_relevant_substrings($title, $query);
-			$entity->setVolatileData('search_matched_title', $title);
-				
-			$desc = elgg_extract('description', $body);
-			$desc = search_get_highlighted_relevant_substrings($desc, $query);
-			$entity->setVolatileData('search_matched_description', $desc);
 
+			$title = elgg_extract('title', $body, elgg_extract('name', $body));
+			if (!empty($title)) {
+				$title = search_get_highlighted_relevant_substrings($title, $query);
+				$entity->setVolatileData('search_matched_title', $title);
+			}
+
+			$desc = elgg_extract('description', $body);
+			if (!empty($title)) {
+				$desc = search_get_highlighted_relevant_substrings($desc, $query);
+				$entity->setVolatileData('search_matched_description', $desc);
+			}
+			
 			$score = elgg_extract('_score', $hit);
 			$entity->setVolatileData('search_score', $score);
 				
