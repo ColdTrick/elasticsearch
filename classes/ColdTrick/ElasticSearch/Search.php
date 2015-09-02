@@ -227,6 +227,9 @@ class Search {
 			$desc = elgg_extract('description', $body);
 			$desc = search_get_highlighted_relevant_substrings($desc, $query);
 			$entity->setVolatileData('search_matched_description', $desc);
+
+			$score = elgg_extract('_score', $hit);
+			$entity->setVolatileData('search_score', $score);
 				
 			$entities[] = $entity;
 		}
