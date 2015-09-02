@@ -36,6 +36,7 @@ echo '<table class="elgg-table">';
 echo '<tr>';
 echo '<th>' . elgg_echo('elasticsearch:indices:index') . '</th>';
 echo '<th class="center">' . elgg_echo('elasticsearch:indices:create') . '</th>';
+echo '<th class="center">' . elgg_echo('elasticsearch:indices:add_mappings') . '</th>';
 echo '<th class="center">' . elgg_echo('elasticsearch:indices:alias') . '</th>';
 echo '<th class="center">' . elgg_echo('delete') . '</th>';
 echo '<th class="center">' . elgg_echo('elasticsearch:indices:optimize') . '</th>';
@@ -63,6 +64,18 @@ foreach ($indices as $name => $status) {
 	}
 	// create
 	echo '<td>&nbsp;</td>';
+	
+	// add mappings
+	if ($current) {
+		echo '<td class="center">' . elgg_view('output/url', [
+			'text' => elgg_view_icon('round-plus'),
+			'href' => "action/elasticsearch/admin/index_management?task=add_mappings&index={$name}",
+			'confirm' => true,
+		]) . '</td>';
+	} else {
+		echo '<td>&nbsp;</td>';
+	}
+	
 	// add alias
 	if (!empty($search_alias) && !$alias_configured) {
 		echo '<td class="center">' . elgg_view('output/url', array(
@@ -109,6 +122,7 @@ if (!$elgg_index_found) {
 		'href' => "action/elasticsearch/admin/index_management?task=create&index={$elgg_index}",
 		'confirm' => true,
 	)) . '</td>';
+	echo '<td>&nbsp;</td>';
 	echo '<td>&nbsp;</td>';
 	echo '<td>&nbsp;</td>';
 	echo '<td>&nbsp;</td>';

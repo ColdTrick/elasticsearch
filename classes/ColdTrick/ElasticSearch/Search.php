@@ -209,9 +209,7 @@ class Search {
 		$entities = [];
 		foreach ($hits as $hit) {
 			// @todo check if elgg index is used
-			$source = elgg_extract('_source', $hit);
-			$body = elgg_extract('body', $source);
-			$body = elgg_extract('body', $body);
+			$body = elgg_extract('_source', $hit);
 
 			$entity = self::resultBodyToEntity($body);
 			
@@ -312,6 +310,15 @@ class Search {
 			case 'oldest':
 					$sort_field = 'time_created';
 					$order = 'asc';
+				break;
+			case 'alpha_az':
+					$sort_field = 'title.raw';
+					$order = 'asc';
+				break;
+			default:
+			case 'alpha_za':
+					$sort_field = 'title.raw';
+					$order = 'desc';
 				break;
 			default:
 				break;

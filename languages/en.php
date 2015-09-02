@@ -53,6 +53,7 @@ return array(
 	'elasticsearch:indices:index' => "Index",
 	'elasticsearch:indices:alias' => "Alias",
 	'elasticsearch:indices:create' => "Create",
+	'elasticsearch:indices:add_mappings' => "Add mappings",
 	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
 	
@@ -73,6 +74,7 @@ return array(
 	'elasticsearch:action:admin:index_management:error:delete' => "An error occured during the deletion of the index: %s",
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
 	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
+	'elasticsearch:action:admin:index_management:error:add_mappings' => "An error occured during the creation of the mappings for the index: %s",
 	'elasticsearch:action:admin:index_management:error:task' => "The task '%s' is not supported",
 	'elasticsearch:action:admin:index_management:error:add_alias:exists' => "The alias '%s' already exists on the index '%s'",
 	'elasticsearch:action:admin:index_management:error:add_alias' => "An error occured while adding the alias '%s' to the index '%s'",
@@ -83,6 +85,7 @@ return array(
 	'elasticsearch:action:admin:index_management:optimize' => "The index '%s' was optimized",
 	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
 	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
+	'elasticsearch:action:admin:index_management:add_mappings' => "Mappings for the index '%s' are created",
 	'elasticsearch:action:admin:index_management:add_alias' => "The alias '%s' was added to the index '%s'",
 	'elasticsearch:action:admin:index_management:delete_alias' => "The alias '%s' was deleted from the index '%s'",
 	'' => "",

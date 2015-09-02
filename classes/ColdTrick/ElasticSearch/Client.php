@@ -95,9 +95,7 @@ class Client extends \Elasticsearch\Client {
 			if (empty($doc_params)) {
 				continue;
 			}
-			$doc_params['body'] = $this->getBodyFromEntity($guid);
-			
-			
+					
 			$params['body'][] = array(
 				'index' => array(
 					'_index' => $doc_params['index'],
@@ -105,9 +103,9 @@ class Client extends \Elasticsearch\Client {
 					'_id' => $doc_params['id']
 				)
 			);
-			$params['body'][] = array(
-				'body' => $doc_params
-			);
+			
+
+			$params['body'][] = $this->getBodyFromEntity($guid);
 		}
 		
 		if (empty($params)) {

@@ -79,18 +79,90 @@ switch ($task) {
 	case 'create':
 		
 		if ($exists) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create:exists'));
+			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create:exists', [$index]));
 			break;
 		}
 		
 		try {
-			$client->indices()->create(array('index' => $index));
+			$params = ['index' => $index];
+			$params['body']['settings']['analysis']['analyzer']['case_insensitive_sort'] = [
+				'tokenizer'=> 'keyword',
+				'filter' => ['lowercase']
+			];
+			
+			$client->indices()->create($params);
 		} catch (Exception $e) {
+			var_dump($e);exit();
 			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create', array($index)));
 			break;
 		}
 		
 		system_message(elgg_echo('elasticsearch:action:admin:index_management:create', array($index)));
+		
+		break;
+	case 'add_mappings':
+		
+		if (!$exists) {
+			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
+			break;
+		}
+		
+		try {
+			
+			$properties = [
+				'title' => [
+					'type' => 'string',
+					'index' => 'analyzed',
+					'fields' => [
+						'raw' => [
+							'type' => 'string',
+							'analyzer' => 'case_insensitive_sort'
+						]
+					]
+				],
+				'name' => [
+					'type' => 'string',
+					'index' => 'not_analyzed',
+					'copy_to' => 'title'
+				],
+				'description' => [
+					'type' => 'string'
+				],
+			];
+			
+			$type_subtypes = elasticsearch_get_registered_entity_types();
+			$index_types = [];
+			foreach ($type_subtypes as $type => $subtypes) {
+				if (empty($subtypes)) {
+					$index_types[] = $type;
+				} else {
+					foreach ($subtypes as $subtype) {
+						$index_types[] = "$type.$subtype";
+					}
+				}
+			}
+				
+			foreach ($index_types as $type) {
+				
+				$params = [
+					'index' => $index,
+					'type' => $type,
+					'body' => [
+						$type => [
+							'properties' => $properties
+						]
+					]
+				];
+				
+				// Update the index mapping
+				$client->indices()->putMapping($params);
+			}
+		} catch (Exception $e) {
+			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_mappings', array($index)));
+			break;
+		}
+		
+		system_message(elgg_echo('elasticsearch:action:admin:index_management:add_mappings', array($index)));
 		
 		break;
 	case 'add_alias':
