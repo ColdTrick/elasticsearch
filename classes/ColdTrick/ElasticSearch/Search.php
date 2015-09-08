@@ -19,7 +19,7 @@ class Search {
 			return;
 		}
 		
-		if (!in_array($type, ['object', 'user', 'group'])) {
+		if (!in_array($type, ['object', 'user', 'group', 'tags'])) {
 			return;
 		}
 		
@@ -30,6 +30,8 @@ class Search {
 				return search_users_hook($hook, $type, $returnvalue, $params);
 			case 'group':
 				return search_groups_hook($hook, $type, $returnvalue, $params);
+			case 'tags':
+				return search_tags_hook($hook, $type, $returnvalue, $params);
 		}
 	}
 
@@ -121,6 +123,33 @@ class Search {
 	}
 	
 	/**
+	 * Hook to return a search for content with a give tag (or tags)
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function searchTags($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+		
+		if (elasticsearch_get_setting('search') !== 'yes') {
+			return;
+		}
+		
+		$search_params = self::getDefaultSearchParamsForHook($params);
+		
+		$tag_query['bool']['must']['term']['tags'] = $params['query'];
+		$search_params['body']['query']['indices']['query'] = $tag_query;
+		
+		return self::performSearch($search_params);
+	}
+	
+	/**
 	 * Hook to return a search for all content
 	 *
 	 * @param string $hook        the name of the hook
@@ -143,35 +172,7 @@ class Search {
 		
 		return self::performSearch($search_params);
 	}
-	
-	/**
-	 * Hook to adjust the custom search types
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function getTypes($hook, $type, $returnvalue, $params) {
-		if (!is_array($returnvalue)) {
-			return;
-		}
 		
-		if (elasticsearch_get_setting('search') !== 'yes') {
-			return;
-		}
-		
-		$tags_key = array_search('tags', $returnvalue);
-		if ($tags_key === false) {
-			return;
-		}
-		
-		unset($returnvalue[$tags_key]);
-		return $returnvalue;
-	}
-	
 	protected static function performSearch($params = []) {
 		$client = elasticsearch_get_client();
 		
