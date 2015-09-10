@@ -14,7 +14,9 @@ class EventDispatcher {
 	 * @return void
 	 */
 	public static function create($event, $type, $object) {
-		
+		if ($object instanceof \ElggRelationship) {
+			self::updateRelationship($object);
+		}
 	}
 	
 	/**
@@ -46,6 +48,8 @@ class EventDispatcher {
 		
 		if ($object instanceof \ElggEntity) {
 			self::deleteEntity($object);
+		} elseif ($object instanceof \ElggRelationship) {
+			self::updateRelationship($object);
 		}
 	}
 	
@@ -125,6 +129,24 @@ class EventDispatcher {
 
 		// remove indexed ts, so when reenabled it will get indexed automatically
 		$entity->removePrivateSetting(ELASTICSEARCH_INDEXED_NAME);
+	}
+
+	/**
+	 * Handle a change of ElggRelationship
+	 *
+	 * @param \ElggRelationship $relationship the entity
+	 *
+	 * @return void
+	 */
+	protected static function updateRelationship(\ElggRelationship $relationship) {
+		$entity_guid = $relationship->guid_one;
+		
+		$entity = get_entity($entity_guid);
+		if (!$entity) {
+			return;
+		}
+		
+		self::updateEntity($entity);
 	}
 	
 	/**
