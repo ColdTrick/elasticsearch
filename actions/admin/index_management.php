@@ -127,6 +127,9 @@ switch ($task) {
 				'description' => [
 					'type' => 'string'
 				],
+				'relationships' => [
+					'type' => 'nested',
+				],
 			];
 			
 			$type_subtypes = elasticsearch_get_registered_entity_types();
