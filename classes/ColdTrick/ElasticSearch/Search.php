@@ -172,6 +172,21 @@ class Search {
 		
 		return self::performSearch($search_params);
 	}
+
+	/**
+	 * Function for a basic search
+	 *
+	 * @param array $params supplied params
+	 *
+	 * @return void
+	 */
+	public static function search($basic_params = [], $additional_params = []) {
+		
+		$search_params = self::getDefaultSearchParamsForHook($basic_params);
+		$search_params = array_merge($search_params, $additional_params);
+		
+		return self::performSearch($search_params);
+	}
 		
 	protected static function performSearch($params = []) {
 		$client = elasticsearch_get_client();
@@ -303,30 +318,32 @@ class Search {
 		}
 				
 		$result = [];
-		$result['from'] = $params['offset'];
-		$result['size'] = $params['limit'];
+		$result['from'] = (int) elgg_extract('offset', $params, 0);
+		$result['size'] = (int) elgg_extract('limit', $params, 10);
 		
 		// sort & order
 		$order = elgg_extract('order', $params, 'desc');
 		$sort_field = false;
-				
+		
 		switch ($params['sort']) {
 			case 'newest':
-					$sort_field = 'time_created';
-					$order = 'desc';
+				$sort_field = 'time_created';
+				$order = 'desc';
 				break;
 			case 'oldest':
-					$sort_field = 'time_created';
-					$order = 'asc';
+				$sort_field = 'time_created';
+				$order = 'asc';
 				break;
 			case 'alpha_az':
-					$sort_field = 'title.raw';
-					$order = 'asc';
+				$sort_field = 'title.raw';
+				$order = 'asc';
 				break;
-			default:
 			case 'alpha_za':
-					$sort_field = 'title.raw';
-					$order = 'desc';
+				$sort_field = 'title.raw';
+				$order = 'desc';
+				break;
+			case 'alpha':
+				$sort_field = 'title.raw';
 				break;
 			default:
 				break;
@@ -340,26 +357,35 @@ class Search {
 			];
 		}
 		
-		if ($client->getSuggestions() == null) {
-			$result['body']['suggest']['text'] = elgg_extract('query', $params);
-			$result['body']['suggest']['suggestions']['phrase'] = [
-				"field" => "_all",
-				"max_errors" => 2,
-				"size" => 1,
-				"real_word_error_likelihood" => 0.95,
-				"gram_size" => 1,
-				"direct_generator" => [[
-					"field" => "_all",
-					"suggest_mode" => "popular",
-					"min_word_length" => 1
-				]]
-			];
-		}
-				
-		// query
+		// index
  		$result['body']['query']['indices']['index'] = $client->getIndex();
- 		$result['body']['query']['indices']['query']['bool']['must']['match']['_all'] = $params['query'];
- 		$result['body']['query']['indices']['no_match_query']['bool']['must']['term']['_all'] = $params['query'];
+ 		
+ 		// query
+ 		$query = elgg_extract('query', $params);
+ 		if (!empty($query)) {
+	 		$result['body']['query']['indices']['query']['bool']['must']['match']['_all'] = $query;
+	 		$result['body']['query']['indices']['no_match_query']['bool']['must']['term']['_all'] = $query;
+	 		
+	 		// suggestion
+	 		if ($client->getSuggestions() == null) {
+	 			$result['body']['suggest']['text'] = $query;
+	 			$result['body']['suggest']['suggestions']['phrase'] = [
+		 			"field" => "_all",
+		 			"max_errors" => 2,
+		 			"size" => 1,
+		 			"real_word_error_likelihood" => 0.95,
+		 			"gram_size" => 1,
+		 			"direct_generator" => [[
+			 			"field" => "_all",
+			 			"suggest_mode" => "popular",
+			 			"min_word_length" => 1
+		 			]]
+	 			];
+	 		}
+ 		} else {
+ 			$result['body']['query']['indices']['query']['bool']['must']['match_all'] = [];
+	 		$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
+ 		}
 		
 		$result = self::getAccessParamsForSearch($result);
 
