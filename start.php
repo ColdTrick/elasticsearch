@@ -40,6 +40,7 @@ function elasticsearch_init() {
 	
 	// extend exportable values
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityRelationshipsToObject'));
 	
 	// events
 	elgg_register_event_handler('create', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'create'));

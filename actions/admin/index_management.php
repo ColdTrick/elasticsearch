@@ -92,7 +92,6 @@ switch ($task) {
 			
 			$client->indices()->create($params);
 		} catch (Exception $e) {
-			var_dump($e);exit();
 			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create', array($index)));
 			break;
 		}
