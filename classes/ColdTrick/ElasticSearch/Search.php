@@ -393,9 +393,9 @@ class Search {
 	}
 	
 	protected static function prepareSearchParams($params) {
-		// maybe trigger a hook to allow adjustments/additions to the search params
+		// @todo maybe trigger a hook to allow adjustments/additions to the search params
 		
-		return $params;
+		return elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $params);
 	}
 	
 	public function getAccessParamsForSearch($result, $user_guid = 0) {
