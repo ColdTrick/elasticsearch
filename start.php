@@ -39,8 +39,8 @@ function elasticsearch_init() {
 	elgg_register_plugin_hook_handler('register', 'menu:search_list', array('ColdTrick\ElasticSearch\Search', 'registerSortMenu'));
 	
 	// extend exportable values
-	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));
-	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityRelationshipsToObject'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityToObject'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityRelationshipsToObject'));
 	
 	// events
 	elgg_register_event_handler('create', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'create'));
