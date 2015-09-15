@@ -20,10 +20,14 @@ class SearchResult {
 		return elgg_extract('total', $hits, 0);
 	}
 	
+	public function getHits() {
+		$hits = elgg_extract('hits', $this->result);
+		return elgg_extract('hits', $hits);
+	}
+	
 	public function toEntities($params) {
 		
-		$hits = elgg_extract('hits', $this->result);
-		$hits = elgg_extract('hits', $hits);
+		$hits = $this->getHits();
 		
 		if (!$hits) {
 			return [];
