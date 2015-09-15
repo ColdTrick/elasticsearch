@@ -102,8 +102,8 @@ class SearchParams {
 		$this->params['type'] = $type;
 	}
 	
-	public function addFilter($type, $filter) {
-		$this->params['filter'][$type][] = $filter;
+	public function addFilter($filter) {
+		$this->params['filter'][] = $filter;
 	}
 	
 	public function setFilter($filter) {
