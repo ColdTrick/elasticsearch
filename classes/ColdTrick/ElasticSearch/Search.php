@@ -497,7 +497,7 @@ class Search {
 			$returnvalue[] = \ElggMenuItem::factory([
 				'name' => $item,
 				'text' => elgg_echo("elasticsearch:menu:search_list:sort:{$item}"),
-				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item]),
+				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item, 'order' => null]),
 				'parent_name' => 'sort',
 				'selected' => ($current_sort === $item),
 				'title' => $title
