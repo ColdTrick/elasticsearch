@@ -25,10 +25,19 @@ class Client extends \Elasticsearch\Client {
 	 */
 	protected $suggestions;
 	
+	/**
+	 * The search params
+	 *
+	 * @var \ColdTrick\ElasticSearch\SearchParams
+	 */
+	public $search_params;
+	
 	public function __construct($params) {
 		
 		$this->default_index = elasticsearch_get_setting('index');
 		$this->search_alias = elasticsearch_get_setting('search_alias');
+		
+		$this->search_params = new SearchParams(['client' => $this]);
 		
 		parent::__construct($params);
 	}

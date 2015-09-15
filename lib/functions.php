@@ -14,16 +14,16 @@ function elastic_prepare_search_hooks() {
 	elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
 
 	// register elastic search hooks
-	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchGroups'));
-	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchUsers'));
-	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchObjects'));
-	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\Search', 'searchTags'));
+	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\SearchHooks', 'searchGroups'));
+	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchUsers'));
+	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchObjects'));
+	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchTags'));
 
 	// register fallback to default search hooks
-	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\Search', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
 }
 
 /**

@@ -36,7 +36,7 @@ function elasticsearch_init() {
 	elastic_prepare_search_hooks();
 	
 	// menu hooks
-	elgg_register_plugin_hook_handler('register', 'menu:search_list', array('ColdTrick\ElasticSearch\Search', 'registerSortMenu'));
+	elgg_register_plugin_hook_handler('register', 'menu:search_list', array('ColdTrick\ElasticSearch\SearchHooks', 'registerSortMenu'));
 	
 	// extend exportable values
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Client', 'entityToObject'));
