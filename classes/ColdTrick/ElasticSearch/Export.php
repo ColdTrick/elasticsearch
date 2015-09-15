@@ -67,4 +67,42 @@ class Export {
 	
 		$returnvalue->relationships = $result;
 	}
+	
+	/**
+	 * Hook to extend the indexable entity types/subtypes
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param array  $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void|array
+	 */
+	public static function indexEntityTypeSubtypes($hook, $type, $returnvalue, $params) {
+		
+		if (empty($returnvalue)) {
+			return;
+		}
+		
+		$objects = elgg_extract('object', $returnvalue);
+		if (empty($objects)) {
+			return;
+		}
+		
+		// make sure page and page_top are present
+		if (in_array('page', $objects) || in_array('page_top', $objects)) {
+			$objects[] = 'page';
+			$objects[] = 'page_top';
+		}
+		
+		// add discussion replies
+		if (in_array('groupforumtopic', $objects)) {
+			$objects[] = 'discussion_reply';
+		}
+		
+		$objects = array_unique($objects);
+		$returnvalue['object'] = $objects;
+		
+		return $returnvalue;
+	}
 }
