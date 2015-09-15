@@ -45,6 +45,11 @@ class SearchParams {
 	protected function getBody() {
 		$result = [];
 		
+		// index
+		if (!empty($this->params['index'])) {
+			$result['index'] = $this->params['index'];
+		}
+		
 		// type
 		if (!empty($this->params['type'])) {
 			$result['type'] = $this->params['type'];
@@ -80,6 +85,10 @@ class SearchParams {
 		}
 		
 		return $result;
+	}
+	
+	public function setIndex($index) {
+		$this->params['index'] = $index;
 	}
 	
 	/**
