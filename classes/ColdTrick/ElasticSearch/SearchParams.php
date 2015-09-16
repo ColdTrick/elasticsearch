@@ -32,14 +32,14 @@ class SearchParams {
 		if ($body == null) {
 			$body = $this->getBody();
 		}
-				
+		
 		$result = $this->client->search($body);
-				
+		
 		$result = new SearchResult($result, $this->params);
 		
 		// reset search params after each search
 		$this->params = null;
-			
+		
 		return $result;
 	}
 	
@@ -47,8 +47,10 @@ class SearchParams {
 		$result = [];
 		
 		// index
+		$index = $this->client->getIndex();
 		if (!empty($this->params['index'])) {
-			$result['index'] = $this->params['index'];
+			$index = $this->params['index'];
+			$result['index'] = $index;
 		}
 		
 		// type
@@ -57,7 +59,7 @@ class SearchParams {
 		}
 		
 		// query
-		$result['body']['query']['indices']['index'] = $this->client->getIndex();
+		$result['body']['query']['indices']['index'] = $index;
 		if (!empty($this->params['query'])) {
 			$result['body']['query']['indices']['query'] = $this->params['query'];
 			$result['body']['query']['indices']['no_match_query'] = $this->params['query'];
@@ -76,7 +78,7 @@ class SearchParams {
 		
 		// filter
 		if (!empty($this->params['filter'])) {
-			$result['body']['filter']['indices']['index'] = $this->client->getIndex();
+			$result['body']['filter']['indices']['index'] = $index;
 			$result['body']['filter']['indices']['filter'] = $this->params['filter'];
 		}
 		
