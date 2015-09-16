@@ -25,6 +25,7 @@ class SearchParams {
 	 */
 	public function __construct($params = []) {
 		$this->client = $params['client'];
+		$this->params = [];
 	}
 	
 	public function execute($body = null) {
@@ -103,11 +104,18 @@ class SearchParams {
 	}
 	
 	public function addFilter($filter) {
-		$this->params['filter'][] = $filter;
+		if (!isset($this->params['filter'])) {
+			$this->params['filter'] = [];
+		}
+		$this->params['filter'] = array_merge_recursive($this->params['filter'], $filter);
 	}
 	
 	public function setFilter($filter) {
 		$this->params['filter'] = $filter;
+	}
+	
+	public function getFilter() {
+		return $this->params['filter'];
 	}
 	
 	public function setQuery($query = []) {
