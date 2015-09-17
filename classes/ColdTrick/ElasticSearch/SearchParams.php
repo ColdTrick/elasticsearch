@@ -58,6 +58,7 @@ class SearchParams {
 			$result['type'] = $this->params['type'];
 		}
 		
+		
 		// query
 		$result['body']['query']['indices']['index'] = $index;
 		if (!empty($this->params['query'])) {
@@ -82,6 +83,10 @@ class SearchParams {
 			$result['body']['filter']['indices']['filter'] = $this->params['filter'];
 		}
 		
+		// track scores
+		if (isset($this->params['track_scores'])) {
+			$result['body']['track_scores'] = $this->params['track_scores'];
+		}
 		// sort
 		if (!empty($this->params['sort'])) {
 			$result['body']['sort'] = $this->params['sort'];
@@ -135,6 +140,10 @@ class SearchParams {
 		return $this->params['query'];
 	}
 	
+	public function trackScores($track_scores = true) {
+		$this->params['track_scores'] = $track_scores;
+	}
+	
 	public function setSort($sort = []) {
 		$this->params['sort'] = $sort;
 	}
@@ -145,7 +154,10 @@ class SearchParams {
 	 * @param string $field       name of the field to sort on
 	 * @param array  $sort_config configuration of the sort (like order)
 	 */
-	public function addSort($field, $sort_config) {
+	public function addSort($field, $sort_config = []) {
+		if ($field == '_score') {
+			$this->trackScores(true);
+		}
 		$this->params['sort'][$field] = $sort_config;
 	}
 	
