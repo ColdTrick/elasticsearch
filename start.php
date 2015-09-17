@@ -41,6 +41,8 @@ function elasticsearch_init() {
 	// extend exportable values
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityToObject'));
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityRelationshipsToObject'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityMetadataToObject'));
+	elgg_register_plugin_hook_handler('export:metadata_names', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportProfileMetadata'));
 	elgg_register_plugin_hook_handler('index_entity_type_subtypes', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'indexEntityTypeSubtypes'));
 	
 	// events
