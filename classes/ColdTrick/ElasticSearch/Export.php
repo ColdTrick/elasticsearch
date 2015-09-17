@@ -192,6 +192,7 @@ class Export {
 		
 		return $returnvalue;
 	}
+	
 	/**
 	 * Hook to extend the exportable metadata names
 	 *
@@ -228,5 +229,36 @@ class Export {
 		$field_names = array_keys($profile_fields);
 				
 		return array_merge($returnvalue, $field_names);
+	}
+	
+	/**
+	 * Hook to export group members count
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param array  $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void|array
+	 */
+	public static function exportGroupMemberCount($hook, $type, $returnvalue, $params) {
+		
+		if (!is_array($returnvalue)) {
+			return;
+		}
+		
+		$entity = elgg_extract('entity', $params);
+		if (!($entity instanceof \ElggGroup)) {
+			return;
+		}
+		
+		$member_count = $entity->getMembers(['count' => true]);
+		if (empty($member_count)) {
+			return;
+		}
+		
+		$returnvalue['member_count'] = $member_count;
+		
+		return $returnvalue;
 	}
 }

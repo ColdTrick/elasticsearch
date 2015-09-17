@@ -65,6 +65,7 @@ return array(
 	'elasticsearch:menu:search_list:sort:alpha_za' => "Alphabetical (Z-A)",
 	'elasticsearch:menu:search_list:sort:newest' => "Newest first",
 	'elasticsearch:menu:search_list:sort:oldest' => "Oldest first",
+	'elasticsearch:menu:search_list:sort:member_count' => "Member count",
 	
 	// forms
 	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
