@@ -36,7 +36,7 @@ class SearchHooks {
 	}
 
 	/**
-	 * Hook to return search results for user entity types
+	 * Hook to return search results for entity searches
 	 *
 	 * @param string $hook        the name of the hook
 	 * @param string $type        the type of the hook
@@ -45,7 +45,7 @@ class SearchHooks {
 	 *
 	 * @return void
 	 */
-	public static function searchUsers($hook, $type, $returnvalue, $params) {
+	public static function searchEntities($hook, $type, $returnvalue, $params) {
 		if (!empty($returnvalue)) {
 			return;
 		}
@@ -55,48 +55,33 @@ class SearchHooks {
 			return;
 		}
 		
-		$client->search_params->setType('user');
+		switch ($type) {
+			case 'user':
+				$client->search_params->setType('user');
+				break;
+			case 'group':
+				$client->search_params->setType('group');
+				break;
+			case 'object':
+				$subtype = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
 		
-		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
-		
-		$result = $client->search_params->execute();
-		
-		return self::transformSearchResults($result, $params);
-	}
-
-	/**
-	 * Hook to return search results for object entity types
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function searchObjects($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
-			return;
+				if (empty($subtype)) {
+					return;
+				}
+				
+				$subtype = (array) $subtype;
+				
+				array_walk($subtype, function(&$value) {
+					$value = "object.{$value}";
+				});
+				
+				$client->search_params->setType($subtype);
+				break;
+			case 'tags':
+				$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
+				$client->search_params->setQuery($tag_query);
+				break;
 		}
-		
-		$client = self::getClientForHooks($params);
-		if (!$client) {
-			return;
-		}
-		
-		$subtype = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
-		
-		if (empty($subtype)) {
-			return;
-		}
-		
-		$subtype = (array) $subtype;
-		
-		array_walk($subtype, function(&$value) {
-			$value = "object.{$value}";
-		});
-		
-		$client->search_params->setType($subtype);
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 		
@@ -105,65 +90,6 @@ class SearchHooks {
 		return self::transformSearchResults($result, $params);
 	}
 	
-	/**
-	 * Hook to return search results for group entity types
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function searchGroups($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
-			return;
-		}
-		
-		$client = self::getClientForHooks($params);
-		if (!$client) {
-			return;
-		}
-		
-		$client->search_params->setType('group');
-		
-		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
-				
-		$result = $client->search_params->execute();
-		
-		return self::transformSearchResults($result, $params);
-	}
-	
-	/**
-	 * Hook to return a search for content with a give tag (or tags)
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function searchTags($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
-			return;
-		}
-		
-		$client = self::getClientForHooks($params);
-		if (!$client) {
-			return;
-		}
-		
-		$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
-		$client->search_params->setQuery($tag_query);
-		
-		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
-				
-		$result = $client->search_params->execute();
-		
-		return self::transformSearchResults($result, $params);
-	}
-
 	protected static function getClientForHooks($params) {
 	
 		if (elasticsearch_get_setting('search') !== 'yes') {
