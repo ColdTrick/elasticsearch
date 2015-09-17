@@ -171,7 +171,7 @@ class SearchParams {
 			$user_guid = elgg_get_logged_in_user_guid();
 		}
 		
-		if (elgg_get_ignore_access()) {
+		if (elgg_check_access_overrides($user_guid)) {
 			return;
 		}
 		
