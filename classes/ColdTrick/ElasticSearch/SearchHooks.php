@@ -253,7 +253,7 @@ class SearchHooks {
 					'text' => elgg_echo("elasticsearch:menu:search_list:sort:member_count"),
 					'href' => elgg_http_add_url_query_elements($url, ['sort' => 'member_count', 'order' => 'desc']),
 					'parent_name' => 'sort',
-					'selected' => ($current_sort === $item),
+					'selected' => ($current_sort === 'member_count'),
 					'title' => $title
 				]);
 				break;
