@@ -15,6 +15,7 @@ class Export {
 	 * @return void
 	 */
 	public static function entityToObject($hook, $type, $returnvalue, $params) {
+		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
@@ -40,12 +41,12 @@ class Export {
 	 * @return void
 	 */
 	public static function entityMetadataToObject($hook, $type, $returnvalue, $params) {
+		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
 		$entity = elgg_extract('entity', $params);
-
 		if (!$entity) {
 			return;
 		}
@@ -77,6 +78,39 @@ class Export {
 		}
 		
 		$returnvalue->metadata = $result;
+		
+		return $returnvalue;
+	}
+	
+	/**
+	 * Hook to export entity counters for search
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function entityCountersToObject($hook, $type, $returnvalue, $params) {
+		
+		if (!elgg_in_context('search:index')) {
+			return;
+		}
+	
+		$entity = elgg_extract('entity', $params);
+		if (!$entity) {
+			return;
+		}
+		
+		$counters = elgg_trigger_plugin_hook('export:counters', 'elasticsearch', $params, []);
+		if (empty($counters)) {
+			return;
+		}
+		
+		$returnvalue->counters = $counters;
+		
+		return $returnvalue;
 	}
 	
 	/**
@@ -90,6 +124,7 @@ class Export {
 	 * @return void
 	 */
 	public static function entityRelationshipsToObject($hook, $type, $returnvalue, $params) {
+		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
@@ -116,6 +151,8 @@ class Export {
 		}
 	
 		$returnvalue->relationships = $result;
+		
+		return $returnvalue;
 	}
 	
 	/**
