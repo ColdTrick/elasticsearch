@@ -57,6 +57,8 @@ class SearchHooks {
 		
 		$client->search_params->setType('user');
 		
+		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
+		
 		$result = $client->search_params->execute();
 		
 		return self::transformSearchResults($result, $params);
@@ -152,7 +154,7 @@ class SearchHooks {
 			return;
 		}
 		
-		$tag_query['bool']['must']['term']['tags'] = $params['query'];
+		$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
 		$client->search_params->setQuery($tag_query);
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
@@ -217,7 +219,7 @@ class SearchHooks {
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
-			$elastic_query['bool']['must']['match']['_all'] = $query;
+			$elastic_query['bool']['must'][]['match']['_all'] = $query;
 			$client->search_params->setQuery($elastic_query);
 		}
 		
@@ -315,6 +317,69 @@ class SearchHooks {
 			]);
 		}
 				
+		return $returnvalue;
+	}
+		
+	/**
+	 * Hook to add profile field filters to search
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function filterProfileFields($hook, $type, $returnvalue, $params) {
+		if (empty($params) || !is_array($params)) {
+			return;
+		}
+		
+		$search_params = elgg_extract('search_params', $params);
+		if (empty($search_params) || !is_array($search_params)) {
+			return;
+		}
+		
+		$type = elgg_extract('type', $search_params);
+		if ($type !== 'user') {
+			return;
+		}
+		
+		$filter = elgg_extract('search_filter', $search_params, []);
+		$profile_field_filter = elgg_extract('profile_fields', $filter, []);
+		$profile_field_soundex_filter = elgg_extract('profile_fields_soundex', $filter, []);
+
+		if (empty($profile_field_filter)) {
+			return;
+		}
+		
+		$queries = [];
+		foreach ($profile_field_filter as $field_name => $value) {
+			if ($value === "") {
+				continue;
+			}
+			$sub_query = [];
+			$sub_query['nested']['path'] = 'metadata';
+			$sub_query['nested']['query']['bool']['must'][] = [
+				'term' => [
+					'metadata.name' => $field_name,
+				],
+			];
+			$sub_query['nested']['query']['bool']['must'][] = [
+				'wildcard' => [
+					'metadata.value' => "{$value}*",
+				],
+			];
+			
+			$queries['bool']['must'][] = $sub_query;
+			
+		}
+		
+		if (empty($queries)) {
+			return;
+		}
+		
+		$returnvalue->search_params->addQuery($queries);
 		return $returnvalue;
 	}
 }
