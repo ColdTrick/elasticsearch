@@ -84,7 +84,7 @@ class SearchParams {
 		
 		// sort
 		if (!empty($this->params['sort'])) {
-			$result['sort'] = $this->params['sort'];
+			$result['body']['sort'] = $this->params['sort'];
 		}
 		
 		return $result;
