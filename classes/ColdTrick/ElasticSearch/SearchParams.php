@@ -120,8 +120,19 @@ class SearchParams {
 		return $this->params['filter'];
 	}
 	
+	public function addQuery($query = []) {
+		if (!isset($this->params['query'])) {
+			$this->params['query'] = [];
+		}
+		$this->params['query'] = array_merge_recursive($this->params['query'], $query);
+	}
+
 	public function setQuery($query = []) {
 		$this->params['query'] = $query;
+	}
+
+	public function getQuery() {
+		return $this->params['query'];
 	}
 	
 	public function setSort($sort = []) {
