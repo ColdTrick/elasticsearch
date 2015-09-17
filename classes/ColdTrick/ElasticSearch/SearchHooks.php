@@ -324,4 +324,46 @@ class SearchHooks {
 		$returnvalue->search_params->addQuery($queries);
 		return $returnvalue;
 	}
+	
+	/**
+	 * Hook to add profile field filters to search
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param Client $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void|Client
+	 */
+	public static function sortByGroupMembersCount($hook, $type, $returnvalue, $params) {
+		
+		if (empty($params) || !is_array($params)) {
+			return;
+		}
+		
+		$search_params = elgg_extract('search_params', $params);
+		if (empty($search_params) || !is_array($search_params)) {
+			return;
+		}
+		
+		$type = elgg_extract('type', $search_params);
+		if ($type !== 'group') {
+			return;
+		}
+		
+		$sort = elgg_extract('sort', $search_params);
+		$order = elgg_extract('order', $search_params, 'desc');
+		if ($sort !== 'member_count') {
+			return;
+		}
+		
+		$sort_config = [
+			'order' => $order,
+			'missing' => 0,
+		];
+		$returnvalue->search_params->addSort('counters.member_count', $sort_config);
+		$returnvalue->search_params->addSort('_score');
+		
+		return $returnvalue;
+	}
 }

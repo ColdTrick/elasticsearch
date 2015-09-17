@@ -38,6 +38,7 @@ function elasticsearch_init() {
 	// menu hooks
 	elgg_register_plugin_hook_handler('register', 'menu:search_list', array('ColdTrick\ElasticSearch\SearchHooks', 'registerSortMenu'));
 	elgg_register_plugin_hook_handler('search_params', 'elasticsearch', array('ColdTrick\ElasticSearch\SearchHooks', 'filterProfileFields'));
+	elgg_register_plugin_hook_handler('search_params', 'elasticsearch', array('ColdTrick\ElasticSearch\SearchHooks', 'sortByGroupMembersCount'));
 	
 	// extend exportable values
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityToObject'));
