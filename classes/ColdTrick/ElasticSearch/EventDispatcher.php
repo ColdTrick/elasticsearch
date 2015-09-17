@@ -139,14 +139,22 @@ class EventDispatcher {
 	 * @return void
 	 */
 	protected static function updateRelationship(\ElggRelationship $relationship) {
+		
+		// update entity one
 		$entity_guid = $relationship->guid_one;
 		
 		$entity = get_entity($entity_guid);
-		if (!$entity) {
-			return;
+		if ($entity) {
+			self::updateEntity($entity);
 		}
 		
-		self::updateEntity($entity);
+		// update entity two
+		$entity_guid = $relationship->guid_two;
+		
+		$entity = get_entity($entity_guid);
+		if ($entity) {
+			self::updateEntity($entity);
+		}
 	}
 	
 	/**
