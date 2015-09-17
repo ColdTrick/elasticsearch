@@ -155,9 +155,22 @@ class SearchParams {
 	 * @param array  $sort_config configuration of the sort (like order)
 	 */
 	public function addSort($field, $sort_config = []) {
+		if (empty($field)) {
+			return;
+		}
+		
+		if (empty($sort_config)) {
+			if ($field == '_score') {
+				$sort_config = ['order' => 'desc'];
+			} else {
+				$sort_config = ['order' => 'asc'];
+			}
+		}
+		
 		if ($field == '_score') {
 			$this->trackScores(true);
 		}
+		
 		$this->params['sort'][$field] = $sort_config;
 	}
 	
