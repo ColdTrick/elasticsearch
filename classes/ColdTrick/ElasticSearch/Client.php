@@ -224,12 +224,14 @@ class Client extends \Elasticsearch\Client {
 	protected function registerErrorForException(\Exception $e) {
 		$message = $e->getMessage();
 		
-		$json_data = json_decode($message, true);
+		$json_data = @json_decode($message, true);
 		if (is_array($json_data) && isset($json_data['error'])) {
 			$message = $json_data['error'];
 		}
 		
-		register_error($message);
+		elgg_log($message, 'ERROR');
+		
+		register_error(elgg_echo('elasticsearch:error:search'));
 	}
 	
 	protected function requestToScreen($params, $action = '') {

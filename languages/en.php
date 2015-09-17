@@ -15,6 +15,7 @@ return array(
 	'elasticsearch:error:no_index' => "No index provided for the given action",
 	'elasticsearch:error:index_not_exists' => "The given index doesn't exist: %s",
 	'elasticsearch:error:alias_not_configured' => "No alias is configured in the plugin settings",
+	'elasticsearch:error:search' => "An error occured during your search operation. Please contact the site administrator if this problem persists.",
 	
 	'elasticsearch:settings:host:header' => "ElasticSearch host settings",
 	'elasticsearch:settings:host' => "API host",
