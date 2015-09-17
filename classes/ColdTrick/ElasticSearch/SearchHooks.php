@@ -150,10 +150,11 @@ class SearchHooks {
 		}
 		
 		// sort & order
+		$sort = elgg_extract('sort', $params);
 		$order = elgg_extract('order', $params, 'desc');
 		$sort_field = false;
 		
-		switch ($params['sort']) {
+		switch ($sort) {
 			case 'newest':
 				$sort_field = 'time_created';
 				$order = 'desc';
@@ -172,8 +173,6 @@ class SearchHooks {
 				break;
 			case 'alpha':
 				$sort_field = 'title.raw';
-				break;
-			default:
 				break;
 		}
 		
@@ -215,14 +214,17 @@ class SearchHooks {
 	 * @return void
 	 */
 	public static function registerSortMenu($hook, $type, $returnvalue, $params) {
+		
 		if (elasticsearch_get_setting('search') !== 'yes') {
 			return;
 		}
+		
 		$title = elgg_echo('elasticsearch:menu:search_list:sort:title');
 		$url = current_page_url();
 		
 		$current_sort = get_input('sort', 'relevance');
 		
+		// sort parent menu
 		$returnvalue[] = \ElggMenuItem::factory([
 			'name' => 'sort',
 			'text' => elgg_view_icon('eye'),
@@ -231,7 +233,6 @@ class SearchHooks {
 		]);
 		
 		$items = ['relevance', 'alpha_az', 'alpha_za', 'newest', 'oldest'];
-		
 		foreach ($items as $item) {
 			$returnvalue[] = \ElggMenuItem::factory([
 				'name' => $item,
@@ -241,6 +242,21 @@ class SearchHooks {
 				'selected' => ($current_sort === $item),
 				'title' => $title
 			]);
+		}
+		
+		$search_params = (array) elgg_extract('search_params', $params, []);
+		$type = elgg_extract('type', $search_params);
+		switch ($type) {
+			case 'group':
+				$returnvalue[] = \ElggMenuItem::factory([
+					'name' => 'members_count',
+					'text' => elgg_echo("elasticsearch:menu:search_list:sort:member_count"),
+					'href' => elgg_http_add_url_query_elements($url, ['sort' => 'member_count', 'order' => 'desc']),
+					'parent_name' => 'sort',
+					'selected' => ($current_sort === $item),
+					'title' => $title
+				]);
+				break;
 		}
 				
 		return $returnvalue;
