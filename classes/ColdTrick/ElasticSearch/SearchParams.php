@@ -37,6 +37,11 @@ class SearchParams {
 		
 		$result = new SearchResult($result, $this->params);
 		
+		$suggest = $result->getSuggestions();
+		if (!empty($suggest)) {
+			$this->client->setSuggestions($suggest);
+		}
+		
 		// reset search params after each search
 		$this->params = null;
 		
@@ -57,7 +62,6 @@ class SearchParams {
 		if (!empty($this->params['type'])) {
 			$result['type'] = $this->params['type'];
 		}
-		
 		
 		// query
 		$result['body']['query']['indices']['index'] = $index;
@@ -90,6 +94,12 @@ class SearchParams {
 		// sort
 		if (!empty($this->params['sort'])) {
 			$result['body']['sort'] = $this->params['sort'];
+		}
+		
+		// suggestion
+		if (!empty($this->params['suggest']) && ($this->client->getSuggestions() == null)) {
+			// only fetch suggestion once
+			$result['body']['suggest'] = $this->params['suggest'];
 		}
 		
 		return $result;
@@ -187,6 +197,25 @@ class SearchParams {
 	}
 	public function setOffset($offset) {
 		$this->setFrom($offset);
+	}
+	public function setSuggestion($query) {
+		if (empty($query)) {
+			unset($this->params['suggest']);
+		}
+		
+		$this->params['suggest']['text'] = $query;
+		$this->params['suggest']['suggestions']['phrase'] = [
+			"field" => "_all",
+			"max_errors" => 2,
+			"size" => 1,
+			"real_word_error_likelihood" => 0.95,
+			"gram_size" => 1,
+			"direct_generator" => [[
+				"field" => "_all",
+				"suggest_mode" => "popular",
+				"min_word_length" => 1
+			]]
+		];
 	}
 	
 	public function addEntityAccessFilter($user_guid = 0) {

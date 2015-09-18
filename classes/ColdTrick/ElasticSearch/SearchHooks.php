@@ -147,6 +147,7 @@ class SearchHooks {
 		if (!empty($query)) {
 			$elastic_query['bool']['must'][]['match']['_all'] = $query;
 			$client->search_params->setQuery($elastic_query);
+			$client->search_params->setSuggestion($query);
 		}
 		
 		// sort & order
@@ -183,24 +184,6 @@ class SearchHooks {
 				'missing' => '_last',
 			]);
 		}
-	 		
-// 	 		// suggestion
-// 	 		if ($client->getSuggestions() == null) {
-// 	 			$result['body']['suggest']['text'] = $query;
-// 	 			$result['body']['suggest']['suggestions']['phrase'] = [
-// 		 			"field" => "_all",
-// 		 			"max_errors" => 2,
-// 		 			"size" => 1,
-// 		 			"real_word_error_likelihood" => 0.95,
-// 		 			"gram_size" => 1,
-// 		 			"direct_generator" => [[
-// 			 			"field" => "_all",
-// 			 			"suggest_mode" => "popular",
-// 			 			"min_word_length" => 1
-// 		 			]]
-// 	 			];
-// 	 		}
-//
 	}
 		
 	/**

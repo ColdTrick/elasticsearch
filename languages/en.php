@@ -91,5 +91,6 @@ return array(
 	'elasticsearch:action:admin:index_management:add_mappings' => "Mappings for the index '%s' are created",
 	'elasticsearch:action:admin:index_management:add_alias' => "The alias '%s' was added to the index '%s'",
 	'elasticsearch:action:admin:index_management:delete_alias' => "The alias '%s' was deleted from the index '%s'",
-	'' => "",
+	
+	'elasticsearch:suggest' => "Did you mean %s instead of %s?",
 );

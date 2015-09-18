@@ -25,6 +25,10 @@ class SearchResult {
 		return elgg_extract('hits', $hits);
 	}
 	
+	public function getSuggestions() {
+		return elgg_extract('suggest', $this->result);
+	}
+	
 	public function toEntities($params) {
 		
 		$hits = $this->getHits();

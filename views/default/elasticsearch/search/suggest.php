@@ -24,7 +24,10 @@ $suggestion = $suggestions[0]['text'];
 
 $url = elgg_view('output/url', [
 	'text' => $suggestion,
-	'href' => elgg_http_add_url_query_elements(current_page_url(), ['q' => $suggestion])
+	'href' => elgg_http_add_url_query_elements(current_page_url(), ['q' => $suggestion]),
+	'class' => 'elasticsearch-suggest-link',
 ]);
 
-echo "Did you mean <b>$url</b> instead of <i>$query</i>?";
+$query = elgg_format_element('span', ['class' => 'elasticsearch-suggest-original-query'], $query);
+
+echo elgg_echo('elasticsearch:suggest', [$url, $query]);
