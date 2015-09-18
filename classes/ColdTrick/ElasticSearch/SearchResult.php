@@ -16,8 +16,13 @@ class SearchResult {
 	}
 	
 	public function getCount() {
+		
 		$hits = elgg_extract('hits', $this->result);
-		return elgg_extract('total', $hits, 0);
+		if ($hits !== null) {
+			return elgg_extract('total', $hits, 0);
+		}
+
+		return elgg_extract('count', $this->result, 0);
 	}
 	
 	public function getHits() {

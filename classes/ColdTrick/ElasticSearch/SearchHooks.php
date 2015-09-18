@@ -85,7 +85,11 @@ class SearchHooks {
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 		
-		$result = $client->search_params->execute();
+		if ($params['count'] == true) {
+			$result = $client->search_params->count();
+		} else {
+			$result = $client->search_params->execute();
+		}
 		
 		return self::transformSearchResults($result, $params);
 	}

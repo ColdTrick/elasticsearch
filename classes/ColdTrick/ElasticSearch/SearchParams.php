@@ -47,8 +47,23 @@ class SearchParams {
 		
 		return $result;
 	}
+
+	public function count($body = null) {
+		if ($body == null) {
+			$body = $this->getBody($count = true);
+		}
+		
+		$result = $this->client->count($body);
+		
+		$result = new SearchResult($result, $this->params);
+		
+		// reset search params after each search
+		$this->params = null;
+		
+		return $result;
+	}
 	
-	protected function getBody() {
+	protected function getBody($count = false) {
 		$result = [];
 		
 		// index
@@ -72,15 +87,7 @@ class SearchParams {
 			$result['body']['query']['indices']['query']['bool']['must']['match_all'] = [];
 			$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
 		}
-		
-		// pagination
-		if (!empty($this->params['from'])) {
-			$result['from'] = $this->params['from'];
-		}
-		if (!empty($this->params['size'])) {
-			$result['size'] = $this->params['size'];
-		}
-		
+				
 		// filter
 		if (!empty($this->params['filter'])) {
 			$result['body']['filter']['indices']['index'] = $index;
@@ -91,15 +98,26 @@ class SearchParams {
 		if (isset($this->params['track_scores'])) {
 			$result['body']['track_scores'] = $this->params['track_scores'];
 		}
-		// sort
-		if (!empty($this->params['sort'])) {
-			$result['body']['sort'] = $this->params['sort'];
-		}
 		
-		// suggestion
-		if (!empty($this->params['suggest']) && ($this->client->getSuggestions() == null)) {
-			// only fetch suggestion once
-			$result['body']['suggest'] = $this->params['suggest'];
+		if (!$count) {
+			// pagination
+			if (!empty($this->params['from'])) {
+				$result['from'] = $this->params['from'];
+			}
+			if (!empty($this->params['size'])) {
+				$result['size'] = $this->params['size'];
+			}
+			
+			// sort
+			if (!empty($this->params['sort'])) {
+				$result['body']['sort'] = $this->params['sort'];
+			}
+			
+			// suggestion
+			if (!empty($this->params['suggest']) && ($this->client->getSuggestions() == null)) {
+				// only fetch suggestion once
+				$result['body']['suggest'] = $this->params['suggest'];
+			}
 		}
 		
 		return $result;
