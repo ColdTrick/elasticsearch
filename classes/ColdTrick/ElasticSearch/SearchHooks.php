@@ -151,7 +151,9 @@ class SearchHooks {
 		if (!empty($query)) {
 			$elastic_query['bool']['must'][]['match']['_all'] = $query;
 			$client->search_params->setQuery($elastic_query);
-			$client->search_params->setSuggestion($query);
+			if (!elgg_extract('count', $params, false)) {
+				$client->search_params->setSuggestion($query);
+			}
 		}
 		
 		// sort & order
