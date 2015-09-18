@@ -21,9 +21,9 @@ return array(
 	'elasticsearch:settings:host' => "API host",
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
-	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to user, maybe '%s' is a suggestion?",
+	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to use, maybe '%s' is a suggestion?",
 	'elasticsearch:settings:search_alias' => "Search index alias (optional)",
-	'elasticsearch:settings:search_alias:description' => "If you wish to search in more then one index, you can configure an alias to seach in. This alias will also be applied to the Elgg index.",
+	'elasticsearch:settings:search_alias:description' => "If you wish to search in more then one index, you can configure an alias to search in. This alias will also be applied to the Elgg index.",
 	
 	'elasticsearch:settings:features:header' => "Behaviour settings",
 	'elasticsearch:settings:sync' => "Synchronize Elgg data to ElasticSearch",
