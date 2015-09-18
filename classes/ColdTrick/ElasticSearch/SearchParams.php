@@ -52,15 +52,9 @@ class SearchParams {
 		if ($body == null) {
 			$body = $this->getBody($count = true);
 		}
+		$body['search_type'] = 'count';
 		
-		$result = $this->client->count($body);
-		
-		$result = new SearchResult($result, $this->params);
-		
-		// reset search params after each search
-		$this->params = null;
-		
-		return $result;
+		return $this->execute($body);
 	}
 	
 	protected function getBody($count = false) {
