@@ -20,6 +20,7 @@ elgg_register_event_handler("init", "system", "elasticsearch_init");
 function elasticsearch_init() {
 	
 	// css
+	elgg_extend_view('css/elgg', 'css/elasticsearch/site.css');
 	elgg_register_css('elgg.icons', elgg_get_simplecache_url('css', 'elements/icons'));
 	
 	// ajax views
@@ -45,6 +46,7 @@ function elasticsearch_init() {
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityRelationshipsToObject'));
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityMetadataToObject'));
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityCountersToObject'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'profileTagFieldsToTags'));
 	elgg_register_plugin_hook_handler('export:metadata_names', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportProfileMetadata'));
 	elgg_register_plugin_hook_handler('export:counters', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportGroupMemberCount'));
 	elgg_register_plugin_hook_handler('index_entity_type_subtypes', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'indexEntityTypeSubtypes'));

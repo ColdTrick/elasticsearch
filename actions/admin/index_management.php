@@ -109,16 +109,6 @@ switch ($task) {
 		try {
 			
 			$properties = [
-				'title' => [
-					'type' => 'string',
-					'index' => 'analyzed',
-					'fields' => [
-						'raw' => [
-							'type' => 'string',
-							'analyzer' => 'case_insensitive_sort'
-						]
-					]
-				],
 				'name' => [
 					'type' => 'string',
 					'index' => 'not_analyzed',
@@ -135,34 +125,38 @@ switch ($task) {
 				],
 			];
 			
-			$type_subtypes = elasticsearch_get_registered_entity_types();
-			$index_types = [];
-			foreach ($type_subtypes as $type => $subtypes) {
-				if (empty($subtypes)) {
-					$index_types[] = $type;
-				} else {
-					foreach ($subtypes as $subtype) {
-						$index_types[] = "$type.$subtype";
-					}
-				}
-			}
-				
-			foreach ($index_types as $type) {
-				
-				$params = [
-					'index' => $index,
-					'type' => $type,
-					'body' => [
-						$type => [
-							'properties' => $properties
+			$dynamic_templates = [
+				'strings' => [
+					'match_mapping_type' => 'string',
+					'mapping' => [
+						'type' => 'string',
+						'fields' => [
+							'raw' => [
+								'type' => 'string',
+								'analyzer' => 'case_insensitive_sort',
+								'ignore_above' => 256,
+							]
 						]
 					]
-				];
+				]
+			];
 				
-				// Update the index mapping
-				$client->indices()->putMapping($params);
-			}
+			$params = [
+				'index' => $index,
+				'type' => '_default_',
+				'body' => [
+					'_default_' => [
+						'dynamic_templates' => [$dynamic_templates],
+						'properties' => $properties,
+					]
+				]
+			];
+			
+			// Update the index mapping
+			$client->indices()->putMapping($params);
+			
 		} catch (Exception $e) {
+			register_error($e->getMessage());
 			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_mappings', array($index)));
 			break;
 		}

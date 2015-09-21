@@ -72,6 +72,21 @@ class Client extends \Elasticsearch\Client {
 			return array();
 		}
 	}
+
+	public function count($params = []) {
+		if (!isset($params['index'])) {
+			$params['index'] = $this->getSearchIndex();
+		}
+
+		$this->requestToScreen($params, 'COUNT');
+		
+		try {
+			return parent::count($params);
+		} catch(\Exception $e) {
+			$this->registerErrorForException($e);
+			return array();
+		}
+	}
 	
 	public function indexDocument($guid) {
 		$params = $this->getDefaultDocumentParams($guid);

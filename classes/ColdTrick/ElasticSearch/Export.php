@@ -81,6 +81,65 @@ class Export {
 		
 		return $returnvalue;
 	}
+
+	/**
+	 * Hook to join user/group profile tag fields with tags
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function profileTagFieldsToTags($hook, $type, $returnvalue, $params) {
+		
+		if (!elgg_in_context('search:index')) {
+			return;
+		}
+	
+		$entity = elgg_extract('entity', $params);
+		if (!$entity) {
+			return;
+		}
+		
+		if (!in_array($entity->getType(), ['user', 'group'])) {
+			return;
+		}
+		
+		if ($entity instanceof \ElggUser) {
+			$profile_fields = elgg_get_config('profile_fields');
+		} elseif ($entity instanceof \ElggGroup) {
+			$profile_fields = elgg_get_config('group');
+		}
+		
+		if (empty($profile_fields)) {
+			return;
+		}
+		
+		$tags = [];
+		foreach ($profile_fields as $field_name => $type) {
+			if ($type !== 'tags') {
+				continue;
+			}
+
+			$field_tags = (array) $entity->$field_name;
+			if ($field_tags) {
+				$tags = array_merge($tags, $field_tags);
+			}
+		}
+		
+		if (empty($tags)) {
+			return;
+		}
+		
+		$current_tags = (array) $returnvalue->tags;
+		$tags = array_merge($current_tags, $tags);
+		
+		$returnvalue->tags = $tags;
+		
+		return $returnvalue;
+	}
 	
 	/**
 	 * Hook to export entity counters for search
