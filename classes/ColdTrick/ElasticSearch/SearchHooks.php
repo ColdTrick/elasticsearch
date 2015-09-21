@@ -149,7 +149,19 @@ class SearchHooks {
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
-			$elastic_query['bool']['must'][]['match']['_all'] = $query;
+			$fields = self::getQueryFields();
+			
+			$elastic_query['bool']['should'] = [];
+			foreach ($fields as $field) {
+				$elastic_query['bool']['should'][] = [
+					'match' => [
+						$field => [
+							'query' => $query
+						]
+					]
+				];
+			}
+			
 			$client->search_params->setQuery($elastic_query);
 			if (!elgg_extract('count', $params, false)) {
 				$client->search_params->setSuggestion($query);
@@ -190,6 +202,14 @@ class SearchHooks {
 				'missing' => '_last',
 			]);
 		}
+	}
+	
+	protected static function getQueryFields() {
+		return [
+			'title',
+			'description',
+			'tags'
+		];
 	}
 		
 	/**
