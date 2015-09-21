@@ -18,6 +18,7 @@ function elastic_prepare_search_hooks() {
 	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
 	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
 	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
+	elgg_register_plugin_hook_handler('search', 'combined:all', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'), 400);
 
 	// register fallback to default search hooks
 	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);

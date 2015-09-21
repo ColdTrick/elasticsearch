@@ -81,6 +81,24 @@ class SearchHooks {
 				$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
 				$client->search_params->setQuery($tag_query);
 				break;
+			case 'combined:all':
+				// triggered by search advanced
+				$type_subtypes = elgg_extract('type_subtype_pairs', $params);
+				$types = [];
+				foreach ($type_subtypes as $type => $subtypes) {
+					if (empty($subtypes)) {
+						$types[] = $type;
+						continue;
+					}
+					
+					foreach ($subtypes as $subtype) {
+						$types[] = "{$type}.{$subtype}";
+					}
+				}
+				
+				$client->search_params->setType($types);
+				
+				break;
 		}
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
