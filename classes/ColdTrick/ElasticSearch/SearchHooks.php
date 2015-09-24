@@ -410,20 +410,15 @@ class SearchHooks {
 			return;
 		}
 
-		$subquery = [];
-		$subquery['nested']['path'] = 'metadata';
-		$subquery['nested']['query']['bool']['must'][] = [
-			'terms' => [
-				'metadata.name' => $field_names,
-			],
-		];
-		$subquery['nested']['query']['bool']['must'][] = [
-			'match' => [
-				'metadata.value' => $query,
-			],
-		];
+		$nested_query = [];
+		$nested_query['nested']['path'] = 'metadata';
+		$nested_query['nested']['query']['bool']['must'][]['terms']['metadata.name'] = $field_names;
+		$nested_query['nested']['query']['bool']['must'][]['match']['metadata.value'] = $query;
+		
+		$combined_query['bool']['must'][] = $nested_query;
+		$combined_query['bool']['must'][]['term']['type'] = 'user';
 			
-		$elastic_query['bool']['should'][] = $subquery;
+		$elastic_query['bool']['should'][] = $combined_query;
 				
 		$returnvalue->search_params->addQuery($elastic_query);
 		return $returnvalue;
