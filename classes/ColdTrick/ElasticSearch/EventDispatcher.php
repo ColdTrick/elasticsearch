@@ -17,6 +17,9 @@ class EventDispatcher {
 		if ($object instanceof \ElggRelationship) {
 			self::updateRelationship($object);
 		}
+		
+		self::checkComments($object);
+		self::updateEntityForAnnotation($object);
 	}
 	
 	/**
@@ -33,6 +36,9 @@ class EventDispatcher {
 		if ($object instanceof \ElggEntity) {
 			self::updateEntity($object);
 		}
+		
+		self::checkComments($object);
+		self::updateEntityForAnnotation($object);
 	}
 	
 	/**
@@ -51,6 +57,9 @@ class EventDispatcher {
 		} elseif ($object instanceof \ElggRelationship) {
 			self::updateRelationship($object);
 		}
+		
+		self::checkComments($object);
+		self::updateEntityForAnnotation($object);
 	}
 	
 	/**
@@ -67,6 +76,55 @@ class EventDispatcher {
 		if ($object instanceof \ElggEntity) {
 			self::disableEntity($object);
 		}
+		
+		self::checkComments($object);
+		self::updateEntityForAnnotation($object);
+	}
+	
+	/**
+	 * Updates the entity the annotation is related to
+	 *
+	 * @param object $annotation the annotation
+	 *
+	 * @return void
+	 */
+	protected static function updateEntityForAnnotation($annotation) {
+		if (!($annotation instanceof \ElggAnnotation)) {
+			return;
+		}
+		
+		$entity_guid = $annotation->entity_guid;
+		$entity = get_entity($entity_guid);
+		if (!$entity) {
+			return;
+		}
+		
+		self::updateEntity($entity);
+	}
+	
+	/**
+	 * Updates parent entities for content that is commented on
+	 *
+	 * @param object $entity the entity
+	 *
+	 * @return void
+	 */
+	protected static function checkComments($entity) {
+	
+		if (!($entity instanceof \ElggEntity)) {
+			return;
+		}
+		
+		if (!in_array($entity->getSubtype(), ['comment', 'discussion_reply'])) {
+			return;
+		}
+		
+		$container_entity = $entity->getContainerEntity();
+		if (!$container_entity) {
+			return;
+		}
+		
+		self::updateEntity($container_entity);
 	}
 	
 	/**
