@@ -179,7 +179,7 @@ class SearchHooks {
 					]
 				];
 			}
-			
+						
 			$client->search_params->setQuery($elastic_query);
 			if (!elgg_extract('count', $params, false)) {
 				$client->search_params->setSuggestion($query);
@@ -349,6 +349,83 @@ class SearchHooks {
 		}
 		
 		$returnvalue->search_params->addQuery($queries);
+		return $returnvalue;
+	}
+		
+	/**
+	 * Hook to add profile field queries to search (as configured in the Search Advanced plugin)
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function queryProfileFields($hook, $type, $returnvalue, $params) {
+		if (empty($params) || !is_array($params)) {
+			return;
+		}
+		
+		$search_params = elgg_extract('search_params', $params);
+		if (empty($search_params) || !is_array($search_params)) {
+			return;
+		}
+		
+		$types = (array) $returnvalue->search_params->getType();
+		if (!in_array('user', $types)) {
+			return;
+		}
+		
+		$query = elgg_extract('query', $search_params);
+		
+		$profile_fields = array_keys(elgg_get_config('profile_fields'));
+		if (empty($profile_fields)) {
+			return;
+		}
+		
+		$field_names = [];
+		foreach ($profile_fields as $key => $field) {
+			$field_names[] = $field;
+		}
+		
+		if (elgg_is_active_plugin('search_advanced')) {
+			$profile_field_metadata_search_values = elgg_get_plugin_setting('user_profile_fields_metadata_search', 'search_advanced', []);
+			if (!empty($profile_field_metadata_search_values)) {
+				$profile_field_metadata_search_values = json_decode($profile_field_metadata_search_values, true);
+				
+				foreach ($field_names as $key => $field) {
+					if (!in_array($field, $profile_field_metadata_search_values)) {
+						continue;
+					}
+					
+					unset($field_names[$key]);
+				}
+				
+				$field_names = array_values($field_names);
+			}
+		}
+		
+		if (empty($field_names)) {
+			return;
+		}
+
+		$subquery = [];
+		$subquery['nested']['path'] = 'metadata';
+		$subquery['nested']['query']['bool']['must'][] = [
+			'terms' => [
+				'metadata.name' => $field_names,
+			],
+		];
+		$subquery['nested']['query']['bool']['must'][] = [
+			'match' => [
+				'metadata.value' => $query,
+			],
+		];
+			
+		$elastic_query['bool']['should'][] = $subquery;
+				
+		$returnvalue->search_params->addQuery($elastic_query);
 		return $returnvalue;
 	}
 	
