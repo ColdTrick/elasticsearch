@@ -131,6 +131,13 @@ class SearchParams {
 	public function setType($type) {
 		$this->params['type'] = $type;
 	}
+
+	public function addType($type) {
+		$types = (array) $this->getType();
+		$types[] = $type;
+	
+		$this->params['type'] = $types;
+	}
 	
 	public function getType() {
 		return $this->params['type'];

@@ -51,6 +51,7 @@ function elasticsearch_init() {
 	elgg_register_plugin_hook_handler('export:metadata_names', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportProfileMetadata'));
 	elgg_register_plugin_hook_handler('export:counters', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportGroupMemberCount'));
 	elgg_register_plugin_hook_handler('index_entity_type_subtypes', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'indexEntityTypeSubtypes'));
+	elgg_register_plugin_hook_handler('to:entity', 'elasticsearch', array('ColdTrick\ElasticSearch\SearchHooks', 'sourceToEntity'));
 	
 	// events
 	elgg_register_event_handler('create', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'create'));

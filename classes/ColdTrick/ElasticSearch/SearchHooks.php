@@ -516,4 +516,63 @@ class SearchHooks {
 		
 		return $returnvalue;
 	}
+	
+	/**
+	 * Hook to transform a search result to an Elgg Entity
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param Client $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void|Client
+	 */
+	public static function sourceToEntity($hook, $type, $returnvalue, $params) {
+	
+		$hit = elgg_extract('hit', $params);
+		$source = elgg_extract('_source', $hit);
+	
+		$row = new \stdClass();
+		foreach ($source as $key => $value) {
+			switch($key) {
+				case 'subtype':
+					// elastic stores the textual version of the subtype, entity_row_to_elggstar needs the int
+					$row->$key = get_subtype_id($source['type'], $value);
+					break;
+				case 'last_action':
+				case 'time_created':
+				case 'time_updated':
+					// convert the timestamps to unix timestamps
+					$value = strtotime($value);
+				default:
+					$row->$key = $value;
+					break;
+			}
+		}
+	
+		// enabled attribute is not stored in elasticsearch by default
+		$row->enabled = 'yes';
+	
+		// specials types
+		if ($row->type == 'user') {
+			// makes sure all attributes are loaded to prevent a db call
+			$external_attributes = \ElggUser::getExternalAttributes();
+			foreach($external_attributes as $key => $value) {
+				if (isset($row->$key)) {
+					continue;
+				}
+	
+				$row->$key = $value;
+			}
+		}
+	
+		try {
+			$result = entity_row_to_elggstar($row);
+		} catch (\Exception $e) {
+			elgg_log($e->getMessage(), 'NOTICE');
+			return false;
+		}
+	
+		return $result;
+	}
 }
