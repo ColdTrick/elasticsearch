@@ -1,6 +1,7 @@
 <?php
 
 $q = get_input('q');
+$index = get_input('index');
 
 /*
  * $q can be a string or a json formatted query like the following
@@ -37,6 +38,10 @@ if (is_array($json_data)) {
 			]
 		]
 	];
+}
+
+if (!empty($index)) {
+	$searchParams['index'] = $index;
 }
 
 $result = $client->search($searchParams);
