@@ -17,7 +17,7 @@ function elastic_prepare_search_hooks() {
 	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
 	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
 	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
-	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
+	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchTags'));
 	elgg_register_plugin_hook_handler('search', 'combined:all', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'), 400);
 
 	// register fallback to default search hooks
@@ -86,6 +86,24 @@ function elasticsearch_get_registered_entity_types() {
 	}
 	
 	return elgg_trigger_plugin_hook('index_entity_type_subtypes', 'elasticsearch', $type_subtypes, $type_subtypes);
+}
+
+/**
+ * Get the type/subtypes for search in ElasticSearch
+ *
+ *  @return false|array
+ */
+function elasticsearch_get_registered_entity_types_for_search() {
+
+	$type_subtypes = get_registered_entity_types();
+	foreach ($type_subtypes as $type => $subtypes) {
+		if (empty($subtypes)) {
+			// repair so it can be used in elgg_get_entities*
+			$type_subtypes[$type] = ELGG_ENTITIES_ANY_VALUE;
+		}
+	}
+
+	return elgg_trigger_plugin_hook('search', 'type_subtype_pairs', $type_subtypes, $type_subtypes);
 }
 
 /**

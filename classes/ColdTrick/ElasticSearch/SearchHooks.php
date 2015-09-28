@@ -111,6 +111,57 @@ class SearchHooks {
 		
 		return self::transformSearchResults($result, $params);
 	}
+
+	/**
+	 * Hook to return a search for content with a give tag (or tags)
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function searchTags($hook, $type, $returnvalue, $params) {
+		if (!empty($returnvalue)) {
+			return;
+		}
+	
+		$client = self::getClientForHooks($params);
+		if (!$client) {
+			return;
+		}
+	
+		$type_subtype_pairs = elasticsearch_get_registered_entity_types_for_search();
+	
+		$types = [];
+		foreach ($type_subtype_pairs as $type => $subtypes) {
+			if (empty($subtypes)) {
+				$types[] = $type;
+				continue;
+			}
+				
+			foreach ($subtypes as $subtype) {
+				$types[] = "{$type}.{$subtype}";
+			}
+		}
+	
+		$client->search_params->setType($types);
+	
+		$tag_query['bool']['must']['term']['tags'] = $params['query'];
+	
+		$client->search_params->setQuery($tag_query);
+	
+		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
+	
+		if ($params['count'] == true) {
+			$result = $client->search_params->count();
+		} else {
+			$result = $client->search_params->execute();
+		}
+	
+		return self::transformSearchResults($result, $params);
+	}
 	
 	protected static function getClientForHooks($params) {
 	
