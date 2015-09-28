@@ -76,7 +76,31 @@ class SearchParams {
 		$result['body']['query']['indices']['index'] = $index;
 		if (!empty($this->params['query'])) {
 			$result['body']['query']['indices']['query'] = $this->params['query'];
-			$result['body']['query']['indices']['no_match_query'] = $this->params['query'];
+			
+			$query_text = $this->params['query_text'];
+			if (!empty($query_text)) {
+				// generate
+				$fields = [
+					'title',
+					'description',
+					'tags'
+				];
+					
+				$no_match_query['bool']['should'] = [];
+				foreach ($fields as $field) {
+					$no_match_query['bool']['should'][] = [
+						'match' => [
+							$field => [
+								'query' => $query_text
+							]
+						]
+					];
+				}
+				
+				$result['body']['query']['indices']['no_match_query'] = $no_match_query;
+			} else {
+				$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
+			}
 		} else {
 			$result['body']['query']['indices']['query']['bool']['must']['match_all'] = [];
 			$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
@@ -156,6 +180,10 @@ class SearchParams {
 	
 	public function getFilter() {
 		return $this->params['filter'];
+	}
+	
+	public function setQueryText($query) {
+		$this->params['query_text'] = $query;
 	}
 	
 	public function addQuery($query = []) {
