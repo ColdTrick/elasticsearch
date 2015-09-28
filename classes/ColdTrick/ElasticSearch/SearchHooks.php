@@ -530,6 +530,13 @@ class SearchHooks {
 	public static function sourceToEntity($hook, $type, $returnvalue, $params) {
 	
 		$hit = elgg_extract('hit', $params);
+		$index = elgg_extract('_index', $hit);
+		
+		$elgg_index = elasticsearch_get_setting('index');
+		if ($index !== $elgg_index) {
+			return;
+		}
+		
 		$source = elgg_extract('_source', $hit);
 	
 		$row = new \stdClass();
