@@ -234,6 +234,13 @@ class SearchHooks {
 			}
 		}
 		
+		// container filter
+		$container_guid = (int) elgg_extract('container_guid', $params);
+		if (!empty($container_guid)) {
+			$container_filter['bool']['must']['term']['container_guid'] = $container_guid;
+			$client->search_params->addFilter($container_filter);
+		}
+		
 		// sort & order
 		$sort = elgg_extract('sort', $params);
 		$order = elgg_extract('order', $params, 'desc');
