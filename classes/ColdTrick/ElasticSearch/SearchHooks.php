@@ -220,19 +220,14 @@ class SearchHooks {
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
-			$fields = self::getQueryFields();
 			
-			$elastic_query['bool']['should'] = [];
-			foreach ($fields as $field) {
-				$elastic_query['bool']['should'][] = [
-					'match' => [
-						$field => [
-							'query' => $query
-						]
-					]
-				];
-			}
-						
+			$elastic_query['bool']['should']['multi_match'] = [
+				'fields' => self::getQueryFields($params),
+				'query' => $query,
+				'type' => 'cross_fields',
+				'operator' => 'and',
+			];
+									
 			$client->search_params->setQuery($elastic_query);
 			if (!elgg_extract('count', $params, false)) {
 				$client->search_params->setSuggestion($query);
@@ -275,12 +270,14 @@ class SearchHooks {
 		}
 	}
 	
-	protected static function getQueryFields() {
-		return [
+	protected static function getQueryFields($params = []) {
+		
+		$default = [
 			'title',
 			'description',
-			'tags'
+			'tags',
 		];
+		return elgg_trigger_plugin_hook('query_fields', 'elasticsearch', ['search_params' => $params], $default);
 	}
 		
 	/**
@@ -416,6 +413,7 @@ class SearchHooks {
 	 * @return void
 	 */
 	public static function queryProfileFields($hook, $type, $returnvalue, $params) {
+		
 		if (empty($params) || !is_array($params)) {
 			return;
 		}
@@ -424,16 +422,15 @@ class SearchHooks {
 		if (empty($search_params) || !is_array($search_params)) {
 			return;
 		}
-		
-		$types = (array) $returnvalue->search_params->getType();
-		if (!in_array('user', $types)) {
+				
+		$profile_fields = array_keys(elgg_get_config('profile_fields'));
+		if (empty($profile_fields)) {
 			return;
 		}
 		
-		$query = elgg_extract('query', $search_params);
-		
-		$profile_fields = array_keys(elgg_get_config('profile_fields'));
-		if (empty($profile_fields)) {
+		$type = elgg_extract('type', $search_params);
+		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $search_params);
+		if ($type !== 'user' && !array_key_exists('user', $type_subtype_pairs)) {
 			return;
 		}
 		
@@ -463,17 +460,10 @@ class SearchHooks {
 			return;
 		}
 
-		$nested_query = [];
-		$nested_query['nested']['path'] = 'metadata';
-		$nested_query['nested']['query']['bool']['must'][]['terms']['metadata.name'] = $field_names;
-		$nested_query['nested']['query']['bool']['must'][]['match']['metadata.value'] = $query;
+		foreach ($field_names as $field) {
+			$returnvalue[] = "profile.$field";
+		}
 		
-		$combined_query['bool']['must'][] = $nested_query;
-		$combined_query['bool']['must'][]['term']['type'] = 'user';
-			
-		$elastic_query['bool']['should'][] = $combined_query;
-				
-		$returnvalue->search_params->addQuery($elastic_query);
 		return $returnvalue;
 	}
 	

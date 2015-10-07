@@ -140,6 +140,55 @@ class Export {
 		
 		return $returnvalue;
 	}
+
+	/**
+	 * Hook to add user profiles fields to index
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function profileFieldsToProfileObject($hook, $type, $returnvalue, $params) {
+		
+		if (!elgg_in_context('search:index')) {
+			return;
+		}
+	
+		$entity = elgg_extract('entity', $params);
+		if (!$entity) {
+			return;
+		}
+		
+		if (!in_array($entity->getType(), ['user'])) {
+			return;
+		}
+		
+		$profile_fields = elgg_get_config('profile_fields');
+		
+		if (empty($profile_fields)) {
+			return;
+		}
+		
+		$profile_data = [];
+		foreach ($profile_fields as $field_name => $type) {
+			
+			$field_value = $entity->$field_name;
+			if ($field_value) {
+				$profile_data[$field_name] = $field_value;
+			}
+		}
+		
+		if (empty($profile_data)) {
+			return;
+		}
+		
+		$returnvalue->profile = $profile_data;
+				
+		return $returnvalue;
+	}
 	
 	/**
 	 * Hook to export entity counters for search
