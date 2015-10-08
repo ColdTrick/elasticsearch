@@ -150,7 +150,7 @@ class SearchHooks {
 	
 		$client->search_params->setType($types);
 	
-		$tag_query['bool']['must']['term']['tags'] = $params['query'];
+		$tag_query['bool']['must']['term']['tags'] = strtolower($params['query']);
 	
 		$client->search_params->setQuery($tag_query);
 	
