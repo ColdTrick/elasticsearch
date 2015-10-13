@@ -76,31 +76,7 @@ class SearchParams {
 		$result['body']['query']['indices']['index'] = $index;
 		if (!empty($this->params['query'])) {
 			$result['body']['query']['indices']['query'] = $this->params['query'];
-			
-			$query_text = $this->params['query_text'];
-			if (!empty($query_text)) {
-				// generate
-				$fields = [
-					'title',
-					'description',
-					'tags'
-				];
-					
-				$no_match_query['bool']['should'] = [];
-				foreach ($fields as $field) {
-					$no_match_query['bool']['should'][] = [
-						'match' => [
-							$field => [
-								'query' => $query_text
-							]
-						]
-					];
-				}
-				
-				$result['body']['query']['indices']['no_match_query'] = $no_match_query;
-			} else {
-				$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
-			}
+			$result['body']['query']['indices']['no_match_query'] = $this->params['query'];
 		} else {
 			$result['body']['query']['indices']['query']['bool']['must']['match_all'] = [];
 			$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
@@ -155,13 +131,6 @@ class SearchParams {
 	public function setType($type) {
 		$this->params['type'] = $type;
 	}
-
-	public function addType($type) {
-		$types = (array) $this->getType();
-		$types[] = $type;
-	
-		$this->params['type'] = $types;
-	}
 	
 	public function getType() {
 		return $this->params['type'];
@@ -180,10 +149,6 @@ class SearchParams {
 	
 	public function getFilter() {
 		return $this->params['filter'];
-	}
-	
-	public function setQueryText($query) {
-		$this->params['query_text'] = $query;
 	}
 	
 	public function addQuery($query = []) {
@@ -233,6 +198,10 @@ class SearchParams {
 		}
 		
 		$this->params['sort'][$field] = $sort_config;
+	}
+	
+	public function getSort() {
+		return elgg_extract('sort', $this->params);
 	}
 	
 	public function setSize($size) {
