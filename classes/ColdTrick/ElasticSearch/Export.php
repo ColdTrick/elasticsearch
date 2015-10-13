@@ -264,6 +264,37 @@ class Export {
 	}
 	
 	/**
+	 * Hook to strip tags from selected entity fields
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function stripTags($hook, $type, $returnvalue, $params) {
+		
+		if (!elgg_in_context('search:index')) {
+			return;
+		}
+	
+		$fields = ['title', 'description'];
+		
+		foreach ($fields as $field) {
+			$curval = $returnvalue->$field;
+			
+			if (empty($curval)) {
+				continue;
+			}
+			
+			$returnvalue->$field = strip_tags($curval);
+		}
+		
+		return $returnvalue;
+	}
+	
+	/**
 	 * Hook to extend the indexable entity types/subtypes
 	 *
 	 * @param string $hook        the name of the hook
