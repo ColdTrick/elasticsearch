@@ -49,7 +49,7 @@ function elasticsearch_init() {
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'entityCountersToObject'));
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'profileTagFieldsToTags'));
 	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'profileFieldsToProfileObject'));
-	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'stripTags'));
+	elgg_register_plugin_hook_handler('to:object', 'entity', array('ColdTrick\ElasticSearch\Export', 'stripTags'), 9999);
 	elgg_register_plugin_hook_handler('export:metadata_names', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportProfileMetadata'));
 	elgg_register_plugin_hook_handler('export:counters', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'exportGroupMemberCount'));
 	elgg_register_plugin_hook_handler('index_entity_type_subtypes', 'elasticsearch', array('ColdTrick\ElasticSearch\Export', 'indexEntityTypeSubtypes'));

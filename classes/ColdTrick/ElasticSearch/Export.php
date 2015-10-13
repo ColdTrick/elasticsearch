@@ -288,7 +288,7 @@ class Export {
 				continue;
 			}
 			
-			$returnvalue->$field = strip_tags($curval);
+			$returnvalue->$field = elgg_strip_tags($curval);
 		}
 		
 		return $returnvalue;
