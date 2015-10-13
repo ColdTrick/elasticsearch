@@ -84,11 +84,8 @@ switch ($task) {
 		}
 		
 		try {
-			$params = ['index' => $index];
-			$params['body']['settings']['analysis']['analyzer']['case_insensitive_sort'] = [
-				'tokenizer'=> 'keyword',
-				'filter' => ['lowercase']
-			];
+						
+			$params = json_decode(elgg_view('elasticsearch/index.json', ['index' => $index]), true);
 			
 			$client->indices()->create($params);
 		} catch (Exception $e) {
