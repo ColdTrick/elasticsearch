@@ -436,7 +436,7 @@ class SearchHooks {
 		}
 		
 		$type = elgg_extract('type', $search_params);
-		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $search_params);
+		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $search_params, []);
 		if ($type !== 'user' && !array_key_exists('user', $type_subtype_pairs)) {
 			return;
 		}
