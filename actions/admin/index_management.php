@@ -123,6 +123,9 @@ switch ($task) {
 				'metadata' => [
 					'type' => 'nested',
 				],
+				'profile' => [
+					'type' => 'string',
+				],
 			];
 			
 			$dynamic_templates = [
