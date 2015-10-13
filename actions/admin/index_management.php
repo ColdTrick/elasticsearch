@@ -108,55 +108,10 @@ switch ($task) {
 		
 		try {
 			
-			$properties = [
-				'name' => [
-					'type' => 'string',
-					'index' => 'not_analyzed',
-					'copy_to' => 'title'
-				],
-				'description' => [
-					'type' => 'string'
-				],
-				'relationships' => [
-					'type' => 'nested',
-				],
-				'metadata' => [
-					'type' => 'nested',
-				],
-				'profile' => [
-					'type' => 'string',
-				],
-			];
-			
-			$dynamic_templates = [
-				'strings' => [
-					'match_mapping_type' => 'string',
-					'mapping' => [
-						'type' => 'string',
-						'fields' => [
-							'raw' => [
-								'type' => 'string',
-								'analyzer' => 'case_insensitive_sort',
-								'ignore_above' => 256,
-							]
-						]
-					]
-				]
-			];
-				
-			$params = [
-				'index' => $index,
-				'type' => '_default_',
-				'body' => [
-					'_default_' => [
-						'dynamic_templates' => [$dynamic_templates],
-						'properties' => $properties,
-					]
-				]
-			];
+			$mapping = json_decode(elgg_view('elasticsearch/mapping.json', ['index' => $index]), true);
 			
 			// Update the index mapping
-			$client->indices()->putMapping($params);
+			$client->indices()->putMapping($mapping);
 			
 		} catch (Exception $e) {
 			register_error($e->getMessage());
