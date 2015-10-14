@@ -24,6 +24,13 @@ $properties = [
 	],
 	'metadata' => [
 		'type' => 'nested',
+		'properties' => [
+			'time_created' => ['type' => 'date'],
+			'owner_guid' => ['type' => 'long'],
+			'access_id' => ['type' => 'long'],
+			'name' => ['type' => 'string'],
+			'value' => ['type' => 'string'],
+		],
 	],
 	'profile' => [
 		'type' => 'nested',
