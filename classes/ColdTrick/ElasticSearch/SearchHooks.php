@@ -210,7 +210,7 @@ class SearchHooks {
 	 *
 	 * @return void
 	 */
-	protected static function prepareSearchParamsForHook(&$client, $params) {
+	public static function prepareSearchParamsForHook(&$client, $params) {
 		if (!$client) {
 			return;
 		}
