@@ -54,9 +54,7 @@ class SearchHooks {
 		if (!$client) {
 			return;
 		}
-		
-		$client->search_params->setQueryText($params['query']);
-		
+				
 		switch ($type) {
 			case 'user':
 				$client->search_params->setType('user');

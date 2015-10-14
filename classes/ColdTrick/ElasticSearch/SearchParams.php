@@ -73,19 +73,26 @@ class SearchParams {
 		}
 		
 		// query
-		$result['body']['query']['indices']['index'] = $index;
 		if (!empty($this->params['query'])) {
-			$result['body']['query']['indices']['query'] = $this->params['query'];
-			$result['body']['query']['indices']['no_match_query'] = $this->params['query'];
+			$result['body']['query'] = $this->params['query'];
 		} else {
-			$result['body']['query']['indices']['query']['bool']['must']['match_all'] = [];
-			$result['body']['query']['indices']['no_match_query']['bool']['must']['match_all'] = [];
+			$result['body']['query']['bool']['must']['match_all'] = [];
 		}
 				
 		// filter
-		if (!empty($this->params['filter'])) {
+		$filter = elgg_extract('filter', $this->params);
+		$no_match_filter = elgg_extract('no_match_filter', $this->params);
+		if (!empty($filter) || !empty($no_match_filter)) {
+			if (empty($filter)) {
+				$filter = 'all';
+			}
+			if (empty($no_match_filter)) {
+				$no_match_filter = 'all';
+			}
+			
 			$result['body']['filter']['indices']['index'] = $index;
-			$result['body']['filter']['indices']['filter'] = $this->params['filter'];
+			$result['body']['filter']['indices']['filter'] = $filter;
+			$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
 		}
 		
 		// track scores
@@ -131,6 +138,13 @@ class SearchParams {
 	public function setType($type) {
 		$this->params['type'] = $type;
 	}
+
+	public function addType($type) {
+		$types = (array) $this->getType();
+		$types[] = $type;
+	
+		$this->params['type'] = $types;
+	}
 	
 	public function getType() {
 		return $this->params['type'];
@@ -150,7 +164,22 @@ class SearchParams {
 	public function getFilter() {
 		return $this->params['filter'];
 	}
+
+	public function addNoMatchFilter($filter) {
+		if (!isset($this->params['no_match_filter'])) {
+			$this->params['no_match_filter'] = [];
+		}
+		$this->params['no_match_filter'] = array_merge_recursive($this->params['no_match_filter'], $filter);
+	}
 	
+	public function setNoMatchFilter($filter) {
+		$this->params['no_match_filter'] = $filter;
+	}
+	
+	public function getNoMatchFilter() {
+		return $this->params['no_match_filter'];
+	}
+		
 	public function addQuery($query = []) {
 		if (!isset($this->params['query'])) {
 			$this->params['query'] = [];
@@ -293,7 +322,11 @@ class SearchParams {
 			return;
 		}
 		
-		$filter['bool']['should'] = $access_filter;
+		$filter['bool']['must']['bool']['should'] = $access_filter;
 		$this->addFilter($filter);
+	}
+	
+	public function getParams() {
+		return $this->params;
 	}
 }
