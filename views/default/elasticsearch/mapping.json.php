@@ -35,6 +35,10 @@ $properties = [
 	'profile' => [
 		'type' => 'nested',
 	],
+	'tags' => [
+		'type' => 'string',
+		'analyzer' => 'case_insensitive_sort',
+	],
 ];
 	
 $dynamic_templates = [
