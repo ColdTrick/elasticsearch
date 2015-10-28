@@ -219,11 +219,10 @@ class SearchHooks {
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
 			
-			$elastic_query['bool']['should']['multi_match'] = [
+			$elastic_query['bool']['should']['query_string'] = [
 				'fields' => self::getQueryFields($params),
 				'query' => $query,
-				'type' => 'cross_fields',
-				'operator' => 'and',
+				'default_operator' => 'AND',
 			];
 									
 			$client->search_params->setQuery($elastic_query);

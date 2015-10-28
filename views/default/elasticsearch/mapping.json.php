@@ -34,6 +34,7 @@ $properties = [
 	],
 	'profile' => [
 		'type' => 'nested',
+		'include_in_parent' => true,
 	],
 	'tags' => [
 		'type' => 'string',
