@@ -60,6 +60,7 @@ function elasticsearch_init() {
 	elgg_register_event_handler('update', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'update'));
 	elgg_register_event_handler('delete', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'delete'));
 	elgg_register_event_handler('disable', 'all', array('ColdTrick\ElasticSearch\EventDispatcher', 'disable'));
+	elgg_register_event_handler('ban', 'user', array('ColdTrick\ElasticSearch\EventDispatcher', 'banUser'));
 	
 	// actions
 	elgg_register_action('elasticsearch/admin_search', dirname(__FILE__) . '/actions/admin_search.php', 'admin');

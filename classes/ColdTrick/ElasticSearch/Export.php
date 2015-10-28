@@ -288,6 +288,8 @@ class Export {
 				continue;
 			}
 			
+			$curval = html_entity_decode($curval, ENT_QUOTES, 'UTF-8');
+			
 			$returnvalue->$field = elgg_strip_tags($curval);
 		}
 		

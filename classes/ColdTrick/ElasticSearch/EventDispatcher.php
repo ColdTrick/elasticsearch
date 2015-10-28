@@ -82,6 +82,28 @@ class EventDispatcher {
 	}
 	
 	/**
+	 * Listen to ban user events and update Elasticsearch as needed
+	 *
+	 * @param string    $event the name of the event
+	 * @param string    $type  the type of the event
+	 * @param \ElggUser $user  the affected user
+	 *
+	 * @return void
+	 */
+	public static function banUser($event, $type, $user) {
+		
+		if (!($user instanceof \ElggUser)) {
+			return;
+		}
+		
+		// remove user from index
+		self::deleteEntity($user);
+		
+		// remove indexed ts, so when unbanned it will get indexed automatically
+		$user->removePrivateSetting(ELASTICSEARCH_INDEXED_NAME);
+	}
+	
+	/**
 	 * Updates the entity the annotation is related to
 	 *
 	 * @param object $annotation the annotation

@@ -46,33 +46,50 @@ class SearchResult {
 		
 		foreach ($hits as $hit) {
 			$source = elgg_extract('_source', $hit);
-		
+			
 			$entity = elgg_trigger_plugin_hook('to:entity', 'elasticsearch', ['hit' => $hit, 'search_params' => $this->search_params], null);
-				
+			
 			if (!($entity instanceof \ElggEntity)) {
 				continue;
 			}
-				
+			
 			// set correct search highlighting
-			$query = elgg_extract('query', $params);
-		
-			$title = elgg_extract('title', $source);
+			$highlight = (array) elgg_extract('highlight', $hit, []);
+			
+			// title
+			$title = elgg_extract('title', $highlight, elgg_extract('title', $source));
 			if (!empty($title)) {
-				$title = search_get_highlighted_relevant_substrings($title, $query);
+				if (is_array($title)) {
+					$title = implode('', $title);
+				}
 				$entity->setVolatileData('search_matched_title', $title);
 			}
-		
-			$desc = elgg_extract('description', $source);
-			if (!empty($title)) {
-				$desc = search_get_highlighted_relevant_substrings($desc, $query);
-				$entity->setVolatileData('search_matched_description', $desc);
+			
+			// description
+			$desc = elgg_extract('description', $highlight);
+			if (empty($desc)) {
+				$desc = elgg_get_excerpt(elgg_extract('description', $source));
 			}
-				
+			if (is_array($desc)) {
+				$desc = implode('...', $desc);
+			}
+			$entity->setVolatileData('search_matched_description', $desc);
+			
+			// tags
+			$tags = elgg_extract('tags', $highlight);
+			if (!empty($tags)) {
+				if (is_array($tags)) {
+					$tags = implode(', ', $tags);
+				}
+				$entity->setVolatileData('search_matched_extra', $tags);
+			}
+			
+			// score
 			$score = elgg_extract('_score', $hit);
 			if ($score) {
 				$entity->setVolatileData('search_score', $score);
 			}
-		
+			
 			$entities[] = $entity;
 		}
 		

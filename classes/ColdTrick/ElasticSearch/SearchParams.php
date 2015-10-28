@@ -119,6 +119,28 @@ class SearchParams {
 				// only fetch suggestion once
 				$result['body']['suggest'] = $this->params['suggest'];
 			}
+			
+			// highlighting
+			// global settings
+			$result['body']['highlight']['encoder'] = 'html';
+			$result['body']['highlight']['pre_tags'] = [
+				'<strong class="search-highlight search-highlight-color1">',
+			];
+			$result['body']['highlight']['post_tags'] = [
+				'</strong>',
+			];
+			$result['body']['highlight']['number_of_fragments'] = 3;
+			// title
+			$result['body']['highlight']['fields']['title'] = [
+				'number_of_fragments' => 0,
+			];
+			// description
+			$des = new \stdClass();
+			$result['body']['highlight']['fields']['description'] = $des;
+			// tags
+			$result['body']['highlight']['fields']['tags'] = [
+				'number_of_fragments' => 0,
+			];
 		}
 		
 		return $result;
