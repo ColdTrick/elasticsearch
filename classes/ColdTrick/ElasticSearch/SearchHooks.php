@@ -224,6 +224,7 @@ class SearchHooks {
 				'query' => $query,
 				'type' => 'cross_fields',
 				'operator' => 'and',
+				'analyzer' => 'standard',
 			];
 									
 			$client->search_params->setQuery($elastic_query);
