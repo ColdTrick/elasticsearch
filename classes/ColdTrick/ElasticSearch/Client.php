@@ -257,6 +257,7 @@ class Client extends \Elasticsearch\Client {
 		}
 		
 		$msg = @json_encode($params);
+		$msg = htmlentities($msg, ENT_QUOTES, 'UTF-8');
 		
 		if ($action) {
 			$msg = "$action: $msg";
