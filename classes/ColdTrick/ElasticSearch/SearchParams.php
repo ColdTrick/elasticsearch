@@ -344,7 +344,7 @@ class SearchParams {
 			return;
 		}
 		
-		$filter['bool']['must']['bool']['should'] = $access_filter;
+		$filter['bool']['must'][]['bool']['should'] = $access_filter;
 		$this->addFilter($filter);
 	}
 	
