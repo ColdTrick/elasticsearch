@@ -318,7 +318,7 @@ class SearchHooks {
 			$returnvalue[] = \ElggMenuItem::factory([
 				'name' => $item,
 				'text' => elgg_echo("elasticsearch:menu:search_list:sort:{$item}"),
-				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item, 'order' => null]),
+				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item, 'order' => null, 'offset' => null]),
 				'parent_name' => 'sort',
 				'selected' => ($current_sort === $item),
 				'title' => $title
@@ -332,7 +332,7 @@ class SearchHooks {
 				$returnvalue[] = \ElggMenuItem::factory([
 					'name' => 'members_count',
 					'text' => elgg_echo("elasticsearch:menu:search_list:sort:member_count"),
-					'href' => elgg_http_add_url_query_elements($url, ['sort' => 'member_count', 'order' => 'desc']),
+					'href' => elgg_http_add_url_query_elements($url, ['sort' => 'member_count', 'order' => 'desc', 'offset' => null]),
 					'parent_name' => 'sort',
 					'selected' => ($current_sort === 'member_count'),
 					'title' => $title
