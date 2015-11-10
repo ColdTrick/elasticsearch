@@ -134,6 +134,10 @@ class SearchParams {
 			$result['body']['highlight']['fields']['title'] = [
 				'number_of_fragments' => 0,
 			];
+			// name
+			$result['body']['highlight']['fields']['name'] = [
+				'number_of_fragments' => 0,
+			];
 			// description
 			$des = new \stdClass();
 			$result['body']['highlight']['fields']['description'] = $des;

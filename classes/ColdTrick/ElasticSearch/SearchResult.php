@@ -57,13 +57,28 @@ class SearchResult {
 			$highlight = (array) elgg_extract('highlight', $hit, []);
 			
 			// title
-			$title = elgg_extract('title', $highlight, elgg_extract('title', $source));
+			$highlight_title = '';
+			$title = elgg_extract('title', $highlight);
 			if (!empty($title)) {
 				if (is_array($title)) {
 					$title = implode('', $title);
 				}
-				$entity->setVolatileData('search_matched_title', $title);
+				$highlight_title = $title;
 			}
+			// name
+			$name = elgg_extract('name', $highlight);
+			if (!empty($name)) {
+				if (is_array($name)) {
+					$name = implode('', $name);
+				}
+				$highlight_title = $name;
+			}
+			
+			// no title/name found
+			if (empty($highlight_title)) {
+				$highlight_title = elgg_extract('title', $source);
+			}
+			$entity->setVolatileData('search_matched_title', $highlight_title);
 			
 			// description
 			$desc = elgg_extract('description', $highlight);

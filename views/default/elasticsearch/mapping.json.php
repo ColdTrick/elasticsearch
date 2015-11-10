@@ -13,7 +13,6 @@ if (empty($index)) {
 $properties = [
 	'name' => [
 		'type' => 'string',
-		'index' => 'not_analyzed',
 		'copy_to' => 'title'
 	],
 	'description' => [
