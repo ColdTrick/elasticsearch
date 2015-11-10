@@ -11,6 +11,12 @@ if (empty($index)) {
 }
 
 $params = ['index' => $index];
+
+$params['body']['settings']['analysis']['analyzer']['default'] = [
+	'tokenizer'=> 'standard',
+	'filter' => ['lowercase', 'asciifolding']
+];
+
 $params['body']['settings']['analysis']['analyzer']['case_insensitive_sort'] = [
 	'tokenizer'=> 'keyword',
 	'filter' => ['lowercase']
