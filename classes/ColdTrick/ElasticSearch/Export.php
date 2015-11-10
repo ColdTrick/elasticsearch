@@ -279,7 +279,7 @@ class Export {
 			return;
 		}
 	
-		$fields = ['title', 'description'];
+		$fields = ['title', 'name', 'description'];
 		
 		foreach ($fields as $field) {
 			$curval = $returnvalue->$field;
