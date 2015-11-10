@@ -381,6 +381,10 @@ class SearchHooks {
 			if ($value === "") {
 				continue;
 			}
+			$value = strtolower($value);
+			$value = explode(' ', $value);
+			$value = implode('* *', $value);
+			
 			$sub_query = [];
 			$sub_query['nested']['path'] = 'metadata';
 			$sub_query['nested']['query']['bool']['must'][] = [
@@ -389,8 +393,10 @@ class SearchHooks {
 				],
 			];
 			$sub_query['nested']['query']['bool']['must'][] = [
-				'wildcard' => [
-					'metadata.value' => "{$value}*",
+				'query_string' => [
+					'default_field' => 'metadata.value',
+					'query' => "*{$value}*",
+					'default_operator' => 'AND',
 				],
 			];
 			
