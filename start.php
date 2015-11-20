@@ -67,4 +67,5 @@ function elasticsearch_init() {
 	
 	elgg_register_action('elasticsearch/admin/index_management', dirname(__FILE__) . '/actions/admin/index_management.php', 'admin');
 	elgg_register_action('elasticsearch/admin/reindex', dirname(__FILE__) . '/actions/admin/reindex.php', 'admin');
+	elgg_register_action('elasticsearch/admin/download_log', dirname(__FILE__) . '/actions/admin/download_log.php', 'admin');
 }

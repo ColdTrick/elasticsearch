@@ -61,18 +61,11 @@ foreach ($fs_it as $file => $info) {
 			'class' => 'mls',
 		));
 	} else {
-		elgg_load_css('lightbox');
-		elgg_load_js('lightbox');
-		
-		$li .= elgg_view_icon('download');
 		$li .= elgg_view('output/url', array(
-			'text' => $basename,
-			'href' => "ajax/view/elasticsearch/logging/view?path={$path}",
-			'class' => 'elgg-lightbox mls',
+			'text' => elgg_view_icon('download') . " {$basename}",
+			'href' => "action/elasticsearch/admin/download_log?path={$path}",
 			'is_trusted' => true,
-			'data-colorbox-opts' => json_encode(array(
-				'maxWidth' => '60%'
-			)),
+			'is_action' => true,
 		));
 	}
 	
