@@ -219,7 +219,7 @@ class SearchHooks {
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
 			
-			$elastic_query['bool']['should']['query_string'] = [
+			$elastic_query['bool']['must'][]['query_string'] = [
 				'fields' => self::getQueryFields($params),
 				'query' => $query,
 				'default_operator' => 'AND',
