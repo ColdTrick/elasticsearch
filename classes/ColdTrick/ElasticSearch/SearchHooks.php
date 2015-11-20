@@ -382,7 +382,9 @@ class SearchHooks {
 				continue;
 			}
 			$value = strtolower($value);
+			$value = str_replace('&amp;', '', $value);
 			$value = explode(' ', $value);
+			$value = array_filter($value);
 			$value = implode('* *', $value);
 			
 			$sub_query = [];
