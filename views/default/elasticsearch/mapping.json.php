@@ -27,8 +27,26 @@ $properties = [
 			'time_created' => ['type' => 'date'],
 			'owner_guid' => ['type' => 'long'],
 			'access_id' => ['type' => 'long'],
-			'name' => ['type' => 'string'],
-			'value' => ['type' => 'string'],
+			'name' => [
+				'type' => 'string',
+				'fields' => [
+					'raw' => [
+						'type' => 'string',
+						'analyzer' => 'case_insensitive_sort',
+						'ignore_above' => 256,
+					],
+				],
+			],
+			'value' => [
+				'type' => 'string',
+				'fields' => [
+					'raw' => [
+						'type' => 'string',
+						'analyzer' => 'case_insensitive_sort',
+						'ignore_above' => 256,
+					],
+				],
+			],
 		],
 	],
 	'profile' => [
