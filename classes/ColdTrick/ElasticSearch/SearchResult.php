@@ -26,7 +26,8 @@ class SearchResult {
 	}
 	
 	public function getHits() {
-		$hits = elgg_extract('hits', $this->result);
+		$hits = elgg_extract('hits', $this->result, []);
+		
 		return elgg_extract('hits', $hits);
 	}
 	
