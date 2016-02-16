@@ -63,19 +63,19 @@ class SearchHooks {
 				$client->search_params->setType('group');
 				break;
 			case 'object':
-				$subtype = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
+				$subtypes = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
 		
-				if (empty($subtype)) {
+				if (empty($subtypes)) {
 					return;
 				}
 				
-				$subtype = (array) $subtype;
+				$subtypes = (array) $subtypes;
+				$namespaced_subtypes = [];
+				foreach ($subtypes as $subtype) {
+					$namespaced_subtypes[] = "object.{$subtype}";
+				}
 				
-				array_walk($subtype, function(&$value) {
-					$value = "object.{$value}";
-				});
-				
-				$client->search_params->setType($subtype);
+				$client->search_params->setType($namespaced_subtypes);
 				break;
 			case 'tags':
 				$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
