@@ -1,2 +1,135 @@
 Version history
 ===============
+
+1.0 (2016-03-08):
+
+- added: ability to add counters to entity export
+- added: ability to enable scores tracking
+- added: access support in search
+- added: admin search action now performs a basic search
+- added: admin search can now search in any index
+- added: admin search form
+- added: alphabetical sorting capabilities
+- added: basic document operations
+- added: basic tags search
+- added: bulkIndexDocuments function is now available
+- added: changed no match query part
+- added: chronological sorting options added
+- added: count queries now use the count API call
+- added: create/delete relationship events now update the entity in the index
+- added: deletion of documents in elastic will now be done in bulk
+- added: did you mean suggestions are displayed on top of result lists
+- added: dutch translation
+- added: explicit metadata mappings
+- added: export group member count
+- added: function to get current sorting params
+- added: function to get the search_params type
+- added: general search function chore: some internal rewrites
+- added: generic metadata export abilities and export of user/group profile data
+- added: getHits function added to SearchResult class
+- added: group content search is now functional
+- added: handling of group member count sorting
+- added: index management actions
+- added: insert/update/delete entities
+- added: manifest requirement to be positioned after search plugin
+- added: option to configure multiple hosts
+- added: option to delete the alias from an index
+- added: option to view the api logs
+- added: plugin hook for elasticsearch params
+- added: pluginhook for search params
+- added: plugin setting to take over search hooks
+- added: profile data is now always mapped as string
+- added: profile field filter is now part of the query
+- added: raw mapping for metadata.name and metadata.value
+- added: readable admin search results
+- added: reindex action to elgg stats
+- added: relationships are exported
+- added: relationships mapping to nested
+- added: replaces the default elgg search hooks with elastic searches
+- added: search alias support
+- added: search_score is added to the volatile data
+- added: setIndex added to SearchParams
+- added: support for search advanced combined:all search
+- added: update entities in the index that get commented or annotated on
+- added: update index when an entity gets disabled
+- added: user/group tag profile fields get appended to the tags field
+- added: user profile fields are now being searched
+- changed: added basic configuration instructions to the readme
+- changed: bulk index menthod to bulk
+- changed: changed suggestion to only suggest if terms are missing
+- changed: check if exists before update/deleteDocument
+- changed: cluster stats layout
+- changed: create/update document now use index api call
+- changed: create/update entity indexing
+- changed: default analyzer updated to use lowercase and asciifolding
+- changed: download es log instead of viewing on site
+- changed: elasticsearch log level minimun to ERROR
+- changed: elgg stats don't require client
+- changed: entity search now all use the same search hook
+- changed: error reporting only shows error text
+- changed: improved/fixed profile field search
+- changed: indices stats collapsable
+- changed: individual mappings changed to a _default_ mapping for all entities
+- changed: introduced new Elastic SearchParams class for querying
+- changed: lower case the query when doing tag search
+- changed: moved index config to a view to allow easy override
+- changed: moved mapping to a view file to allow easy overrides
+- changed: prepareSearchParamsForHook is now a public functoin
+- changed: query is now multimatch and also multimatches profile data
+- changed: query type to query_string
+- changed: reordered menu items
+- changed: replaced name of class functions create/update with index
+- changed: search errors are reported more general to users
+- changed: search highlighting done by ElasticSearch
+- changed: search now only searches specific fields
+- changed: search results are passed through a hook to transform
+- changed: some new search params functions and a fix for entity access
+- changed: switch to count query instead of count api call
+- changed: tags are stripped from all title and description fields
+- changed: type/subtypes validation using own function
+- changed: updated search category name
+- fixed: addFilter now recursive merges the new filter with existing ones
+- fixed: adding access filter causes other filters to no longer work
+- fixed: admin search was missing some translatable texts
+- fixed: always push access_id and correctly check for valid entities
+- fixed: basic logging
+- fixed: batchsize
+- fixed: call to undefined function
+- fixed: coding style in constructor
+- fixed: conflict in access and group filter
+- fixed: correct formatting of combined:object types
+- fixed: correctly check if access can be ignored during search
+- fixed: correctly limit profile search to user types
+- fixed: could not match on tags cross field search
+- fixed: default type_subtype_pairs to array to prevent php warnings
+- fixed: dirty fix to support searching with ampersand on profile fields
+- fixed: do not fetch suggestions when doing a count
+- fixed: encoding issue on user/group name
+- fixed: error_log overflow is curl_multi_exec is blocked
+- fixed: highlighting on user/group name
+- fixed: host url needed more cleanup
+- fixed: html in elasticsearch to export
+- fixed: incorrect check for registered entity type/subtype
+- fixed: incorrect params for update doc
+- fixed: load additional required params for users to prevent dbcalls
+- fixed: load site icons
+- fixed: log dir unavailable
+- fixed: logging layout
+- fixed: missing feedback in admin search when client can not be created
+- fixed: missing semicolon
+- fixed: only mark entity as updatable when in index
+- fixed: only show log root folder link if in subfolder
+- fixed: page_top and discussion replies should be indexed
+- fixed: php notice
+- fixed: php notice undefined property
+- fixed: prevent html rendering of errors
+- fixed: remove banned users from index
+- fixed: reset offset when changing sort order
+- fixed: return value
+- fixed: show correct file/folder icons in log pages
+- fixed: sorting not added to correct query part
+- fixed: tags are now indexed as a full sentence
+- fixed: unset sort order in sort menu items
+- fixed: use a must bool search for the default search instead of a should
+- fixed: use correct index when set to a custom index
+- fixed: wrong var check
