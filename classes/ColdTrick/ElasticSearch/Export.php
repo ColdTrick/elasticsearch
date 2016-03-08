@@ -133,8 +133,10 @@ class Export {
 			return;
 		}
 		
-		$current_tags = (array) $returnvalue->tags;
-		$tags = array_merge($current_tags, $tags);
+		if (isset($returnvalue->tags)) {
+			$current_tags = (array) $returnvalue->tags;
+			$tags = array_merge($current_tags, $tags);
+		}
 		
 		$returnvalue->tags = $tags;
 		
@@ -282,8 +284,12 @@ class Export {
 		$fields = ['title', 'name', 'description'];
 		
 		foreach ($fields as $field) {
-			$curval = $returnvalue->$field;
 			
+			if (!isset($returnvalue->$field)) {
+				continue;
+			}
+			
+			$curval = $returnvalue->$field;
 			if (empty($curval)) {
 				continue;
 			}
