@@ -330,7 +330,7 @@ class Export {
 		}
 		
 		// add discussion replies
-		if (in_array('groupforumtopic', $objects)) {
+		if (in_array('groupforumtopic', $objects) || in_array('discussion', $objects)) {
 			$objects[] = 'discussion_reply';
 		}
 		
