@@ -214,7 +214,7 @@ class SearchHooks {
 		}
 		
 		$client->search_params->setFrom(elgg_extract('offset', $params, 0));
-		$client->search_params->setSize(elgg_extract('limit', $params, 10));
+		$client->search_params->setSize(elgg_extract('limit', $params, elgg_get_config('default_limit')));
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
