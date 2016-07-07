@@ -1,6 +1,12 @@
 Version history
 ===============
 
+1.1 (2016-07-07):
+
+- changed: escaped some extra search strings for profile field searches
+- changed: switched global query to simple query string
+- fixed: use correct default limit for listing
+
 1.0.1 (2016-04-14):
 
 - fixed: exporting discussion replies in Elgg 2.x
