@@ -147,9 +147,10 @@ class Client extends \Elasticsearch\Client {
 	/**
 	 * Deletes documents in bulk from index
 	 *
-	 * @return void
+	 * @return void|array
 	 */
 	public function bulkDeleteDocuments() {
+		
 		$documents = elasticsearch_get_documents_for_deletion();
 		if (empty($documents)) {
 			return;
@@ -163,9 +164,22 @@ class Client extends \Elasticsearch\Client {
 		try {
 			$result = $this->bulk($params);
 			
-			if ($result) {
-				foreach ($documents as $guid => $document) {
-					elasticsearch_remove_document_for_deletion($guid);
+			if (!empty($result)) {
+				
+				$items = elgg_extract('items', $result);
+				foreach ($items as $action) {
+					
+					$status = elgg_extract('status', $action['delete']);
+					$found = elgg_extract('found', $action['delete']);
+					$guid = (int) elgg_extract('_id', $action['delete']);
+					
+					if (($status === 200 && $found) || ($status === 404 && !$found)) {
+						// document was removed
+						elasticsearch_remove_document_for_deletion($guid);
+					} else {
+						// some error occured, reschedule delete
+						elasticsearch_reschedule_document_for_deletion($guid);
+					}
 				}
 			}
 			

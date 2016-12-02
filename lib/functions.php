@@ -254,6 +254,7 @@ function elasticsearch_get_setting($setting) {
  * @return void
  */
 function elasticsearch_add_document_for_deletion($guid, $info) {
+	
 	if (empty($guid) || !is_array($info)) {
 		return;
 	}
@@ -263,6 +264,9 @@ function elasticsearch_add_document_for_deletion($guid, $info) {
 	$fh = new ElggFile();
 	$fh->owner_guid = $plugin->getGUID();
 	$fh->setFilename("documents_for_deletion/{$guid}");
+	
+	// set a timestamp for deletion
+	$info['time'] = time();
 	
 	if ($fh->open("write")) {
 		$fh->write(serialize($info));
@@ -278,6 +282,7 @@ function elasticsearch_add_document_for_deletion($guid, $info) {
  * @return void
  */
 function elasticsearch_remove_document_for_deletion($guid) {
+	
 	if (empty($guid)) {
 		return;
 	}
@@ -288,7 +293,9 @@ function elasticsearch_remove_document_for_deletion($guid) {
 	$fh->owner_guid = $plugin->getGUID();
 	$fh->setFilename("documents_for_deletion/{$guid}");
 	
-	$fh->delete();
+	if ($fh->exists()) {
+		$fh->delete();
+	}
 }
 
 /**
@@ -317,9 +324,55 @@ function elasticsearch_get_documents_for_deletion() {
 		if (!is_array($contents)) {
 			continue;
 		}
-		$documents[$file] = $contents;
 		
+		$deletion_time = elgg_extract('time', $contents);
+		if (!empty($deletion_time) && $deletion_time > time()) {
+			// not yet scheduled for deletion, (only if deletion failed once before)
+			continue;
+		}
+		
+		unset($contents['time']);
+		
+		$documents[$file] = $contents;
 	}
 	
 	return $documents;
+}
+
+/**
+ * Reschedule a document for deletion, because something failed
+ *
+ * @param int $guid the document to be rescheduled
+ *
+ * @return void
+ */
+function elasticsearch_reschedule_document_for_deletion($guid) {
+	
+	$plugin = elgg_get_plugin_from_id('elasticsearch');
+	
+	$fh = new ElggFile();
+	$fh->owner_guid = $plugin->getGUID();
+	$fh->setFilename("documents_for_deletion/{$guid}");
+	
+	if (!$fh->exists()) {
+		// shouldn't happen
+		return;
+	}
+	
+	$contents = $fh->grabFile();
+	if (empty($contents)) {
+		return;
+	}
+	
+	$contents = unserialize($contents);
+	if (!is_array($contents)) {
+		return;
+	}
+	
+	// try agin in an hour
+	$contents['time'] = time() + (60 * 60);
+	
+	$fh->open('write');
+	$fh->write(serialize($contents));
+	$fh->close();
 }
