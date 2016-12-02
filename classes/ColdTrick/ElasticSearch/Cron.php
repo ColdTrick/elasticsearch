@@ -158,7 +158,7 @@ class Cron {
 		self::cleanupElasticsearch();
 		
 		// find entities in Elgg which should be in ES but aren't
-		
+		self::checkElggIndex();
 	}
 	
 	/**
@@ -250,7 +250,145 @@ class Cron {
 		try {
 			$client->clearScroll($scroll_params);
 		} catch (\Exception $e) {
-			// unable to clean
+			// unable to clean, could be because we came to the end of the scroll
 		}
+	}
+	
+	/**
+	 * Find entities in Elgg which aren't in Elasticsearch but should be
+	 *
+	 * @return void
+	 */
+	protected static function checkElggIndex() {
+		
+		$client = elasticsearch_get_client();
+		if (empty($client)) {
+			return;
+		}
+		
+		// this could take a while
+		set_time_limit(0);
+		
+		// ignore access
+		$ia = elgg_set_ignore_access(true);
+		
+		// find unindexed GUIDs
+		$guids = [];
+		$unindexed = [];
+		
+		$batch = new \ElggBatch('elgg_get_entities_from_private_settings', [
+			'type_subtype_pairs' => elasticsearch_get_registered_entity_types_for_search(),
+			'limit' => false,
+			'private_setting_name_value_pairs' => [
+				'name' => ELASTICSEARCH_INDEXED_NAME,
+				'value' => 0,
+				'operand' => '>',
+			],
+		]);
+		/* @var $entity \ElggEntity */
+		foreach ($batch as $entity) {
+			$guids[] = $entity->getGUID();
+			
+			if (count($guids) < 250) {
+				continue;
+			}
+			
+			$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
+			$guids = [];
+		}
+		
+		if (!empty($guids)) {
+			$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
+		}
+		
+		if (empty($unindexed)) {
+			// restore access
+			elgg_set_ignore_access($ia);
+			
+			return;
+		}
+		
+		// reindex entities
+		$reindex = new \ElggBatch('elgg_get_entities', [
+			'guids' => $unindexed,
+			'limit' => false,
+		]);
+		/* @var $entity \ElggEntity */
+		foreach ($reindex as $entity) {
+			// mark for reindex
+			$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
+		}
+		
+		// restore access
+		elgg_set_ignore_access($ia);
+	}
+	
+	/**
+	 * Find Elgg GUIDs not present in Elasticsearch
+	 *
+	 * @param int[] $guids Elgg GUIDs
+	 *
+	 * @return int[]
+	 */
+	protected static function findUnindexedGUIDs($guids = []) {
+		
+		if (empty($guids) || !is_array($guids)) {
+			return [];
+		}
+		
+		$client = elasticsearch_get_client();
+		if (empty($client)) {
+			return;
+		}
+		
+		$search_params = [
+			'index' => $client->getIndex(),
+			'search_type' => 'scan',
+			'scroll' => '2m',
+			'size' => count($guids),
+			'body' => [
+				'query' => [
+					'filtered' => [
+						'filter' => [
+							'terms' => [
+								'guid' => $guids,
+							],
+						],
+					],
+				],
+			],
+		];
+		
+		try {
+			$scroll_setup = $client->search($search_params);
+		} catch (\Exception $e) {
+			return [];
+		}
+		
+		// now scroll through all results
+		$result = [];
+		$scroll_params = [
+			'scroll_id' => elgg_extract('_scroll_id', $scroll_setup),
+			'scroll' => '2m',
+		];
+		
+		try {
+			while ($scroll_result = $client->scroll($scroll_params)) {
+				$search_result = new SearchResult($scroll_result);
+				
+				$elasticsearch_guids = $search_result->toGuids();
+				
+				$guids_not_in_elasticsearch = array_diff($guids, $elasticsearch_guids);
+				if (empty($guids_not_in_elasticsearch)) {
+					continue;
+				}
+				
+				$result = array_merge($result, $guids_not_in_elasticsearch);
+			}
+		} catch (\Exception $e) {
+			// end off scroll
+		}
+		
+		return array_unique($result);
 	}
 }
