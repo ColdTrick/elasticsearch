@@ -31,7 +31,8 @@ function elasticsearch_init() {
 	
 	// plugin hooks
 	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
-	elgg_register_plugin_hook_handler('cron', 'minute', array('ColdTrick\ElasticSearch\Cron', 'minuteSync'));
+	elgg_register_plugin_hook_handler('cron', 'minute', '\ColdTrick\ElasticSearch\Cron::minuteSync');
+	elgg_register_plugin_hook_handler('cron', 'daily', '\ColdTrick\ElasticSearch\Cron::dailyCleanup');
 
 	// search hooks
 	elastic_prepare_search_hooks();

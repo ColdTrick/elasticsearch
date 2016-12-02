@@ -31,6 +31,30 @@ class SearchResult {
 		return elgg_extract('hits', $hits);
 	}
 	
+	/**
+	 * Get a single hit from the results
+	 *
+	 * @param int $id the id in Elasticsearch (usualy an Elgg GUID)
+	 *
+	 * @return false|array
+	 */
+	public function getHit($id) {
+		
+		$hits = $this->getHits();
+		if (empty($hits)) {
+			return false;
+		}
+		
+		foreach ($hits as $hit) {
+			$_id = (int) elgg_extract('_id', $hit);
+			if ($id === $_id) {
+				return $hit;
+			}
+		}
+		
+		return false;
+	}
+	
 	public function getSuggestions() {
 		return elgg_extract('suggest', $this->result);
 	}
@@ -110,5 +134,37 @@ class SearchResult {
 		}
 		
 		return $entities;
+	}
+	
+	/**
+	 * get the GUIDs of all re results
+	 *
+	 * return []
+	 */
+	public function toGuids() {
+		
+		$hits = $this->getHits();
+		if (!$hits) {
+			return [];
+		}
+		
+		$guids = [];
+		
+		foreach ($hits as $hit) {
+			
+			$source = elgg_extract('_source', $hit);
+			if (empty($source)) {
+				continue;
+			}
+			
+			$guid = elgg_extract('guid', $source);
+			if (empty($guid)) {
+				continue;
+			}
+			
+			$guids[] = $guid;
+		}
+		
+		return $guids;
 	}
 }

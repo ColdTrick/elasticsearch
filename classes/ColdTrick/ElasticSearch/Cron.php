@@ -141,4 +141,116 @@ class Cron {
 		
 		return $time_left;
 	}
+	
+	/**
+	 * Listen to the daily cron the do some cleanup jobs
+	 *
+	 * @param string $hook        the name of the hook
+	 * @param string $type        the type of the hook
+	 * @param string $returnvalue current return value
+	 * @param array  $params      supplied params
+	 *
+	 * @return void
+	 */
+	public static function dailyCleanup($hook, $type, $resultvalue, $params) {
+		
+		// find documents in ES which don't exist in Elgg anymore
+		self::cleanupElasticsearch();
+		
+		// find entities in Elgg which should be in ES but aren't
+		
+	}
+	
+	/**
+	 * Find documents in Elasticsearch which don't exist in Elgg anymore
+	 *
+	 * @return void
+	 */
+	protected static function cleanupElasticsearch() {
+		
+		$client = elasticsearch_get_client();
+		if (empty($client)) {
+			return;
+		}
+		
+		// this could take a while
+		set_time_limit(0);
+		
+		// prepare a search for all documents
+		$search_params = [
+			'index' => $client->getIndex(),
+			'search_type' => 'scan',
+			'scroll' => '2m',
+			'body' => [
+				'query' => [
+					'match_all' => [],
+				],
+			],
+		];
+		
+		try {
+			$scroll_setup = $client->search($search_params);
+		} catch (\Exception $e) {
+			return;
+		}
+		
+		// now scroll through all results
+		$scroll_params = [
+			'scroll_id' => elgg_extract('_scroll_id', $scroll_setup),
+			'scroll' => '2m',
+		];
+		
+		// ignore Elgg access
+		$ia = elgg_set_ignore_access(true);
+		
+		try {
+			while ($result = $client->scroll($scroll_params)) {
+				
+				$search_result = new SearchResult($result);
+				
+				$elasticsearch_guids = $search_result->toGuids();
+				if (empty($elasticsearch_guids)) {
+					break;
+				}
+				
+				$elgg_guids = elgg_get_entities([
+					'guids' => $elasticsearch_guids,
+					'limit' => false,
+					'callback' => function ($row) {
+						return (int) $row->guid;
+					}
+				]);
+				
+				$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
+				if (empty($guids_not_in_elgg)) {
+					continue;
+				}
+				
+				// remove all left over documents
+				foreach ($guids_not_in_elgg as $guid) {
+					
+					// need to get the hist from Elasticsearch to get the type, since it's not in Elgg anymore
+					$hit = $search_result->getHit($guid);
+					
+					elasticsearch_add_document_for_deletion($guid, [
+						'_index' => $client->getIndex(),
+						'_type' => elgg_extract('_type', $hit),
+						'_id' => $guid,
+					]);
+				}
+			}
+		} catch (\Exception $e) {
+			elgg_log('Elasticsearch cleanup: ' . $e->getMessage(), 'ERROR');
+		}
+		
+		// restore access
+		elgg_set_ignore_access($ia);
+		
+		// clear scroll
+		try {
+			$client->clearScroll($scroll_params);
+		} catch (\Exception $e) {
+			// unable to clean
+		}
+	}
 }
