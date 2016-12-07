@@ -30,7 +30,7 @@ function elasticsearch_init() {
 	elgg_extend_view('forms/search_advanced/search', 'elasticsearch/search/suggest', 800);
 	
 	// plugin hooks
-	elgg_register_plugin_hook_handler('register', 'menu:page', array('ColdTrick\ElasticSearch\Admin', 'pageMenu'));
+	elgg_register_plugin_hook_handler('register', 'menu:page', '\ColdTrick\ElasticSearch\Admin::pageMenu');
 	elgg_register_plugin_hook_handler('cron', 'minute', '\ColdTrick\ElasticSearch\Cron::minuteSync');
 	elgg_register_plugin_hook_handler('cron', 'daily', '\ColdTrick\ElasticSearch\Cron::dailyCleanup');
 
@@ -69,4 +69,5 @@ function elasticsearch_init() {
 	elgg_register_action('elasticsearch/admin/index_management', dirname(__FILE__) . '/actions/admin/index_management.php', 'admin');
 	elgg_register_action('elasticsearch/admin/reindex', dirname(__FILE__) . '/actions/admin/reindex.php', 'admin');
 	elgg_register_action('elasticsearch/admin/download_log', dirname(__FILE__) . '/actions/admin/download_log.php', 'admin');
+	elgg_register_action('elasticsearch/admin/reindex_entity', dirname(__FILE__) . '/actions/admin/reindex_entity.php', 'admin');
 }

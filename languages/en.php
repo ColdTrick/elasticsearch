@@ -6,6 +6,7 @@ return array(
 	'admin:elasticsearch:search' => "Search",
 	'admin:elasticsearch:logging' => "Logging",
 	'admin:elasticsearch:indices' => "Indices",
+	'admin:elasticsearch:inspect' => "Inspect",
 	
 	'elasticsearch:admin_search:results' => "Search Results",
 	'elasticsearch:admin_search:results:info' => "Results will be shown here",
@@ -59,6 +60,20 @@ return array(
 	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
 	
+	'elasticsearch:inspect:guid' => "Please enter the GUID of the entity you wish to inpect",
+	'elasticsearch:inspect:guid:help' => "All entities in Elgg have a GUID, mostly you can find this in the URL to the entity (eg blog/view/1234)",
+	'elasticsearch:inspect:submit' => "Inspect",
+	
+	'elasticsearch:inspect:result:title' => "Inspection results",
+	'elasticsearch:inspect:result:elgg' => "Elgg",
+	'elasticsearch:inspect:result:elasticsearch' => "Elasticsearch",
+	'elasticsearch:inspect:result:error:type_subtype' => "The type/subtype of this entity isn't supported for indexing in Elasticsearch.",
+	'elasticsearch:inspect:result:error:not_indexed' => "The entity is not yet indexed",
+	'elasticsearch:inspect:result:last_indexed:none' => "This entity has not yet been indexed",
+	'elasticsearch:inspect:result:last_indexed:scheduled' => "This entity is scheduled to be (re)indexed",
+	'elasticsearch:inspect:result:last_indexed:time' => "This entity was last indexed: %s",
+	'elasticsearch:inspect:result:reindex' => "Schedule for reindexing",
+	
 	// menus
 	'elasticsearch:menu:search_list:sort:title' => "Change the sort order of the results",
 	'elasticsearch:menu:search_list:sort:relevance' => "Relevance",
@@ -91,6 +106,8 @@ return array(
 	'elasticsearch:action:admin:index_management:add_mappings' => "Mappings for the index '%s' are created",
 	'elasticsearch:action:admin:index_management:add_alias' => "The alias '%s' was added to the index '%s'",
 	'elasticsearch:action:admin:index_management:delete_alias' => "The alias '%s' was deleted from the index '%s'",
+	
+	'elasticsearch:action:admin:reindex_entity:success' => "The entity is scheduled for reindexing",
 	
 	'elasticsearch:suggest' => "Did you mean %s instead of %s?",
 );

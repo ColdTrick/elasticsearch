@@ -287,4 +287,48 @@ class Client extends \Elasticsearch\Client {
 	public function getSuggestions() {
 		return $this->suggestions;
 	}
+	
+	/**
+	 * Inspect a GUID in Elasticsearch
+	 *
+	 * @param int $guid the GUID to inspect
+	 *
+	 * @return false|array
+	 */
+	public function inspect($guid) {
+		$guid = (int) $guid;
+		if ($guid < 1) {
+			return false;
+		}
+		
+		$search_params = [
+			'index' => $this->getIndex(),
+			'body' => [
+				'query' => [
+					'filtered' => [
+						'filter' => [
+							'term' => [
+								'guid' => $guid,
+							],
+						],
+					],
+				],
+			],
+		];
+		try {
+			$search_result = $this->search($search_params);
+			
+			$s = new SearchResult($search_result, $search_params);
+			$hit = $s->getHit($guid);
+			if (empty($hit)) {
+				return false;
+			}
+			
+			return elgg_extract('_source', $hit);
+		} catch (\Exception $e) {
+			// somethig went wrong
+		}
+		
+		return false;
+	}
 }

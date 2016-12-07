@@ -376,3 +376,45 @@ function elasticsearch_reschedule_document_for_deletion($guid) {
 	$fh->write(serialize($contents));
 	$fh->close();
 }
+
+/**
+ * Make inspection values into a table structure
+ *
+ * @param mixed $key           the key to present
+ * @param array $merged_values the base array to show from
+ * @param array $elgg_values   the Elgg values
+ * @param array $elgg_values   the Elasticsearch values
+ * @param int   $depth         internal usage only
+ *
+ * @return false|array
+ */
+function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $elasticsearch_values, $depth = 0) {
+	
+	if (empty($merged_values) || !is_array($merged_values)) {
+		return false;
+	}
+	
+	$rows = [];
+	if (empty($depth)) {
+		$rows[] = elgg_format_element('th', ['colspan' => 3], $key);
+	} else {
+		$rows[] = elgg_format_element('td', ['colspan' => 3], "<b>{$key}</b>");
+	}
+	
+	foreach ($merged_values as $key => $values) {
+		if (!is_array($values)) {
+			$rows[] = implode('', [
+				elgg_format_element('td', [], $key),
+				elgg_format_element('td', [], elgg_extract($key, $elgg_values)),
+				elgg_format_element('td', [], elgg_extract($key, $elasticsearch_values)),
+			]);
+		} else {
+			$subvalues = elasticsearch_inspect_show_values($key, $values, elgg_extract($key, $elgg_values), elgg_extract($key, $elasticsearch_values), $depth + 1);
+			if (!empty($subvalues)) {
+				$rows = array_merge($rows, $subvalues);
+			}
+		}
+	}
+	
+	return $rows;
+}
