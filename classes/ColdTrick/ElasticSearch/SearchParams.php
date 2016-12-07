@@ -43,7 +43,7 @@ class SearchParams {
 		}
 		
 		// reset search params after each search
-		$this->params = null;
+		$this->params = [];
 		
 		return $result;
 	}
@@ -343,6 +343,7 @@ class SearchParams {
 			return;
 		}
 		
+		$filter = [];
 		$filter['bool']['must'][]['bool']['should'] = $access_filter;
 		$this->addFilter($filter);
 	}

@@ -4,7 +4,7 @@ elgg.elasticsearch.init_admin_search = function() {
 	$('form.elgg-form-elasticsearch-admin-search').submit(function(event) {
 		event.preventDefault();
 		
-		$form = $(this);
+		var $form = $(this);
 		
 		require(['elgg/spinner'], function(spinner) {
 			spinner.start();

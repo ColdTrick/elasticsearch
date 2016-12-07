@@ -206,7 +206,7 @@ class Cron {
 		try {
 			while ($result = $client->scroll($scroll_params)) {
 				
-				$search_result = new SearchResult($result);
+				$search_result = new SearchResult($result, $search_params);
 				
 				$elasticsearch_guids = $search_result->toGuids();
 				if (empty($elasticsearch_guids)) {
@@ -240,7 +240,8 @@ class Cron {
 				}
 			}
 		} catch (\Exception $e) {
-			elgg_log('Elasticsearch cleanup: ' . $e->getMessage(), 'ERROR');
+			// probably reached the end of the scroll
+			// elgg_log('Elasticsearch cleanup: ' . $e->getMessage(), 'ERROR');
 		}
 		
 		// restore access
@@ -374,7 +375,7 @@ class Cron {
 		
 		try {
 			while ($scroll_result = $client->scroll($scroll_params)) {
-				$search_result = new SearchResult($scroll_result);
+				$search_result = new SearchResult($scroll_result, $search_params);
 				
 				$elasticsearch_guids = $search_result->toGuids();
 				

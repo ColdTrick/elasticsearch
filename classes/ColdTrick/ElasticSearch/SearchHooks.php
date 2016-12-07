@@ -78,6 +78,7 @@ class SearchHooks {
 				$client->search_params->setType($namespaced_subtypes);
 				break;
 			case 'tags':
+				$tag_query = [];
 				$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
 				$client->search_params->setQuery($tag_query);
 				break;
@@ -133,7 +134,10 @@ class SearchHooks {
 		}
 	
 		$type_subtype_pairs = elasticsearch_get_registered_entity_types_for_search();
-	
+		if (emptu($type_subtype_pairs)) {
+			return;
+		}
+		
 		$types = [];
 		foreach ($type_subtype_pairs as $type => $subtypes) {
 			if (empty($subtypes)) {
@@ -148,6 +152,7 @@ class SearchHooks {
 	
 		$client->search_params->setType($types);
 	
+		$tag_query = [];
 		$tag_query['bool']['must']['term']['tags'] = strtolower($params['query']);
 	
 		$client->search_params->setQuery($tag_query);
@@ -218,7 +223,7 @@ class SearchHooks {
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
-			
+			$elastic_query = [];
 			$elastic_query['bool']['must'][]['simple_query_string'] = [
 				'fields' => self::getQueryFields($params),
 				'query' => $query,
@@ -234,6 +239,7 @@ class SearchHooks {
 		// container filter
 		$container_guid = (int) elgg_extract('container_guid', $params);
 		if (!empty($container_guid)) {
+			$container_filter = [];
 			$container_filter['bool']['must'][]['term']['container_guid'] = $container_guid;
 			$client->search_params->addFilter($container_filter);
 		}
@@ -265,7 +271,7 @@ class SearchHooks {
 				break;
 		}
 		
-		if ($sort_field) {
+		if (!empty($sort_field)) {
 			$client->search_params->addSort($sort_field, [
 				'order' => $order,
 				'ignore_unmapped' => true,
@@ -370,8 +376,8 @@ class SearchHooks {
 		
 		$filter = elgg_extract('search_filter', $search_params, []);
 		$profile_field_filter = elgg_extract('profile_fields', $filter, []);
-		$profile_field_soundex_filter = elgg_extract('profile_fields_soundex', $filter, []);
-
+// 		$profile_field_soundex_filter = elgg_extract('profile_fields_soundex', $filter, []);
+		
 		if (empty($profile_field_filter)) {
 			return;
 		}
@@ -583,7 +589,7 @@ class SearchHooks {
 			$result = entity_row_to_elggstar($row);
 		} catch (\Exception $e) {
 			elgg_log($e->getMessage(), 'NOTICE');
-			return false;
+			return;
 		}
 	
 		return $result;

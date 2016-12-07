@@ -124,7 +124,7 @@ class Export {
 			}
 
 			$field_tags = (array) $entity->$field_name;
-			if ($field_tags) {
+			if (!empty($field_tags)) {
 				$tags = array_merge($tags, $field_tags);
 			}
 		}
