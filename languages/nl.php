@@ -1,10 +1,24 @@
 <?php
 /**
- * This file was created by Translation Editor v4.0
- * On 2015-09-18 15:47
+ * This file was created by Translation Editor v5.2
+ * On 2016-12-07 12:56
  */
 
 return array (
+  'admin:elasticsearch:inspect' => 'Inspecteren',
+  'elasticsearch:inspect:guid' => 'Geef de GUID op van de entity die je wilt inspecteren',
+  'elasticsearch:inspect:guid:help' => 'Alle entiteiten in Elgg hebben een GUID, meestal kun je deze vinden middels de URL van de entity (bijv. blog/view/1234)',
+  'elasticsearch:inspect:submit' => 'Inspecteer',
+  'elasticsearch:inspect:result:title' => 'Inspectie resultaten',
+  'elasticsearch:inspect:result:elgg' => 'Elgg',
+  'elasticsearch:inspect:result:elasticsearch' => 'Elasticsearch',
+  'elasticsearch:inspect:result:error:type_subtype' => 'Het type/subtype van deze entity wordt niet ondersteund om te worden geïndexeerd in Elasticsearch',
+  'elasticsearch:inspect:result:error:not_indexed' => 'De entity is nog niet geïndexeerd',
+  'elasticsearch:inspect:result:last_indexed:none' => 'Deze entity is nog niet geïndexeerd',
+  'elasticsearch:inspect:result:last_indexed:scheduled' => 'Deze entity is ingepland om te worden geïndexeerd',
+  'elasticsearch:inspect:result:last_indexed:time' => 'Deze entity is voor het laatst geïndexeerd: %s',
+  'elasticsearch:inspect:result:reindex' => 'Inplannen voor herindexatie',
+  'elasticsearch:action:admin:reindex_entity:success' => 'De entity is ingepland om te worden geherindexeerd',
   'admin:elasticsearch' => 'ElasticSearch',
   'admin:elasticsearch:statistics' => 'Statistieken',
   'admin:elasticsearch:search' => 'Zoeken',
