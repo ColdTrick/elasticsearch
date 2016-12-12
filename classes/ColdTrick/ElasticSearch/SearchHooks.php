@@ -134,7 +134,7 @@ class SearchHooks {
 		}
 	
 		$type_subtype_pairs = elasticsearch_get_registered_entity_types_for_search();
-		if (emptu($type_subtype_pairs)) {
+		if (empty($type_subtype_pairs)) {
 			return;
 		}
 		
