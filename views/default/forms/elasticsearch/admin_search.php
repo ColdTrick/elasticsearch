@@ -8,7 +8,8 @@ if (empty($client)) {
 
 elgg_require_js('elasticsearch/admin_search');
 
-echo elgg_view('input/plaintext', [
+echo elgg_view_field([
+	'#type' => 'plaintext',
 	'name' => 'q',
 	'placeholder' => elgg_echo('elasticsearch:forms:admin_search:query:placeholder'),
 ]);
@@ -19,10 +20,15 @@ try {
 
 $indices = array_keys(elgg_extract('indices', $status));
 
-echo elgg_view('input/select', [
+echo elgg_view_field([
+	'#type' => 'select',
 	'name' => 'index',
 	'options' => $indices,
 	'value' => $client->getIndex()
 ]);
 
-echo elgg_view('input/submit', ['value' => elgg_echo('search')]);
+$footer = elgg_view_field([
+	'#type' => 'submit',
+	'value' => elgg_echo('search'),
+]);
+elgg_set_form_footer($footer);
