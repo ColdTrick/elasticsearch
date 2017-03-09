@@ -223,6 +223,12 @@ class SearchHooks {
 		
 		$query = elgg_extract('query', $params);
 		if (!empty($query)) {
+		
+			if (stristr($query, ' ')) {
+				// also include a full sentence as part of the search query
+				$query .= ' || "' . $query . '"';
+			}
+			
 			$elastic_query = [];
 			$elastic_query['bool']['must'][]['simple_query_string'] = [
 				'fields' => self::getQueryFields($params),
