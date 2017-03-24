@@ -1,6 +1,11 @@
 Version history
 ===============
 
+3.0 (2017-03-24):
+
+- changed: search now includes the full search sentence as a search
+- changed: upped the minimal requirements to Elgg 2.3
+
 2.0 (2016-12-16):
 
 - added: admin section to inpect an entity
