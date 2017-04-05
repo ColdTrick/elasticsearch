@@ -207,8 +207,13 @@ class Client extends \Elasticsearch\Client {
 		if (empty($guid)) {
 			return;
 		}
+	
+		try {
+			$entity = get_entity($guid);
+		} catch (\Exception $e) {
+			return;
+		}
 		
-		$entity = get_entity($guid);
 		if (!$entity) {
 			return;
 		}
@@ -238,7 +243,12 @@ class Client extends \Elasticsearch\Client {
 			return;
 		}
 		
-		$entity = get_entity($guid);
+		try {
+			$entity = get_entity($guid);
+		} catch (\Exception $e) {
+			return;
+		}
+		
 		if (!$entity) {
 			return;
 		}
