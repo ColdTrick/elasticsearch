@@ -394,9 +394,12 @@ class SearchHooks {
 				continue;
 			}
 			$value = strtolower($value);
-			$value = str_replace('&amp;', ' ', $value);
+			$value = str_replace('&amp;', '&', $value);
 			$value = str_replace('\\', ' ', $value);
 			$value = str_replace('/', ' ', $value);
+			
+			$string_value = $value;
+			
 			$value = explode(' ', $value);
 			$value = array_filter($value);
 			$value = implode('* *', $value);
@@ -408,13 +411,23 @@ class SearchHooks {
 					'metadata.name' => $field_name,
 				],
 			];
-			$sub_query['nested']['query']['bool']['must'][] = [
+			$shoulds = [];
+			$shoulds['bool']['should'][] = [
 				'query_string' => [
 					'default_field' => 'metadata.value',
 					'query' => "*{$value}*",
 					'default_operator' => 'AND',
 				],
 			];
+			$shoulds['bool']['should'][] = [
+				'query_string' => [
+					'default_field' => 'metadata.value',
+					'query' => "'{$string_value}'",
+					'default_operator' => 'AND',
+				],
+			];
+			
+			$sub_query['nested']['query']['bool']['must'][] = $shoulds;
 			
 			$queries['bool']['must'][] = $sub_query;
 			
