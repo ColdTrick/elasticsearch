@@ -205,7 +205,13 @@ class Cron {
 		
 		try {
 			while ($result = $client->scroll($scroll_params)) {
+				// update scroll_id
+				$new_scroll_id = elgg_extract('_scroll_id', $result);
+				if (!empty($new_scroll_id)) {
+					$scroll_params['scroll_id'] = $new_scroll_id;
+				}
 				
+				// process results
 				$search_result = new SearchResult($result, $search_params);
 				
 				$elasticsearch_guids = $search_result->toGuids();
@@ -375,6 +381,13 @@ class Cron {
 		
 		try {
 			while ($scroll_result = $client->scroll($scroll_params)) {
+				// update scroll_id
+				$new_scroll_id = elgg_extract('_scroll_id', $scroll_result);
+				if (!empty($new_scroll_id)) {
+					$scroll_params['scroll_id'] = $new_scroll_id;
+				}
+				
+				// process results
 				$search_result = new SearchResult($scroll_result, $search_params);
 				
 				$elasticsearch_guids = $search_result->toGuids();
