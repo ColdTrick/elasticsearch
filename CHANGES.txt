@@ -1,6 +1,12 @@
 Version history
 ===============
 
+3.0.1 (2017-05-11):
+
+- changed: improved matching based on profile field search
+- fixed: catch exceptions for incomplete entities
+- fixed: set scroll_id based on returned value
+
 3.0 (2017-03-24):
 
 - changed: search now includes the full search sentence as a search
