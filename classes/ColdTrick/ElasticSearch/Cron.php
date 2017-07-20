@@ -16,8 +16,7 @@ class Cron {
 	 */
 	public static function minuteSync($hook, $type, $returnvalue, $params) {
 		
-		$setting = elasticsearch_get_setting('sync');
-		if ($setting !== 'yes') {
+		if (elasticsearch_get_setting('sync') !== 'yes') {
 			// sync not enabled
 			return;
 		}
