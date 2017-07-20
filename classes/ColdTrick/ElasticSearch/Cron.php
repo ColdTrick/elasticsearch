@@ -154,6 +154,16 @@ class Cron {
 	 */
 	public static function dailyCleanup($hook, $type, $resultvalue, $params) {
 		
+		if (elasticsearch_get_setting('sync') !== 'yes') {
+			// sync isn't enabled, so don't validate
+			return;
+		}
+		
+		if (elasticsearch_get_setting('cron_validate') !== 'yes') {
+			// validate isn't enabled
+			return;
+		}
+		
 		// find documents in ES which don't exist in Elgg anymore
 		self::cleanupElasticsearch();
 		

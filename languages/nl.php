@@ -1,10 +1,12 @@
 <?php
 /**
- * This file was created by Translation Editor v5.2
- * On 2016-12-07 12:56
+ * This file was created by Translation Editor v6.0-beta
+ * On 2017-07-20 11:41
  */
 
 return array (
+  'elasticsearch:settings:cron_validate' => 'Valideer de zoekindex dagelijks',
+  'elasticsearch:settings:cron_validate:description' => 'Valideer de index om er zeker van te zijn dat er geen content is zit welke er niet meer in hoort en om er zeker van te zijn dat alle content welke er wel in hoort er ook is.',
   'admin:elasticsearch:inspect' => 'Inspecteren',
   'elasticsearch:inspect:guid' => 'Geef de GUID op van de entity die je wilt inspecteren',
   'elasticsearch:inspect:guid:help' => 'Alle entiteiten in Elgg hebben een GUID, meestal kun je deze vinden middels de URL van de entity (bijv. blog/view/1234)',

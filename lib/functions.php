@@ -233,6 +233,7 @@ function elasticsearch_get_setting($setting) {
 			'search_alias' => '',
 			'sync' => 'no',
 			'search' => 'no',
+			'cron_validate' => 'no',
 		);
 		
 		$plugin = elgg_get_plugin_from_id('elasticsearch');

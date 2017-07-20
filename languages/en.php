@@ -31,6 +31,8 @@ return array(
 	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
 	'elasticsearch:settings:search' => "Use ElasticSearch as the search engine",
 	'elasticsearch:settings:search:description' => "Once you've set up ElasticSearch correctly and it's populated with data, you can switch to use it as the search engine.",
+	'elasticsearch:settings:cron_validate' => "Validate the search index daily",
+	'elasticsearch:settings:cron_validate:description' => "Validate the index to make sure no content is left in the index that shouldn't be there and all content that should be there is present.",
 	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",

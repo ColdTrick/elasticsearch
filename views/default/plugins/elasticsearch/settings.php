@@ -53,4 +53,13 @@ $features .= elgg_view_field([
 	'options_values' => $noyes_options,
 ]);
 
+$features .= elgg_view_field([
+	'#type' => 'select',
+	'#label' => elgg_echo('elasticsearch:settings:cron_validate'),
+	'#help' => elgg_echo('elasticsearch:settings:cron_validate:description'),
+	'name' => 'params[cron_validate]',
+	'value' => $plugin->cron_validate,
+	'options_values' => $noyes_options,
+]);
+
 echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:features:header'), $features);
