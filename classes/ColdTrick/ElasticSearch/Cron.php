@@ -268,11 +268,6 @@ class Cron {
 	 */
 	protected static function checkElggIndex() {
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
-			return;
-		}
-		
 		// this could take a while
 		set_time_limit(0);
 		
