@@ -403,6 +403,13 @@ class Cron {
 			// end off scroll
 		}
 		
+		// clear scroll
+		try {
+			$client->clearScroll($scroll_params);
+		} catch (\Exception $e) {
+			// unable to clean, could be because we came to the end of the scroll
+		}
+		
 		return array_unique($result);
 	}
 }
