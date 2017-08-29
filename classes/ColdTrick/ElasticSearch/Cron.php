@@ -31,12 +31,15 @@ class Cron {
 		// delete first
 		$client->bulkDeleteDocuments();
 		
-		$update_actions = array(
+		$update_actions = [
 			'no_index_ts',
 			'update',
 			'reindex',
-		);
+		];
 		foreach ($update_actions as $action) {
+			
+			echo "Starting Elasticsearch indexing: {$action}" . PHP_EOL;
+			elgg_log("Starting Elasticsearch indexing: {$action}", 'NOTICE');
 			
 			$options = elasticsearch_get_bulk_options($action);
 			if (empty($options)) {
@@ -52,6 +55,9 @@ class Cron {
 				return;
 			}
 		}
+		
+		echo 'Done with Elasticsearch indexing' . PHP_EOL;
+		elgg_log('Done with Elasticsearch indexing', 'NOTICE');
 	}
 	
 	/**
@@ -163,11 +169,20 @@ class Cron {
 			return;
 		}
 		
+		echo 'Starting Elasticsearch cleanup: ES' . PHP_EOL;
+		elgg_log('Starting Elasticsearch cleanup: ES', 'NOTICE');
+		
 		// find documents in ES which don't exist in Elgg anymore
 		self::cleanupElasticsearch();
 		
+		echo 'Starting Elasticsearch cleanup: Elgg' . PHP_EOL;
+		elgg_log('Starting Elasticsearch cleanup: Elgg', 'NOTICE');
+		
 		// find entities in Elgg which should be in ES but aren't
 		self::checkElggIndex();
+		
+		echo 'Done with Elasticsearch cleanup' . PHP_EOL;
+		elgg_log('Done with Elasticsearch cleanup', 'NOTICE');
 	}
 	
 	/**
