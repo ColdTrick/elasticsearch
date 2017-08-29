@@ -130,17 +130,23 @@ class SearchParams {
 				'</strong>',
 			];
 			$result['body']['highlight']['number_of_fragments'] = 3;
+			$result['body']['highlight']['fragment_size'] = 100;
+			$result['body']['highlight']['type'] = 'plain';
+			
 			// title
 			$result['body']['highlight']['fields']['title'] = [
 				'number_of_fragments' => 0,
 			];
+			
 			// name
 			$result['body']['highlight']['fields']['name'] = [
 				'number_of_fragments' => 0,
 			];
+			
 			// description
 			$des = new \stdClass();
 			$result['body']['highlight']['fields']['description'] = $des;
+			
 			// tags
 			$result['body']['highlight']['fields']['tags'] = [
 				'number_of_fragments' => 0,
