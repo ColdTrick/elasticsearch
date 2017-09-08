@@ -85,17 +85,7 @@ class SearchHooks {
 			case 'combined:all':
 				// triggered by search advanced
 				$type_subtypes = elgg_extract('type_subtype_pairs', $params);
-				$types = [];
-				foreach ($type_subtypes as $type => $subtypes) {
-					if (empty($subtypes)) {
-						$types[] = $type;
-						continue;
-					}
-					
-					foreach ($subtypes as $subtype) {
-						$types[] = "{$type}.{$subtype}";
-					}
-				}
+				$types = self::entityTypeSubtypesToSearchTypes($type_subtypes);
 				
 				$client->search_params->setType($types);
 				
@@ -138,18 +128,8 @@ class SearchHooks {
 			return;
 		}
 		
-		$types = [];
-		foreach ($type_subtype_pairs as $type => $subtypes) {
-			if (empty($subtypes)) {
-				$types[] = $type;
-				continue;
-			}
-				
-			foreach ($subtypes as $subtype) {
-				$types[] = "{$type}.{$subtype}";
-			}
-		}
-	
+		$types = self::entityTypeSubtypesToSearchTypes($type_subtype_pairs);
+			
 		$client->search_params->setType($types);
 	
 		$tag_query = [];
@@ -230,16 +210,18 @@ class SearchHooks {
 			}
 			
 			$elastic_query = [];
+						
 			$elastic_query['bool']['must'][]['simple_query_string'] = [
 				'fields' => self::getQueryFields($params),
 				'query' => $query,
 				'default_operator' => 'AND',
 			];
-									
-			$client->search_params->setQuery($elastic_query);
+												
 			if (!elgg_extract('count', $params, false)) {
 				$client->search_params->setSuggestion($query);
 			}
+			
+			$client->search_params->setQuery($elastic_query);
 		}
 		
 		// container filter
@@ -295,7 +277,7 @@ class SearchHooks {
 		];
 		return elgg_trigger_plugin_hook('query_fields', 'elasticsearch', ['search_params' => $params], $default);
 	}
-		
+			
 	/**
 	 * Hook to add items to the search_list menu
 	 *
@@ -611,6 +593,30 @@ class SearchHooks {
 			return;
 		}
 	
+		return $result;
+	}
+	
+
+	/**
+	 * Convert type/subtype array to an array of normalized types
+	 *
+	 * @param array $type_subtypes Array of types with their associated subtypes
+	 *
+	 * @return array
+	 */
+	public static function entityTypeSubtypesToSearchTypes($type_subtypes) {
+		$result = [];
+		foreach ($type_subtypes as $type => $subtypes) {
+			if (empty($subtypes)) {
+				$result[] = $type;
+				continue;
+			}
+			
+			foreach ($subtypes as $subtype) {
+				$result[] = "{$type}.{$subtype}";
+			}
+		}
+		
 		return $result;
 	}
 }

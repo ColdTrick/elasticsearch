@@ -74,9 +74,9 @@ class SearchParams {
 		
 		// query
 		if (!empty($this->params['query'])) {
-			$result['body']['query'] = $this->params['query'];
+			$result['body']['query']['function_score']['query'] = $this->params['query'];
 		} else {
-			$result['body']['query']['bool']['must']['match_all'] = [];
+			$result['body']['query']['function_score']['query']['bool']['must']['match_all'] = [];
 		}
 				
 		// filter
@@ -107,6 +107,12 @@ class SearchParams {
 			}
 			if (!empty($this->params['size'])) {
 				$result['size'] = $this->params['size'];
+			}
+			
+			// apply type boosting
+			$functions = self::getScoreFunctions();
+			if (!empty($functions)) {
+				$result['body']['query']['function_score']['functions'] = $functions;
 			}
 			
 			// sort
@@ -356,5 +362,39 @@ class SearchParams {
 	
 	public function getParams() {
 		return $this->params;
+	}
+	
+
+	/**
+	 * Returns an array of functions to be used in the function_score array
+	 *
+	 * @return array
+	 */
+	protected static function getScoreFunctions() {
+		
+		$type_subtypes = elasticsearch_get_registered_entity_types_for_search();
+		$types = SearchHooks::entityTypeSubtypesToSearchTypes($type_subtypes);
+		if (empty($types)) {
+			return [];
+		}
+		
+		$result = [];
+		foreach ($types as $type) {
+			$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
+			if (!($weight > 0) || $weight == 1) {
+				continue;
+			}
+			
+			$result[] = [
+				'filter' => [
+					'term' => [
+						'_type' => $type,
+					],
+				],
+				'weight' => $weight,
+			];
+		}
+		
+		return $result;
 	}
 }

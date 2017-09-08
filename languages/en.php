@@ -34,6 +34,15 @@ return array(
 	'elasticsearch:settings:cron_validate' => "Validate the search index daily",
 	'elasticsearch:settings:cron_validate:description' => "Validate the index to make sure no content is left in the index that shouldn't be there and all content that should be there is present.",
 	
+	'elasticsearch:settings:type_boosting:title' => "Content Type Boosting",
+	'elasticsearch:settings:type_boosting:info' => "If you want the score of a content type to be boosted during query time you can configure multipliers here.
+	If you want similar search results to be ordered based on the type you should use small multipliers like 1.01.
+	If you always want users to be on top of a combined query, regardless of the quality of the hit, you can use big multipliers.
+	
+	More information on query time boosting can be found in the elasticsearch documentation website.",
+	'elasticsearch:settings:type_boosting:type' => "Content Type",
+	'elasticsearch:settings:type_boosting:multiplier' => "Multiplier",
+	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",
 	'elasticsearch:stats:es_version' => "ElasticSearch version",

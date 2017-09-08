@@ -63,3 +63,31 @@ $features .= elgg_view_field([
 ]);
 
 echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:features:header'), $features);
+
+// boosting of types
+$type_subtypes = elasticsearch_get_registered_entity_types_for_search();
+$types = \ColdTrick\ElasticSearch\SearchHooks::entityTypeSubtypesToSearchTypes($type_subtypes);
+if (!empty($types)) {
+	
+	$boosting = elgg_view('output/longtext', [
+		'value' => elgg_echo('elasticsearch:settings:type_boosting:info'),
+	]);
+	
+	$rows = '<tr><th>' . elgg_echo('elasticsearch:settings:type_boosting:type') . '</th><th>' . elgg_echo('elasticsearch:settings:type_boosting:multiplier') . '</th></tr>';
+	foreach ($types as $type) {
+		$boost_input = elgg_view_field([
+			'#type' => 'text',
+			'#class' => 'man',
+			'name' => "params[type_boosting_$type]",
+			'value' => $plugin->{"type_boosting_$type"},
+		]);
+		
+		$rows .= "<tr><td>{$type}</td><td>{$boost_input}</td></tr>";
+			
+	}
+	$boosting .= elgg_format_element('table', ['class' => 'elgg-table'], $rows);
+
+	echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:type_boosting:title'), $boosting);
+}
+
+
