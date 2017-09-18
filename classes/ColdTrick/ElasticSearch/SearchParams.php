@@ -127,36 +127,9 @@ class SearchParams {
 			}
 			
 			// highlighting
-			// global settings
-			$result['body']['highlight']['encoder'] = 'html';
-			$result['body']['highlight']['pre_tags'] = [
-				'<strong class="search-highlight search-highlight-color1">',
-			];
-			$result['body']['highlight']['post_tags'] = [
-				'</strong>',
-			];
-			$result['body']['highlight']['number_of_fragments'] = 3;
-			$result['body']['highlight']['fragment_size'] = 100;
-			$result['body']['highlight']['type'] = 'plain';
-			
-			// title
-			$result['body']['highlight']['fields']['title'] = [
-				'number_of_fragments' => 0,
-			];
-			
-			// name
-			$result['body']['highlight']['fields']['name'] = [
-				'number_of_fragments' => 0,
-			];
-			
-			// description
-			$des = new \stdClass();
-			$result['body']['highlight']['fields']['description'] = $des;
-			
-			// tags
-			$result['body']['highlight']['fields']['tags'] = [
-				'number_of_fragments' => 0,
-			];
+			if (!empty($this->params['highlight'])) {
+				$result['body']['highlight'] = $this->params['highlight'];
+			}
 		}
 		
 		return $result;
@@ -298,6 +271,20 @@ class SearchParams {
 				"suggest_mode" => "missing",
 			]]
 		];
+	}
+
+	public function setHighlight($data) {
+	
+		if (empty($data)) {
+			unset($this->params['highlight']);
+			return;
+		}
+		
+		$this->params['highlight'] = $data;
+	}
+	
+	public function getHighlight() {
+		return elgg_extract('highlight', $this->params, []);
 	}
 	
 	public function addEntityAccessFilter($user_guid = 0) {

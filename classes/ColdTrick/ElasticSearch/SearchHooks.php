@@ -219,6 +219,7 @@ class SearchHooks {
 												
 			if (!elgg_extract('count', $params, false)) {
 				$client->search_params->setSuggestion($query);
+				$client->search_params->setHighlight(self::getDefaultHighlightParams($query));
 			}
 			
 			$client->search_params->setQuery($elastic_query);
@@ -266,6 +267,47 @@ class SearchHooks {
 				'missing' => '_last',
 			]);
 		}
+	}
+	
+	protected static function getDefaultHighlightParams($query) {
+		$result = [];
+		
+		// global settings
+		$result['encoder'] = 'html';
+		$result['pre_tags'] = ['<strong class="search-highlight search-highlight-color1">'];
+		$result['post_tags'] = ['</strong>'];
+		$result['number_of_fragments'] = 3;
+		$result['fragment_size'] = 100;
+		$result['type'] = 'plain';
+		
+		// title
+		$title_query['bool']['must']['match']['title']['query'] = $query;
+		$result['fields']['title'] = [
+			'number_of_fragments' => 0,
+			'highlight_query' => $title_query,
+		];
+		
+		// name
+		$name_query['bool']['must']['match']['name']['query'] = $query;
+		$result['fields']['name'] = [
+			'number_of_fragments' => 0,
+			'highlight_query' => $name_query,
+		];
+		
+		// description
+		$description_query['bool']['must']['match']['description']['query'] = $query;
+		$result['fields']['description'] = [
+			'highlight_query' => $description_query,
+		];
+		
+		// tags
+		$tags_query['bool']['must']['match']['tags']['query'] = $query;
+		$result['fields']['tags'] = [
+			'number_of_fragments' => 0,
+			'highlight_query' => $tags_query,
+		];
+		
+		return $result;
 	}
 	
 	protected static function getQueryFields($params = []) {
