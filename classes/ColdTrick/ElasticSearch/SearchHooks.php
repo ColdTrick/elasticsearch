@@ -287,13 +287,6 @@ class SearchHooks {
 			'highlight_query' => $title_query,
 		];
 		
-		// name
-		$name_query['bool']['must']['match']['name']['query'] = $query;
-		$result['fields']['name'] = [
-			'number_of_fragments' => 0,
-			'highlight_query' => $name_query,
-		];
-		
 		// description
 		$description_query['bool']['must']['match']['description']['query'] = $query;
 		$result['fields']['description'] = [

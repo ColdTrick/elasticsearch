@@ -90,16 +90,8 @@ class SearchResult {
 				}
 				$highlight_title = $title;
 			}
-			// name
-			$name = elgg_extract('name', $highlight);
-			if (!empty($name)) {
-				if (is_array($name)) {
-					$name = implode('', $name);
-				}
-				$highlight_title = $name;
-			}
-			
-			// no title/name found
+						
+			// no title found
 			if (empty($highlight_title)) {
 				$highlight_title = elgg_extract('title', $source);
 			}
