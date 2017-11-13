@@ -22,4 +22,7 @@ $params['body']['settings']['analysis']['analyzer']['case_insensitive_sort'] = [
 	'filter' => ['lowercase']
 ];
 
+// @todo document this
+$params = elgg_trigger_plugin_hook('config:index', 'elasticsearch', $params, $params);
+
 echo json_encode($params);

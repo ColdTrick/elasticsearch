@@ -96,4 +96,7 @@ $mapping = [
 	]
 ];
 
+// @todo document this
+elgg_trigger_plugin_hook('config:mapping', 'elasticsearch', $mapping, $mapping);
+
 echo json_encode($mapping);
