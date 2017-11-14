@@ -79,7 +79,7 @@ class SearchHooks {
 				break;
 			case 'tags':
 				$tag_query = [];
-				$tag_query['bool']['must'][]['term']['tags'] = $params['query'];
+				$tag_query['bool']['must'][]['term']['tags'] = elgg_extract('query', $params);
 				$client->search_params->setQuery($tag_query);
 				break;
 			case 'combined:all':
@@ -94,7 +94,7 @@ class SearchHooks {
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 		
-		if ($params['count'] == true) {
+		if (elgg_extract('count', $params) == true) {
 			$result = $client->search_params->count();
 		} else {
 			$result = $client->search_params->execute();
@@ -133,13 +133,13 @@ class SearchHooks {
 		$client->search_params->setType($types);
 	
 		$tag_query = [];
-		$tag_query['bool']['must']['term']['tags'] = strtolower($params['query']);
+		$tag_query['bool']['must']['term']['tags'] = strtolower(elgg_extract('query', $params));
 	
 		$client->search_params->setQuery($tag_query);
 	
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 	
-		if ($params['count'] == true) {
+		if (elgg_extract('count', $params) == true) {
 			$result = $client->search_params->count();
 		} else {
 			$result = $client->search_params->execute();
@@ -175,7 +175,10 @@ class SearchHooks {
 	 */
 	protected static function transformSearchResults($result, $hook_params) {
 		if (empty($result)) {
-			return ['count' => 0, 'entities' => null];
+			return [
+				'count' => 0,
+				'entities' => null,
+			];
 		}
 		
 		return [
