@@ -259,8 +259,12 @@ class Export {
 				'relationship' => $relationship->relationship,
 			];
 		}
-	
-		$returnvalue->relationships = $result;
+		
+		if (!isset($returnvalue->relationships)) {
+			$returnvalue->relationships = $result;
+		} elseif (is_array($returnvalue->relationships)) {
+			$returnvalue->relationships = array_merge($returnvalue->relationships, $result);
+		}
 		
 		return $returnvalue;
 	}
