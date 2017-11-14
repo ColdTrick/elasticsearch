@@ -236,6 +236,14 @@ class SearchHooks {
 			$client->search_params->addFilter($container_filter);
 		}
 		
+		// owner filter
+		$owner_guid = (int) elgg_extract('owner_guid', $params);
+		if (!empty($owner_guid)) {
+			$owner_filter = [];
+			$owner_filter['bool']['must'][]['term']['owner_guid'] = $owner_guid;
+			$client->search_params->addFilter($owner_filter);
+		}
+		
 		// sort & order
 		$sort = elgg_extract('sort', $params);
 		$order = elgg_extract('order', $params, 'desc');
