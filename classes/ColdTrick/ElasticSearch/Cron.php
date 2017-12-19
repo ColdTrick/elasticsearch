@@ -310,10 +310,13 @@ class Cron {
 				'value' => 0,
 				'operand' => '>',
 			],
+			'callback' => function ($row) {
+				return (int) $row->guid;
+			},
 		]);
-		/* @var $entity \ElggEntity */
-		foreach ($batch as $entity) {
-			$guids[] = $entity->getGUID();
+			
+		foreach ($batch as $guid) {
+			$guids[] = $guid;
 			
 			if (count($guids) < 250) {
 				continue;
@@ -335,14 +338,18 @@ class Cron {
 		}
 		
 		// reindex entities
-		$reindex = new \ElggBatch('elgg_get_entities', [
-			'guids' => $unindexed,
-			'limit' => false,
-		]);
-		/* @var $entity \ElggEntity */
-		foreach ($reindex as $entity) {
-			// mark for reindex
-			$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
+		// do this in chunks to prevent SQL-query limit hits
+		$chunks = array_chunk($unindexed, 250);
+		foreach ($chunks as $chunk) {
+			$reindex = new \ElggBatch('elgg_get_entities', [
+				'guids' => $chunk,
+				'limit' => false,
+			]);
+			/* @var $entity \ElggEntity */
+			foreach ($reindex as $entity) {
+				// mark for reindex
+				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
+			}
 		}
 		
 		// restore access
@@ -369,8 +376,6 @@ class Cron {
 		
 		$search_params = [
 			'index' => $client->getIndex(),
-			'search_type' => 'scan',
-			'scroll' => '2m',
 			'size' => count($guids),
 			'body' => [
 				'query' => [
@@ -386,49 +391,18 @@ class Cron {
 		];
 		
 		try {
-			$scroll_setup = $client->search($search_params);
+			$es_result = $client->search($search_params);
+			
+			// process results
+			$search_result = new SearchResult($es_result, $search_params);
+			
+			$elasticsearch_guids = $search_result->toGuids();
+			
+			return array_diff($guids, $elasticsearch_guids);
 		} catch (\Exception $e) {
-			return [];
+			// some error occured
 		}
 		
-		// now scroll through all results
-		$result = [];
-		$scroll_params = [
-			'scroll_id' => elgg_extract('_scroll_id', $scroll_setup),
-			'scroll' => '2m',
-		];
-		
-		try {
-			while ($scroll_result = $client->scroll($scroll_params)) {
-				// update scroll_id
-				$new_scroll_id = elgg_extract('_scroll_id', $scroll_result);
-				if (!empty($new_scroll_id)) {
-					$scroll_params['scroll_id'] = $new_scroll_id;
-				}
-				
-				// process results
-				$search_result = new SearchResult($scroll_result, $search_params);
-				
-				$elasticsearch_guids = $search_result->toGuids();
-				
-				$guids_not_in_elasticsearch = array_diff($guids, $elasticsearch_guids);
-				if (empty($guids_not_in_elasticsearch)) {
-					continue;
-				}
-				
-				$result = array_merge($result, $guids_not_in_elasticsearch);
-			}
-		} catch (\Exception $e) {
-			// end off scroll
-		}
-		
-		// clear scroll
-		try {
-			$client->clearScroll($scroll_params);
-		} catch (\Exception $e) {
-			// unable to clean, could be because we came to the end of the scroll
-		}
-		
-		return array_unique($result);
+		return [];
 	}
 }
