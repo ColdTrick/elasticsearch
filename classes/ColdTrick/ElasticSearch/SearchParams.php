@@ -62,26 +62,26 @@ class SearchParams {
 		
 		// index
 		$index = $this->client->getIndex();
-		if (!empty($this->params['index'])) {
-			$index = $this->params['index'];
+		if (!empty($this->getParam('index'))) {
+			$index = $this->getParam('index');
 			$result['index'] = $index;
 		}
 		
 		// type
-		if (!empty($this->params['type'])) {
-			$result['type'] = $this->params['type'];
+		if (!empty($this->getParam('type'))) {
+			$result['type'] = $this->getParam('type');
 		}
 		
 		// query
-		if (!empty($this->params['query'])) {
-			$result['body']['query']['function_score']['query'] = $this->params['query'];
+		if (!empty($this->getParam('query'))) {
+			$result['body']['query']['function_score']['query'] = $this->getParam('query');
 		} else {
 			$result['body']['query']['function_score']['query']['bool']['must']['match_all'] = [];
 		}
 				
 		// filter
-		$filter = elgg_extract('filter', $this->params);
-		$no_match_filter = elgg_extract('no_match_filter', $this->params);
+		$filter = $this->getParam('filter');
+		$no_match_filter = $this->getParam('no_match_filter');
 		if (!empty($filter) || !empty($no_match_filter)) {
 			if (empty($filter)) {
 				$filter = 'all';
@@ -96,17 +96,17 @@ class SearchParams {
 		}
 		
 		// track scores
-		if (isset($this->params['track_scores'])) {
-			$result['body']['track_scores'] = $this->params['track_scores'];
+		if ($this->getParam('track_scores') !== null) {
+			$result['body']['track_scores'] = $this->getParam('track_scores');
 		}
 		
 		if (!$count) {
 			// pagination
-			if (!empty($this->params['from'])) {
-				$result['from'] = $this->params['from'];
+			if (!empty($this->getParam('from'))) {
+				$result['from'] = $this->getParam('from');
 			}
-			if (!empty($this->params['size'])) {
-				$result['size'] = $this->params['size'];
+			if (!empty($this->getParam('size'))) {
+				$result['size'] = $this->getParam('size');
 			}
 			
 			// apply type boosting
@@ -116,19 +116,19 @@ class SearchParams {
 			}
 			
 			// sort
-			if (!empty($this->params['sort'])) {
-				$result['body']['sort'] = $this->params['sort'];
+			if (!empty($this->getParam('sort'))) {
+				$result['body']['sort'] = $this->getParam('sort');
 			}
 			
 			// suggestion
-			if (!empty($this->params['suggest']) && ($this->client->getSuggestions() == null)) {
+			if (!empty($this->getParam('suggest')) && ($this->client->getSuggestions() == null)) {
 				// only fetch suggestion once
-				$result['body']['suggest'] = $this->params['suggest'];
+				$result['body']['suggest'] = $this->getParam('suggest');
 			}
 			
 			// highlighting
-			if (!empty($this->params['highlight'])) {
-				$result['body']['highlight'] = $this->params['highlight'];
+			if (!empty($this->getParam('highlight'))) {
+				$result['body']['highlight'] = $this->getParam('highlight');
 			}
 		}
 		
@@ -158,14 +158,11 @@ class SearchParams {
 	}
 	
 	public function getType() {
-		return $this->params['type'];
+		return $this->getParam('type');
 	}
 	
 	public function addFilter($filter) {
-		if (!isset($this->params['filter'])) {
-			$this->params['filter'] = [];
-		}
-		$this->params['filter'] = array_merge_recursive($this->params['filter'], $filter);
+		$this->params['filter'] = array_merge_recursive($this->getParam('filter', []), $filter);
 	}
 	
 	public function setFilter($filter) {
@@ -173,14 +170,11 @@ class SearchParams {
 	}
 	
 	public function getFilter() {
-		return $this->params['filter'];
+		return $this->getParam('filter');
 	}
 
 	public function addNoMatchFilter($filter) {
-		if (!isset($this->params['no_match_filter'])) {
-			$this->params['no_match_filter'] = [];
-		}
-		$this->params['no_match_filter'] = array_merge_recursive($this->params['no_match_filter'], $filter);
+		$this->params['no_match_filter'] = array_merge_recursive($this->getParam('no_match_filter', []), $filter);
 	}
 	
 	public function setNoMatchFilter($filter) {
@@ -188,14 +182,11 @@ class SearchParams {
 	}
 	
 	public function getNoMatchFilter() {
-		return $this->params['no_match_filter'];
+		return $this->getParam('no_match_filter');
 	}
 		
 	public function addQuery($query = []) {
-		if (!isset($this->params['query'])) {
-			$this->params['query'] = [];
-		}
-		$this->params['query'] = array_merge_recursive($this->params['query'], $query);
+		$this->params['query'] = array_merge_recursive($this->getParam('query', []), $query);
 	}
 
 	public function setQuery($query = []) {
@@ -203,7 +194,7 @@ class SearchParams {
 	}
 
 	public function getQuery() {
-		return $this->params['query'];
+		return $this->getParam('query');
 	}
 	
 	public function trackScores($track_scores = true) {
@@ -241,13 +232,14 @@ class SearchParams {
 	}
 	
 	public function getSort() {
-		return elgg_extract('sort', $this->params);
+		return $this->getParam('sort');
 	}
 	
 	public function setSize($size) {
 		$this->params['size'] = (int) $size;
 		
 	}
+	
 	public function setLimit($limit) {
 		$this->setSize($limit);
 	}
@@ -255,9 +247,11 @@ class SearchParams {
 	public function setFrom($from) {
 		$this->params['from'] = (int) $from;
 	}
+	
 	public function setOffset($offset) {
 		$this->setFrom($offset);
 	}
+	
 	public function setSuggestion($query) {
 		if (empty($query)) {
 			unset($this->params['suggest']);
@@ -269,7 +263,7 @@ class SearchParams {
 			"direct_generator" => [[
 				"field" => "_all",
 				"suggest_mode" => "missing",
-			]]
+			]],
 		];
 	}
 
@@ -284,7 +278,7 @@ class SearchParams {
 	}
 	
 	public function getHighlight() {
-		return elgg_extract('highlight', $this->params, []);
+		return $this->getParam('highlight', []);
 	}
 	
 	public function addEntityAccessFilter($user_guid = 0) {
@@ -351,6 +345,21 @@ class SearchParams {
 		return $this->params;
 	}
 	
+	/**
+	 * Get a value of a param
+	 *
+	 * @param string $name    the parameter to get
+	 * @param mixed  $default the default return value (default: null)
+	 *
+	 * @return mixed
+	 */
+	protected function getParam($name, $default = null) {
+		if (!isset($this->params[$name])) {
+			return $default;
+		}
+		
+		return $this->params[$name];
+	}
 
 	/**
 	 * Returns an array of functions to be used in the function_score array
