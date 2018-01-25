@@ -3,7 +3,7 @@
 	"description": "An Elasticsearch implementation for Elgg",
 	"type": "elgg-plugin",
 	"keywords": ["elgg", "plugin", "search", "lucene", "elasticsearch"],
-	"license": "GPL-2.0",
+	"license": "GPL-2.0-only",
 	"support": {
 		"source": "https://github.com/ColdTrick/elasticsearch",
 		"issues": "https://github.com/ColdTrick/elasticsearch/issues"
