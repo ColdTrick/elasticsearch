@@ -1,6 +1,10 @@
 Version history
 ===============
 
+3.3.1 (2018-02-12):
+
+- several small chores/fixes
+
 3.3 (2018-01-11):
 
 - added: plugin hooks to change config values for index and mapping
