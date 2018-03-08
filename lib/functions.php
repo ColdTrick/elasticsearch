@@ -129,16 +129,16 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 				'type_subtype_pairs' => $type_subtypes,
 				'limit' => false,
 				'wheres' => array(
-					"NOT EXISTS (
-						SELECT 1 FROM {$dbprefix}private_settings ps
-						WHERE ps.entity_guid = e.guid
-						AND ps.name = '" . ELASTICSEARCH_INDEXED_NAME . "'
+					"e.guid NOT IN (
+						SELECT ps.entity_guid
+						FROM {$dbprefix}private_settings ps
+						WHERE ps.name = '" . ELASTICSEARCH_INDEXED_NAME . "'
 					)",
-					"NOT EXISTS (
-						SELECT 1 FROM {$dbprefix}users_entity ue
-						WHERE ue.guid = e.guid
-						AND ue.banned = 'yes'
-					)"
+					"e.guid NOT IN (
+						SELECT ue.guid
+						FROM {$dbprefix}users_entity ue
+						WHERE ue.banned = 'yes'
+					)",
 				),
 			);
 			
