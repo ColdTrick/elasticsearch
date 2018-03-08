@@ -14,17 +14,17 @@ function elastic_prepare_search_hooks() {
 	elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
 
 	// register elastic search hooks
-	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
-	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
-	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'));
-	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchTags'));
-	elgg_register_plugin_hook_handler('search', 'combined:all', array('ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'), 400);
+	elgg_register_plugin_hook_handler('search', 'group', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
+	elgg_register_plugin_hook_handler('search', 'user', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
+	elgg_register_plugin_hook_handler('search', 'object', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
+	elgg_register_plugin_hook_handler('search', 'tags', ['ColdTrick\ElasticSearch\SearchHooks', 'searchTags']);
+	elgg_register_plugin_hook_handler('search', 'combined:all', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'], 400);
 
 	// register fallback to default search hooks
-	elgg_register_plugin_hook_handler('search', 'object', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'user', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'group', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
-	elgg_register_plugin_hook_handler('search', 'tags', array('ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'), 9000);
+	elgg_register_plugin_hook_handler('search', 'object', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
+	elgg_register_plugin_hook_handler('search', 'user', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
+	elgg_register_plugin_hook_handler('search', 'group', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
+	elgg_register_plugin_hook_handler('search', 'tags', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
 }
 
 /**
@@ -46,7 +46,7 @@ function elasticsearch_get_client() {
 		
 		$host = elasticsearch_get_setting('host');
 		if (!empty($host)) {
-			$params = array();
+			$params = [];
 			
 			$hosts = explode(',', $host);
 			array_walk($hosts, 'elasticsearch_cleanup_host');
@@ -125,10 +125,10 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 	switch ($type) {
 		case 'no_index_ts':
 			// new or updated entities
-			return array(
+			return [
 				'type_subtype_pairs' => $type_subtypes,
 				'limit' => false,
-				'wheres' => array(
+				'wheres' => [
 					"e.guid NOT IN (
 						SELECT ps.entity_guid
 						FROM {$dbprefix}private_settings ps
@@ -139,8 +139,8 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 						FROM {$dbprefix}users_entity ue
 						WHERE ue.banned = 'yes'
 					)",
-				),
-			);
+				],
+			];
 			
 			break;
 		case 'reindex':
@@ -150,44 +150,44 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 				return false;
 			}
 			
-			return array(
+			return [
 				'type_subtype_pairs' => $type_subtypes,
 				'limit' => false,
-				'private_setting_name_value_pairs' => array(
-					array(
+				'private_setting_name_value_pairs' => [
+					[
 						'name' => ELASTICSEARCH_INDEXED_NAME,
 						'value' => $setting,
 						'operand' => '<'
-					),
-					array(
+					],
+					[
 						'name' => ELASTICSEARCH_INDEXED_NAME,
 						'value' => 0,
 						'operand' => '>'
-					),
-				)
-			);
+					],
+				],
+			];
 			
 			break;
 		case 'update':
 			// content that was updated in Elgg and needs to be reindexed
-			return array(
+			return [
 				'type_subtype_pairs' => $type_subtypes,
 				'limit' => false,
-				'private_setting_name_value_pairs' => array(
-					array(
+				'private_setting_name_value_pairs' => [
+					[
 						'name' => ELASTICSEARCH_INDEXED_NAME,
 						'value' => 0,
-					),
-				)
-			);
+					],
+				],
+			];
 			
 			break;
 		case 'count':
 			// content that needs to be indexed
-			return array(
+			return [
 				'type_subtype_pairs' => $type_subtypes,
 				'count' => true,
-			);
+			];
 			
 			break;
 	}
@@ -227,14 +227,14 @@ function elasticsearch_get_setting($setting) {
 	
 	if (!isset($settings)) {
 		// default settings
-		$settings = array(
+		$settings = [
 			'host' => '',
 			'index' => '',
 			'search_alias' => '',
 			'sync' => 'no',
 			'search' => 'no',
 			'cron_validate' => 'no',
-		);
+		];
 		
 		$plugin = elgg_get_plugin_from_id('elasticsearch');
 		$plugin_settings = $plugin->getAllSettings();
