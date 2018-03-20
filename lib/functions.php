@@ -107,6 +107,18 @@ function elasticsearch_get_registered_entity_types_for_search() {
 }
 
 /**
+ * Returns the boostable types for ElasticSearch
+ *
+ *  @return array
+ */
+function elasticsearch_get_types_for_boosting() {
+	$type_subtypes = elasticsearch_get_registered_entity_types_for_search();
+	$types = \ColdTrick\ElasticSearch\SearchHooks::entityTypeSubtypesToSearchTypes($type_subtypes);
+	
+	return elgg_trigger_plugin_hook('boostable_types', 'elasticsearch', $types, $types);
+}
+
+/**
  * Get the $options for elgg_get_entities* in order to update the ElasticSearch index
  *
  * @param string $type which options to get

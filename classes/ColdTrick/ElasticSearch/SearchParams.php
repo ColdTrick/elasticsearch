@@ -368,8 +368,7 @@ class SearchParams {
 	 */
 	protected static function getScoreFunctions() {
 		
-		$type_subtypes = elasticsearch_get_registered_entity_types_for_search();
-		$types = SearchHooks::entityTypeSubtypesToSearchTypes($type_subtypes);
+		$types = elasticsearch_get_types_for_boosting();
 		if (empty($types)) {
 			return [];
 		}

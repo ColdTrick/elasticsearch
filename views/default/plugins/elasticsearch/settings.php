@@ -65,8 +65,7 @@ $features .= elgg_view_field([
 echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:features:header'), $features);
 
 // boosting of types
-$type_subtypes = elasticsearch_get_registered_entity_types_for_search();
-$types = \ColdTrick\ElasticSearch\SearchHooks::entityTypeSubtypesToSearchTypes($type_subtypes);
+$types = elasticsearch_get_types_for_boosting();
 if (!empty($types)) {
 	
 	$boosting = elgg_view('output/longtext', [
