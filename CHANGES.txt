@@ -1,6 +1,10 @@
 Version history
 ===============
 
+3.4 (2018-03-22):
+
+- added: hook to influence boostable content types
+
 3.3.2 (2018-03-08):
 
 - several small chores/fixes
