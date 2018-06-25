@@ -277,6 +277,15 @@ class SearchHooks {
 				'ignore_unmapped' => true,
 				'missing' => '_last',
 			]);
+		} else {
+			// if there is no specific sorting requested, sort by score
+			// in case of identical score, sort by time created (newest first)
+			$client->search_params->addSort('_score', []);
+			$client->search_params->addSort('time_created', [
+				'order' => 'desc',
+				'ignore_unmapped' => true,
+				'missing' => '_last',
+			]);
 		}
 	}
 	
