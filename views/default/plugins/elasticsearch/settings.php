@@ -89,4 +89,33 @@ if (!empty($types)) {
 	echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:type_boosting:title'), $boosting);
 }
 
+$decay = elgg_view('output/longtext', ['value' => elgg_echo('elasticsearch:settings:decay:info')]);
+
+$decay .= elgg_view_field([
+	'#type' => 'number',
+	'#label' => elgg_echo('elasticsearch:settings:decay_offset'),
+	'#help' => elgg_echo('elasticsearch:settings:decay_offset:help'),
+	'name' => 'params[decay_offset]',
+	'value' => $plugin->decay_offset,
+	'min' => 0,
+]);
+
+$decay .= elgg_view_field([
+	'#type' => 'number',
+	'#label' => elgg_echo('elasticsearch:settings:decay_scale'),
+	'#help' => elgg_echo('elasticsearch:settings:decay_scale:help'),
+	'name' => 'params[decay_scale]',
+	'value' => $plugin->decay_scale,
+	'min' => 0,
+]);
+
+$decay .= elgg_view_field([
+	'#type' => 'text',
+	'#label' => elgg_echo('elasticsearch:settings:decay_decay'),
+	'#help' => elgg_echo('elasticsearch:settings:decay_decay:help'),
+	'name' => 'params[decay_decay]',
+	'value' => $plugin->decay_decay,
+]);
+
+echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:decay:title'), $decay);
 

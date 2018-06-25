@@ -368,28 +368,45 @@ class SearchParams {
 	 */
 	protected static function getScoreFunctions() {
 		
+		$result = [];
+		
+		// add function scoring for type boosting
 		$types = elasticsearch_get_types_for_boosting();
-		if (empty($types)) {
-			return [];
+		if (!empty($types)) {
+			foreach ($types as $type) {
+				$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
+				if (!($weight > 0) || $weight == 1) {
+					continue;
+				}
+				
+				$result[] = [
+					'filter' => [
+						'term' => [
+							'_type' => $type,
+						],
+					],
+					'weight' => $weight,
+				];
+			}
 		}
 		
-		$result = [];
-		foreach ($types as $type) {
-			$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
-			if (!($weight > 0) || $weight == 1) {
-				continue;
-			}
-			
+		$decay_offset = (int) elgg_get_plugin_setting('decay_offset', 'elasticsearch', 0);
+		$decay_scale = (int) elgg_get_plugin_setting('decay_scale', 'elasticsearch');
+		$decay_decay = elgg_get_plugin_setting('decay_decay', 'elasticsearch');
+		
+		if (!empty($decay_scale) && !empty($decay_decay)) {
 			$result[] = [
-				'filter' => [
-					'term' => [
-						'_type' => $type,
+				'gauss' => [
+					'time_created' => [
+						'origin' => date('c'),
+						'scale' => "{$decay_scale}d",
+						'offset' => "{$decay_offset}d",
+						'decay' => $decay_decay,
 					],
 				],
-				'weight' => $weight,
 			];
 		}
-		
+
 		return $result;
 	}
 }

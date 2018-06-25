@@ -43,6 +43,15 @@ return array(
 	'elasticsearch:settings:type_boosting:type' => "Content Type",
 	'elasticsearch:settings:type_boosting:multiplier' => "Multiplier",
 	
+	'elasticsearch:settings:decay:title' => "Content Decay",
+	'elasticsearch:settings:decay:info' => "If configured the decay score multiplier will be applied to the content results.",
+	'elasticsearch:settings:decay_offset' => "Offset",
+	'elasticsearch:settings:decay_offset:help' => "Enter the number of days before (min) the decay multiplier will be applied.",
+	'elasticsearch:settings:decay_scale' => "Scale",
+	'elasticsearch:settings:decay_scale:help' => "Enter the number of days until (max) the lowest decay multiplier will be applied.",
+	'elasticsearch:settings:decay_decay' => "Decay",
+	'elasticsearch:settings:decay_decay:help' => "Enter the decay multiplier that will be applied when scale is reached. Enter a number between 1 and 0. The lower the number, the lower the score.",
+	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",
 	'elasticsearch:stats:es_version' => "ElasticSearch version",
