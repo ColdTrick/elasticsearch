@@ -245,7 +245,7 @@ class SearchHooks {
 		}
 		
 		// sort & order
-		$sort = elgg_extract('sort', $params);
+		$sort = elgg_extract('sort', $params, '_score');
 		$order = elgg_extract('order', $params, 'desc');
 		$sort_field = false;
 		
@@ -269,20 +269,19 @@ class SearchHooks {
 			case 'alpha':
 				$sort_field = 'title.raw';
 				break;
+			case '_score':
+				// if there is no specific sorting requested, sort by score
+				// in case of identical score, sort by time created (newest first)
+			
+				$client->search_params->addSort('_score', []);
+				$sort_field = 'time_created';
+				$sort = 'desc';
+				break;
 		}
 		
 		if (!empty($sort_field)) {
 			$client->search_params->addSort($sort_field, [
 				'order' => $order,
-				'ignore_unmapped' => true,
-				'missing' => '_last',
-			]);
-		} else {
-			// if there is no specific sorting requested, sort by score
-			// in case of identical score, sort by time created (newest first)
-			$client->search_params->addSort('_score', []);
-			$client->search_params->addSort('time_created', [
-				'order' => 'desc',
 				'ignore_unmapped' => true,
 				'missing' => '_last',
 			]);
