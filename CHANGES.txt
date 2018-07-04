@@ -1,6 +1,11 @@
 Version history
 ===============
 
+3.5 (2018-06-28):
+
+- added: decay settings for demoting content that is older
+- added: if ordered by score, similar scores are now ordered newest first
+
 3.4 (2018-03-22):
 
 - added: hook to influence boostable content types
