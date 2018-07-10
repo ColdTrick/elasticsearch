@@ -245,7 +245,7 @@ class SearchHooks {
 		}
 		
 		// sort & order
-		$sort = elgg_extract('sort', $params, '_score');
+		$sort = elgg_extract('sort', $params, 'relevance');
 		$order = elgg_extract('order', $params, 'desc');
 		$sort_field = false;
 		
@@ -269,7 +269,7 @@ class SearchHooks {
 			case 'alpha':
 				$sort_field = 'title.raw';
 				break;
-			case '_score':
+			case 'relevance':
 				// if there is no specific sorting requested, sort by score
 				// in case of identical score, sort by time created (newest first)
 			
