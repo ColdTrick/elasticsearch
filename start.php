@@ -20,7 +20,6 @@ elgg_register_event_handler("init", "system", "elasticsearch_init");
 function elasticsearch_init() {
 	
 	// css
-	elgg_extend_view('css/elgg', 'css/elasticsearch/site.css');
 	elgg_register_css('elgg.icons', elgg_get_simplecache_url('css', 'elements/icons'));
 	
 	// ajax views
