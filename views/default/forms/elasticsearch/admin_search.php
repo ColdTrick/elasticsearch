@@ -16,7 +16,9 @@ echo elgg_view_field([
 
 try {
 	$status = $client->indices()->status();
-} catch (Exception $e){}
+} catch (Exception $e){
+	elgg_log($e, 'ERROR');
+}
 
 $indices = array_keys(elgg_extract('indices', $status));
 
@@ -24,7 +26,7 @@ echo elgg_view_field([
 	'#type' => 'select',
 	'name' => 'index',
 	'options' => $indices,
-	'value' => $client->getIndex()
+	'value' => $client->getIndex(),
 ]);
 
 $footer = elgg_view_field([
