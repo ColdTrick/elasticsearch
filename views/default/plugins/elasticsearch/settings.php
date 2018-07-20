@@ -1,11 +1,12 @@
 <?php
 
+/* @var $plugin \ElggPlugin */
 $plugin = elgg_extract('entity', $vars);
 
-$noyes_options = array(
+$noyes_options = [
 	'no' => elgg_echo('option:no'),
 	'yes' => elgg_echo('option:yes'),
-);
+];
 
 // host configuration
 $host = elgg_view_field([
@@ -32,7 +33,7 @@ $host .= elgg_view_field([
 	'value' => $plugin->search_alias,
 ]);
 
-echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:host:header'), $host);
+echo elgg_view_module('info', elgg_echo('elasticsearch:settings:host:header'), $host);
 
 // features
 $features = elgg_view_field([
@@ -62,7 +63,7 @@ $features .= elgg_view_field([
 	'options_values' => $noyes_options,
 ]);
 
-echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:features:header'), $features);
+echo elgg_view_module('info', elgg_echo('elasticsearch:settings:features:header'), $features);
 
 // boosting of types
 $types = elasticsearch_get_types_for_boosting();
@@ -72,21 +73,33 @@ if (!empty($types)) {
 		'value' => elgg_echo('elasticsearch:settings:type_boosting:info'),
 	]);
 	
-	$rows = '<tr><th>' . elgg_echo('elasticsearch:settings:type_boosting:type') . '</th><th>' . elgg_echo('elasticsearch:settings:type_boosting:multiplier') . '</th></tr>';
+	// header row
+	$row = [
+		elgg_format_element('th', [], elgg_echo('elasticsearch:settings:type_boosting:type')),
+		elgg_format_element('th', [], elgg_echo('elasticsearch:settings:type_boosting:multiplier')),
+	];
+	$header = elgg_format_element('thead', [], elgg_format_element('tr', [], implode(PHP_EOL, $row)));
+	
+	// content rows
+	$rows = [];
 	foreach ($types as $type) {
-		$boost_input = elgg_view_field([
+		$row = [];
+		$setting_name = "type_boosting_{$type}";
+		
+		$row[] = elgg_format_element('td', [], $type);
+		$row[] = elgg_format_element('td', [], elgg_view_field([
 			'#type' => 'text',
 			'#class' => 'man',
-			'name' => "params[type_boosting_$type]",
-			'value' => $plugin->{"type_boosting_$type"},
-		]);
+			'name' => "params[{$setting_name}]",
+			'value' => $plugin->$setting_name,
+		]));
 		
-		$rows .= "<tr><td>{$type}</td><td>{$boost_input}</td></tr>";
+		$rows[] = elgg_format_element('tr', [], implode(PHP_EOL, $row));
 			
 	}
-	$boosting .= elgg_format_element('table', ['class' => 'elgg-table'], $rows);
+	$boosting .= elgg_format_element('table', ['class' => 'elgg-table'], $header . elgg_format_element('tbody', [], implode(PHP_EOL, $rows)));
 
-	echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:type_boosting:title'), $boosting);
+	echo elgg_view_module('info', elgg_echo('elasticsearch:settings:type_boosting:title'), $boosting);
 }
 
 $decay = elgg_view('output/longtext', ['value' => elgg_echo('elasticsearch:settings:decay:info')]);
@@ -117,5 +130,4 @@ $decay .= elgg_view_field([
 	'value' => $plugin->decay_decay,
 ]);
 
-echo elgg_view_module('inline', elgg_echo('elasticsearch:settings:decay:title'), $decay);
-
+echo elgg_view_module('info', elgg_echo('elasticsearch:settings:decay:title'), $decay);
