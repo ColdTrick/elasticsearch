@@ -9,43 +9,29 @@ if (!$result) {
 $hits = elgg_extract('hits', $result);
 unset($result['hits']);
 
-// general stats
-$content = '<table class="elgg-table">';
-
-$it = new RecursiveIteratorIterator(new RecursiveArrayIterator($result), RecursiveIteratorIterator::SELF_FIRST);
-foreach ($it as $key => $value) {
-
-	$key = str_repeat('&nbsp;&nbsp;&nbsp;', $it->getDepth()) . $key;
-	$content .= '<tr>';
-	if ($it->callHasChildren()) {
-		$content .= '<td colspan="2"><b>' . $key . '</b></td>';
-	} else {
-		$content .= '<td>' . $key . '</td>';
-		$content .= '<td>' . $value . '</td>';
+$format_table = function($results) {
+	$rows = [];
+	$it = new RecursiveIteratorIterator(new RecursiveArrayIterator($results), RecursiveIteratorIterator::SELF_FIRST);
+	foreach ($it as $key => $value) {
+		$row = [];
+		
+		$key = str_repeat('&nbsp;&nbsp;&nbsp;', $it->getDepth()) . $key;
+		
+		if ($it->callHasChildren()) {
+			$row[] = elgg_format_element('td', ['colspan' => 2], elgg_format_element('b', [], $key));
+		} else {
+			$row[] = elgg_format_element('td', [], $key);
+			$row[] = elgg_format_element('td', [], $value);
+		}
+		
+		$rows[] = elgg_format_element('tr', [], implode(PHP_EOL, $row));
 	}
-	$content .= '</tr>';
-}
-$content .= '</table>';
+	
+	return elgg_format_element('table', ['class' => ['elgg-table', 'mbl']], implode(PHP_EOL, $rows));
+};
 
-echo $content;
-
-echo '<br />';
+// general stats
+echo $format_table($result);
 
 // hits
-$content = '<table class="elgg-table">';
-
-$it = new RecursiveIteratorIterator(new RecursiveArrayIterator($hits), RecursiveIteratorIterator::SELF_FIRST);
-foreach ($it as $key => $value) {
-
-	$key = str_repeat('&nbsp;&nbsp;&nbsp;', $it->getDepth()) . $key;
-	$content .= '<tr>';
-	if ($it->callHasChildren()) {
-		$content .= '<td colspan="2"><b>' . $key . '</b></td>';
-	} else {
-		$content .= '<td>' . $key . '</td>';
-		$content .= '<td>' . $value . '</td>';
-	}
-	$content .= '</tr>';
-}
-$content .= '</table>';
-echo $content;
+echo $format_table($hits);
