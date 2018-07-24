@@ -1,7 +1,5 @@
 <?php
 
-elgg_load_css('elgg.icons');
-
 // Elgg configuration
 echo elgg_view('elasticsearch/stats/elgg');
 

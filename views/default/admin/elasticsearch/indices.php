@@ -1,7 +1,5 @@
 <?php
 
-elgg_load_css('elgg.icons');
-
 $client = elasticsearch_get_client();
 if (empty($client)) {
 	echo elgg_echo('elasticsearch:error:no_client');
