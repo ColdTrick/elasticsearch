@@ -3,46 +3,40 @@
 $index = get_input('index');
 $task = get_input('task');
 if (empty($index)) {
-	register_error(elgg_echo('elasticsearch:error:no_index'));
-	forward(REFERER);
+	return elgg_error_response(elgg_echo('elasticsearch:error:no_index'));
 }
 
 $client = elasticsearch_get_client();
 if (empty($client)) {
-	register_error(elgg_echo('elasticsearch:error:no_client'));
-	forward(REFERER);
+	return elgg_error_response(elgg_echo('elasticsearch:error:no_client'));
 }
 
 $exists = false;
 try {
-	$exists = $client->indices()->exists(array('index' => $index));
+	$exists = $client->indices()->exists(['index' => $index]);
 } catch (Exception $e) {
 	// something is wrong
+	elgg_log($e, 'NOTICE');
 }
 
 switch ($task) {
 	case 'flush':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		try {
-			$client->indices()->flush(array('index' => $index));
+			$client->indices()->flush(['index' => $index]);
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:flush', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:flush', [$index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:flush', array($index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:flush', [$index]));
 	case 'optimize':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		try {
@@ -52,146 +46,113 @@ switch ($task) {
 				'wait_for_merge' => false
 			));
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:optimize', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:optimize', [$index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:optimize', array($index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:optimize', [$index]));
 	case 'delete':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		try {
-			$client->indices()->delete(array('index' => $index));
+			$client->indices()->delete(['index' => $index]);
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:delete', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:delete', [$index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:delete', array($index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:delete', [$index]));
 	case 'create':
 		
 		if ($exists) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create:exists', [$index]));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:create:exists', [$index]));
 		}
 		
 		try {
-						
 			$params = json_decode(elgg_view('elasticsearch/index.json', ['index' => $index]), true);
 			
 			$client->indices()->create($params);
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:create', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:create', [$index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:create', array($index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:create', [$index]));
 	case 'add_mappings':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		try {
-			
 			$mapping = json_decode(elgg_view('elasticsearch/mapping.json', ['index' => $index]), true);
 			
 			// Update the index mapping
 			$client->indices()->putMapping($mapping);
-			
 		} catch (Exception $e) {
 			register_error($e->getMessage());
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_mappings', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:add_mappings', [$index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:add_mappings', array($index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:add_mappings', [$index]));
 	case 'add_alias':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		$alias = elasticsearch_get_setting('search_alias');
 		if (empty($alias)) {
-			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:alias_not_configured'));
 		}
 		
-		$alias_exists = $client->indices()->existsAlias(array(
+		$alias_exists = $client->indices()->existsAlias([
 			'name' => $alias,
 			'index' => $index,
-		));
+		]);
 		if ($alias_exists) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_alias:exists', array($alias, $index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:add_alias:exists', [$alias, $index]));
 		}
 		
 		try {
-			$client->indices()->putAlias(array(
+			$client->indices()->putAlias([
 				'index' => $index,
 				'name' => $alias,
-			));
+			]);
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:add_alias', array($alias, $index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:add_alias', [$alias, $index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:add_alias', array($alias, $index)));
-		
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:add_alias', [$alias, $index]));
 	case 'delete_alias':
 		
 		if (!$exists) {
-			register_error(elgg_echo('elasticsearch:error:index_not_exists', array($index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
 		$alias = elasticsearch_get_setting('search_alias');
 		if (empty($alias)) {
-			register_error(elgg_echo('elasticsearch:error:alias_not_configured'));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:error:alias_not_configured'));
 		}
 		
-		$alias_exists = $client->indices()->existsAlias(array(
+		$alias_exists = $client->indices()->existsAlias([
 			'name' => $alias,
 			'index' => $index,
-		));
+		]);
 		if (!$alias_exists) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias:exists', array($alias, $index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias:exists', [$alias, $index]));
 		}
 		
 		try {
-			$client->indices()->deleteAlias(array(
+			$client->indices()->deleteAlias([
 				'index' => $index,
 				'name' => $alias,
-			));
+			]);
 		} catch (Exception $e) {
-			register_error(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias', array($alias, $index)));
-			break;
+			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:delete_alias', [$alias, $index]));
 		}
 		
-		system_message(elgg_echo('elasticsearch:action:admin:index_management:delete_alias', array($alias, $index)));
-		
-		break;
-	default:
-		register_error(elgg_echo('elasticsearch:action:admin:index_management:error:task', array($task)));
-		break;
+		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:delete_alias', [$alias, $index]));
 }
 
-forward(REFERER);
+return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:task', [$task]));

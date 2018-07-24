@@ -20,8 +20,7 @@ $index = get_input('index');
 
 $client = elasticsearch_get_client();
 if (!$client) {
-	register_error(elgg_echo('elasticsearch:error:no_client'));
-	forward(REFERER);
+	return elgg_error_response(elgg_echo('elasticsearch:error:no_client'));
 }
 
 $searchParams = [];
@@ -45,6 +44,9 @@ if (!empty($index)) {
 }
 
 $result = $client->search($searchParams);
+$content = '';
 if ($result) {
-	echo elgg_view('elasticsearch/admin_search/result', ['result' => $result]);
+	$content = elgg_view('elasticsearch/admin_search/result', ['result' => $result]);
 }
+
+return elgg_ok_response($content);

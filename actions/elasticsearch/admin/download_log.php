@@ -1,10 +1,11 @@
 <?php
 
+use Elgg\Project\Paths;
+
 $path = get_input('path');
-$path = sanitise_filepath($path, false);
+$path = Paths::sanitize($path, false);
 if (empty($path)) {
-	register_error(elgg_echo('error:missing_data'));
-	forward(REFERER);
+	return elgg_error_response(elgg_echo('error:missing_data'));
 }
 
 $logging_base_dir = elgg_get_data_path() . 'elasticsearch/';
@@ -12,8 +13,7 @@ $logging_base_dir = elgg_get_data_path() . 'elasticsearch/';
 // check if the requested file exists
 $filename = $logging_base_dir . $path;
 if (!file_exists($filename)) {
-	register_error(elgg_echo('error:404:content'));
-	forward(REFERER);
+	return elgg_error_response(elgg_echo('error:404:content'));
 }
 
 // get contents
