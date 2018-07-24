@@ -7,14 +7,11 @@ class Cron {
 	/**
 	 * Listen to the minute cron in order to sync data to ElasticSearch
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'cron', 'minute'
 	 *
 	 * @return void
 	 */
-	public static function minuteSync($hook, $type, $returnvalue, $params) {
+	public static function minuteSync(\Elgg\Hook $hook) {
 		
 		if (elasticsearch_get_setting('sync') !== 'yes') {
 			// sync not enabled
@@ -26,7 +23,7 @@ class Cron {
 			return;
 		}
 		
-		$starttime = (int) elgg_extract('time', $params, time());
+		$starttime = (int) $hook->getParam('time', time());
 		
 		// delete first
 		$client->bulkDeleteDocuments();
@@ -46,11 +43,7 @@ class Cron {
 				continue;
 			}
 			
-			$getter = '';
-			if ($action === 'no_index_ts') {
-				$getter = 'elgg_get_entities';
-			}
-			$time_left = self::batchSync($options, $starttime, $getter);
+			$time_left = self::batchSync($options, $starttime);
 			if ($time_left === false) {
 				return;
 			}
@@ -67,22 +60,13 @@ class Cron {
 	 *
 	 * @param array  $options   the options for elgg_get_entities()
 	 * @param int    $crontime the starttime of the cron in order to limit max runtime
-	 * @param string $getter    the getter function to use for \ElggBatch
 	 *
 	 * @return bool|void
 	 */
-	protected static function batchSync($options, $crontime, $getter = '') {
+	protected static function batchSync($options, $crontime) {
 		
 		if (empty($options) || !is_array($options)) {
 			return;
-		}
-		
-		if (empty($getter)) {
-			$getter = 'elgg_get_entities_from_private_settings';
-		}
-		
-		if (!is_callable($getter)) {
-			return false;
 		}
 		
 		$client = elasticsearch_get_client();
@@ -90,8 +74,8 @@ class Cron {
 			return;
 		}
 		
-		$crontime = sanitise_int($crontime, false);
-		if (empty($crontime)) {
+		$crontime = (int) $crontime;
+		if ($crontime < 1) {
 			$crontime = time();
 		}
 		
@@ -104,15 +88,12 @@ class Cron {
 		$time_left = true;
 		$batch_size = 100;
 		
-		$options['callback'] = false;
+		$options['callback'] = function($row) {
+			return (int) $row->guid;
+		};
 		$options['limit'] = $batch_size;
 		
-		while ($time_left && ($rows = call_user_func($getter, $options))) {
-			
-			$guids = array();
-			foreach ($rows as $row) {
-				$guids[] = (int) $row->guid;
-			}
+		while ($time_left && ($guids = elgg_get_entities($options))) {
 			
 			$result = $client->bulkIndexDocuments($guids);
 			if (empty($result)) {
@@ -132,7 +113,13 @@ class Cron {
 					continue;
 				}
 				
-				set_private_setting($guid, ELASTICSEARCH_INDEXED_NAME, time());
+				$entity = get_entity($guid);
+				if (!$entity instanceof \ElggEntity) {
+					continue;
+				}
+				
+				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
+				$entity->invalidateCache();
 			}
 			
 			if ((time() - $crontime) >= 30) {
@@ -150,14 +137,11 @@ class Cron {
 	/**
 	 * Listen to the daily cron the do some cleanup jobs
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'cron', 'daily'
 	 *
 	 * @return void
 	 */
-	public static function dailyCleanup($hook, $type, $resultvalue, $params) {
+	public static function dailyCleanup(\Elgg\Hook $hook) {
 		
 		if (elasticsearch_get_setting('sync') !== 'yes') {
 			// sync isn't enabled, so don't validate
@@ -248,7 +232,7 @@ class Cron {
 					'limit' => false,
 					'callback' => function ($row) {
 						return (int) $row->guid;
-					}
+					},
 				]);
 				
 				$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
@@ -302,7 +286,7 @@ class Cron {
 		$guids = [];
 		$unindexed = [];
 		
-		$batch = new \ElggBatch('elgg_get_entities_from_private_settings', [
+		$batch = new \ElggBatch('elgg_get_entities', [
 			'type_subtype_pairs' => elasticsearch_get_registered_entity_types_for_search(),
 			'limit' => false,
 			'private_setting_name_value_pairs' => [

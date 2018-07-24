@@ -7,18 +7,17 @@ class Admin {
 	/**
 	 * Add menu items to the admin page menu
 	 *
-	 * @param string          $hook        the name of the hook
-	 * @param string          $type        the type of the hook
-	 * @param \ElggMenuItem[] $returnvalue current return value
-	 * @param array           $params      supplied params
+	 * @param \Elgg\Hook $hook 'register', 'menu:page'
 	 *
 	 * @return void|\ElggMenuItem[]
 	 */
-	public static function pageMenu($hook, $type, $returnvalue, $params) {
+	public static function pageMenu(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('admin') || !elgg_is_admin_logged_in()) {
 			return;
 		}
+		
+		$returnvalue = $hook->getValue();
 		
 		// parent
 		$returnvalue[] = \ElggMenuItem::factory([
