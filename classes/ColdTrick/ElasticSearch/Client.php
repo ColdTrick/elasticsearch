@@ -277,17 +277,17 @@ class Client extends \Elasticsearch\Client {
 		
 		$cache = elgg_get_config('log_cache');
 		if (empty($cache)) {
+			// developer tools log to screen is disabled
 			return;
 		}
 		
-		$msg = @json_encode($params);
-		$msg = htmlentities($msg, ENT_QUOTES, 'UTF-8');
+		$msg = @json_encode($params, JSON_PRETTY_PRINT);
 		
 		if ($action) {
-			$msg = "$action: $msg";
+			$msg = "{$action}:\n $msg";
 		}
 		
-		$cache->insertDump('', '', true, ['msg' => $msg]);
+		elgg_log($msg, 'NOTICE');
 	}
 	
 	public function setSuggestions($data) {
