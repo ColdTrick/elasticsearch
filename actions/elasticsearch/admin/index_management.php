@@ -101,7 +101,7 @@ switch ($task) {
 			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
-		$alias = elasticsearch_get_setting('search_alias');
+		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 		if (empty($alias)) {
 			return elgg_error_response(elgg_echo('elasticsearch:error:alias_not_configured'));
 		}
@@ -130,7 +130,7 @@ switch ($task) {
 			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
 		}
 		
-		$alias = elasticsearch_get_setting('search_alias');
+		$alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 		if (empty($alias)) {
 			return elgg_error_response(elgg_echo('elasticsearch:error:alias_not_configured'));
 		}

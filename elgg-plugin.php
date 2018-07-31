@@ -25,4 +25,9 @@ return [
 			'access' => 'admin',
 		],
 	],
+	'settings' => [
+		'sync' => 'no',
+		'search' => 'no',
+		'cron_validate' => 'no',
+	],
 ];

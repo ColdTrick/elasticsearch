@@ -19,8 +19,8 @@ if (!$alive) {
 	return;
 }
 
-$elgg_index = elasticsearch_get_setting('index');
-$search_alias = elasticsearch_get_setting('search_alias');
+$elgg_index = elgg_get_plugin_setting('index', 'elasticsearch');
+$search_alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 $elgg_index_found = false;
 
 try {

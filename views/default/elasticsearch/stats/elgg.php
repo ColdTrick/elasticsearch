@@ -3,7 +3,7 @@
 $content = '<table class="elgg-table">';
 
 // sync enabled
-$sync_enabled = elasticsearch_get_setting('sync');
+$sync_enabled = elgg_get_plugin_setting('sync', 'elasticsearch');
 $content .= '<tr>';
 $content .= '<td>' . elgg_echo('elasticsearch:settings:sync') . '</td>';
 $content .= '<td>' . elgg_echo("option:{$sync_enabled}") . '</td>';
@@ -50,7 +50,7 @@ $content .= '<tr>';
 $content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:reindex');
 
 $reindex_title = elgg_echo('elasticsearch:stats:elgg:reindex:action');
-$last_ts = (int) elasticsearch_get_setting('reindex_ts');
+$last_ts = (int) elgg_get_plugin_setting('reindex_ts', 'elasticsearch');
 
 if (!empty($last_ts)) {
 	$reindex_title .= '&#10;&#10;' . elgg_echo('elasticsearch:stats:elgg:reindex:last_ts', [date('c', $last_ts)]);

@@ -13,7 +13,7 @@ class Cron {
 	 */
 	public static function minuteSync(\Elgg\Hook $hook) {
 		
-		if (elasticsearch_get_setting('sync') !== 'yes') {
+		if (elgg_get_plugin_setting('sync', 'elasticsearch') !== 'yes') {
 			// sync not enabled
 			return;
 		}
@@ -143,12 +143,12 @@ class Cron {
 	 */
 	public static function dailyCleanup(\Elgg\Hook $hook) {
 		
-		if (elasticsearch_get_setting('sync') !== 'yes') {
+		if (elgg_get_plugin_setting('sync', 'elasticsearch') !== 'yes') {
 			// sync isn't enabled, so don't validate
 			return;
 		}
 		
-		if (elasticsearch_get_setting('cron_validate') !== 'yes') {
+		if (elgg_get_plugin_setting('cron_validate', 'elasticsearch') !== 'yes') {
 			// validate isn't enabled
 			return;
 		}

@@ -150,7 +150,7 @@ class SearchHooks {
 	
 	protected static function getClientForHooks($params) {
 	
-		if (elasticsearch_get_setting('search') !== 'yes') {
+		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
 			return false;
 		}
 	
@@ -344,7 +344,7 @@ class SearchHooks {
 	 */
 	public static function registerSortMenu($hook, $type, $returnvalue, $params) {
 		
-		if (elasticsearch_get_setting('search') !== 'yes') {
+		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
 			return;
 		}
 		
@@ -599,7 +599,7 @@ class SearchHooks {
 		$hit = elgg_extract('hit', $params);
 		$index = elgg_extract('_index', $hit);
 		
-		$elgg_index = elasticsearch_get_setting('index');
+		$elgg_index = elgg_get_plugin_setting('index', 'elasticsearch');
 		if ($index !== $elgg_index) {
 			return;
 		}

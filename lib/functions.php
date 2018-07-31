@@ -1,4 +1,7 @@
 <?php
+use Elgg\Database\QueryBuilder;
+use Elgg\Database\Select;
+
 /**
  * All helper functions are bundled here
  */
@@ -6,7 +9,7 @@
 /**
  * Function to (un)register various search hooks
  */
-function elastic_prepare_search_hooks() {
+function elasticsearch_prepare_search_hooks() {
 	// unregister default search hooks
 	elgg_unregister_plugin_hook_handler('search', 'object', 'search_objects_hook');
 	elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
@@ -14,17 +17,17 @@ function elastic_prepare_search_hooks() {
 	elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
 
 	// register elastic search hooks
-	elgg_register_plugin_hook_handler('search', 'group', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
-	elgg_register_plugin_hook_handler('search', 'user', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
-	elgg_register_plugin_hook_handler('search', 'object', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities']);
-	elgg_register_plugin_hook_handler('search', 'tags', ['ColdTrick\ElasticSearch\SearchHooks', 'searchTags']);
-	elgg_register_plugin_hook_handler('search', 'combined:all', ['ColdTrick\ElasticSearch\SearchHooks', 'searchEntities'], 400);
+	elgg_register_plugin_hook_handler('search', 'group', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
+	elgg_register_plugin_hook_handler('search', 'user', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
+	elgg_register_plugin_hook_handler('search', 'object', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
+	elgg_register_plugin_hook_handler('search', 'tags', 'ColdTrick\ElasticSearch\SearchHooks::searchTags');
+	elgg_register_plugin_hook_handler('search', 'combined:all', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities', 400);
 
 	// register fallback to default search hooks
-	elgg_register_plugin_hook_handler('search', 'object', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
-	elgg_register_plugin_hook_handler('search', 'user', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
-	elgg_register_plugin_hook_handler('search', 'group', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
-	elgg_register_plugin_hook_handler('search', 'tags', ['ColdTrick\ElasticSearch\SearchHooks', 'searchFallback'], 9000);
+	elgg_register_plugin_hook_handler('search', 'object', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
+	elgg_register_plugin_hook_handler('search', 'user', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
+	elgg_register_plugin_hook_handler('search', 'group', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
+	elgg_register_plugin_hook_handler('search', 'tags', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
 }
 
 /**
@@ -35,36 +38,39 @@ function elastic_prepare_search_hooks() {
 function elasticsearch_get_client() {
 	static $client;
 	
-	if (!isset($client)) {
-		$client = false;
-		
-		// Check if the function 'curl_multi_exec' isn't blocked (for security reasons), this prevents error_log overflow
-		// this isn't caught by the \Elasticseach\Client
-		if (!function_exists('curl_multi_exec')) {
-			return false;
-		}
-		
-		$host = elasticsearch_get_setting('host');
-		if (!empty($host)) {
-			$params = [];
-			
-			$hosts = explode(',', $host);
-			array_walk($hosts, 'elasticsearch_cleanup_host');
-			
-			$params['hosts'] = $hosts;
-			
-			$params['logging'] = true;
-			$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
-			
-			// trigger hook so other plugins can infuence the params
-			$params = elgg_trigger_plugin_hook('params', 'elasticsearch', $params, $params);
-			
-			try {
-				$client = new ColdTrick\ElasticSearch\Client($params);
-			} catch (Exception $e) {
-				elgg_log("Unable to create ElasticSearch client: {$e->getMessage()}", 'ERROR');
-			}
-		}
+	if (isset($client)) {
+		return $client;
+	}
+	
+	$client = false;
+	
+	// Check if the function 'curl_multi_exec' isn't blocked (for security reasons), this prevents error_log overflow
+	// this isn't caught by the \Elasticseach\Client
+	if (!function_exists('curl_multi_exec')) {
+		return false;
+	}
+	
+	$host = elgg_get_plugin_setting('host', 'elasticsearch');
+	if (empty($host)) {
+		return false;
+	}
+	
+	$params = [];
+	
+	$hosts = explode(',', $host);
+	array_walk($hosts, 'elasticsearch_cleanup_host');
+	
+	$params['hosts'] = $hosts;
+	$params['logging'] = true;
+	$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
+	
+	// trigger hook so other plugins can infuence the params
+	$params = elgg_trigger_plugin_hook('params', 'elasticsearch', $params, $params);
+	
+	try {
+		$client = new ColdTrick\ElasticSearch\Client($params);
+	} catch (Exception $e) {
+		elgg_log("Unable to create ElasticSearch client: {$e->getMessage()}", 'ERROR');
 	}
 	
 	return $client;
@@ -141,24 +147,31 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 				'type_subtype_pairs' => $type_subtypes,
 				'limit' => false,
 				'wheres' => [
-					"e.guid NOT IN (
-						SELECT ps.entity_guid
-						FROM {$dbprefix}private_settings ps
-						WHERE ps.name = '" . ELASTICSEARCH_INDEXED_NAME . "'
-					)",
-					"e.guid NOT IN (
-						SELECT ue.guid
-						FROM {$dbprefix}users_entity ue
-						WHERE ue.banned = 'yes'
-					)",
+					function (QueryBuilder $qb, $main_alias) {
+						$select = Select::fromTable('private_settings', 'ps');
+						$select->select('ps.entity_guid')
+							->where($qb->compare('ps.name', '=', ELASTICSEARCH_INDEXED_NAME, ELGG_VALUE_STRING));
+						
+						return $qb->compare("{$main_alias}.guid", 'NOT IN', $select->getSQL());
+					},
+					function (QueryBuilder $qb, $main_alias) {
+						$select = Select::fromTable('metadata', 'b');
+						$select->select('b.entity_guid')
+							->joinEntitiesTable('b', 'entity_guid', 'inner', 'be')
+							->where($qb->compare('be.type', '=', 'user', ELGG_VALUE_STRING))
+							->andWhere($qb->compare('b.name', '=', 'banned', ELGG_VALUE_STRING))
+							->andWhere($qb->compare('b.value', '=', 'yes', ELGG_VALUE_STRING));
+						
+						return $qb->compare("{$main_alias}.guid", 'NOT IN', $select->getSQL());
+					},
 				],
 			];
 			
 			break;
 		case 'reindex':
 			// a reindex has been initiated, so update all out of date entities
-			$setting = (int) elasticsearch_get_setting('reindex_ts');
-			if (empty($setting)) {
+			$setting = (int) elgg_get_plugin_setting('reindex_ts', 'elasticsearch');
+			if ($setting < 1) {
 				return false;
 			}
 			
@@ -226,39 +239,6 @@ function elasticsearch_cleanup_host(&$host) {
 }
 
 /**
- * Get a plugin setting
- *
- * This function caches all plugin settings for efficientcy
- *
- * @param string $setting the plugin setting to get
- *
- * @return null|string
- */
-function elasticsearch_get_setting($setting) {
-	static $settings;
-	
-	if (!isset($settings)) {
-		// default settings
-		$settings = [
-			'host' => '',
-			'index' => '',
-			'search_alias' => '',
-			'sync' => 'no',
-			'search' => 'no',
-			'cron_validate' => 'no',
-		];
-		
-		$plugin = elgg_get_plugin_from_id('elasticsearch');
-		$plugin_settings = $plugin->getAllSettings();
-		if (!empty($plugin_settings)) {
-			$settings = array_merge($settings, $plugin_settings);
-		}
-	}
-	
-	return elgg_extract($setting, $settings);
-}
-
-/**
  * Saves an array of documents to be deleted from the elastic index
  *
  * @param int   $guid guid of the document to be deleted
@@ -268,20 +248,21 @@ function elasticsearch_get_setting($setting) {
  */
 function elasticsearch_add_document_for_deletion($guid, $info) {
 	
-	if (empty($guid) || !is_array($info)) {
+	$guid = (int) $guid;
+	if ($guid < 1 || !is_array($info)) {
 		return;
 	}
 	
 	$plugin = elgg_get_plugin_from_id('elasticsearch');
 	
 	$fh = new ElggFile();
-	$fh->owner_guid = $plugin->getGUID();
+	$fh->owner_guid = $plugin->guid;
 	$fh->setFilename("documents_for_deletion/{$guid}");
 	
 	// set a timestamp for deletion
 	$info['time'] = time();
 	
-	if ($fh->open("write")) {
+	if ($fh->open('write')) {
 		$fh->write(serialize($info));
 		$fh->close();
 	}
@@ -296,14 +277,15 @@ function elasticsearch_add_document_for_deletion($guid, $info) {
  */
 function elasticsearch_remove_document_for_deletion($guid) {
 	
-	if (empty($guid)) {
+	$guid = (int) $guid;
+	if ($guid < 1) {
 		return;
 	}
 	
 	$plugin = elgg_get_plugin_from_id('elasticsearch');
 	
 	$fh = new ElggFile();
-	$fh->owner_guid = $plugin->getGUID();
+	$fh->owner_guid = $plugin->guid;
 	$fh->setFilename("documents_for_deletion/{$guid}");
 	
 	if ($fh->exists()) {
@@ -319,21 +301,30 @@ function elasticsearch_remove_document_for_deletion($guid) {
 function elasticsearch_get_documents_for_deletion() {
 	$plugin = elgg_get_plugin_from_id('elasticsearch');
 	
-	$locator = new \Elgg\EntityDirLocator($plugin->getGUID());
+	$locator = new \Elgg\EntityDirLocator($plugin->guid);
 	$documents_path = elgg_get_data_path() . $locator->getPath() . 'documents_for_deletion/';
 	
-	$dir = @opendir($documents_path);
-	if (!$dir) {
+	try {
+		$dir = new DirectoryIterator($documents_path);
+	} catch (Exception $e) {
 		return [];
 	}
 	
 	$documents = [];
-	while (($file = readdir($dir)) !== false) {
-		if (is_dir($file)) {
+	/* @var $fileinfo SplFileInfo */
+	foreach ($dir as $fileinfo) {
+		if (!$fileinfo->isFile() || !$fileinfo->isReadable()) {
 			continue;
 		}
 		
-		$contents = unserialize(file_get_contents($documents_path . $file));
+		$fh = $fileinfo->openFile('r');
+		$contents = $fh->fread($fh->getSize());
+		unset($fh); // closes file handler
+		if (empty($contents)) {
+			continue;
+		}
+		
+		$contents = unserialize($contents);
 		if (!is_array($contents)) {
 			continue;
 		}
@@ -346,7 +337,7 @@ function elasticsearch_get_documents_for_deletion() {
 		
 		unset($contents['time']);
 		
-		$documents[$file] = $contents;
+		$documents[$fileinfo->getFilename()] = $contents;
 	}
 	
 	return $documents;
@@ -361,10 +352,15 @@ function elasticsearch_get_documents_for_deletion() {
  */
 function elasticsearch_reschedule_document_for_deletion($guid) {
 	
+	$guid = (int) $guid;
+	if ($guid < 1) {
+		return;
+	}
+	
 	$plugin = elgg_get_plugin_from_id('elasticsearch');
 	
 	$fh = new ElggFile();
-	$fh->owner_guid = $plugin->getGUID();
+	$fh->owner_guid = $plugin->guid;
 	$fh->setFilename("documents_for_deletion/{$guid}");
 	
 	if (!$fh->exists()) {
@@ -382,7 +378,7 @@ function elasticsearch_reschedule_document_for_deletion($guid) {
 		return;
 	}
 	
-	// try agin in an hour
+	// try again in an hour
 	$contents['time'] = time() + (60 * 60);
 	
 	$fh->open('write');
@@ -411,22 +407,25 @@ function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $
 	if (empty($depth)) {
 		$rows[] = elgg_format_element('th', ['colspan' => 3], $key);
 	} else {
-		$rows[] = elgg_format_element('td', ['colspan' => 3], "<b>{$key}</b>");
+		$rows[] = elgg_format_element('td', ['colspan' => 3], elgg_format_element('b', '', $key));
 	}
 	
 	foreach ($merged_values as $key => $values) {
-		if (!is_array($values)) {
-			$rows[] = implode('', [
-				elgg_format_element('td', [], $key),
-				elgg_format_element('td', [], elgg_extract($key, $elgg_values)),
-				elgg_format_element('td', [], elgg_extract($key, $elasticsearch_values)),
-			]);
-		} else {
+		if (is_array($values)) {
 			$subvalues = elasticsearch_inspect_show_values($key, $values, elgg_extract($key, $elgg_values), elgg_extract($key, $elasticsearch_values), $depth + 1);
-			if (!empty($subvalues)) {
-				$rows = array_merge($rows, $subvalues);
+			if (empty($subvalues)) {
+				continue;
 			}
+			
+			$rows = array_merge($rows, $subvalues);
+			continue;
 		}
+		
+		$rows[] = implode(PHP_EOL, [
+			elgg_format_element('td', [], $key),
+			elgg_format_element('td', [], elgg_extract($key, $elgg_values)),
+			elgg_format_element('td', [], elgg_extract($key, $elasticsearch_values)),
+		]);
 	}
 	
 	return $rows;

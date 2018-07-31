@@ -32,7 +32,7 @@ class Bootstrap extends DefaultPluginBootstrap {
 	protected function registerPluginHooks() {
 		
 		// search hooks
-		elastic_prepare_search_hooks();
+		elasticsearch_prepare_search_hooks();
 		
 		// other hooks
 		$hooks = $this->elgg()->hooks;
