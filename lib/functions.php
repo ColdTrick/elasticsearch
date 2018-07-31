@@ -138,8 +138,6 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 		return false;
 	}
 	
-	$dbprefix = elgg_get_config('dbprefix');
-	
 	switch ($type) {
 		case 'no_index_ts':
 			// new or updated entities
