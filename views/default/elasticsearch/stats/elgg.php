@@ -31,7 +31,7 @@ $content .= '</tr>';
 // content to update
 $options = elasticsearch_get_bulk_options('update');
 $options['count'] = true;
-$count = elgg_get_entities_from_private_settings($options);
+$count = elgg_get_entities($options);
 
 $content .= '<tr>';
 $content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:update') . '</td>';
@@ -43,7 +43,7 @@ $options = elasticsearch_get_bulk_options('reindex');
 $count = 0;
 if (!empty($options)) {
 	$options['count'] = true;
-	$count = elgg_get_entities_from_private_settings($options);
+	$count = elgg_get_entities($options);
 }
 
 $content .= '<tr>';
@@ -77,4 +77,4 @@ $content .= '</tr>';
 
 $content .= '</table>';
 
-echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:elgg'), $content);
+echo elgg_view_module('info', elgg_echo('elasticsearch:stats:elgg'), $content);

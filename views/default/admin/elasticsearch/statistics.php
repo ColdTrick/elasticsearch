@@ -24,7 +24,7 @@ if (!$alive) {
 }
 
 // cluster info
-echo elgg_view('elasticsearch/stats/cluster', array('client' => $client));
+echo elgg_view('elasticsearch/stats/cluster', ['client' => $client]);
 
 // index info
-echo elgg_view('elasticsearch/stats/indices', array('client' => $client));
+echo elgg_view('elasticsearch/stats/indices', ['client' => $client]);

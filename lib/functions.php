@@ -155,8 +155,8 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 					function (QueryBuilder $qb, $main_alias) {
 						$select = Select::fromTable('metadata', 'b');
 						$select->select('b.entity_guid')
-							->joinEntitiesTable('b', 'entity_guid', 'inner', 'be')
-							->where($qb->compare('be.type', '=', 'user', ELGG_VALUE_STRING))
+							->joinEntitiesTable('b', 'entity_guid', 'inner', 'be');
+						$select->where($qb->compare('be.type', '=', 'user', ELGG_VALUE_STRING))
 							->andWhere($qb->compare('b.name', '=', 'banned', ELGG_VALUE_STRING))
 							->andWhere($qb->compare('b.value', '=', 'yes', ELGG_VALUE_STRING));
 						

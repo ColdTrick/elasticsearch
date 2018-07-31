@@ -26,7 +26,7 @@ $content .= '</tr>';
 if (!$alive) {
 	$content .= '</table>';
 	
-	echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:cluster'), $content);
+	echo elgg_view_module('info', elgg_echo('elasticsearch:stats:cluster'), $content);
 	return;
 }
 
@@ -50,4 +50,4 @@ $content .= '</tr>';
 
 $content .= '</table>';
 
-echo elgg_view_module('inline', elgg_echo('elasticsearch:stats:cluster'), $content);
+echo elgg_view_module('info', elgg_echo('elasticsearch:stats:cluster'), $content);
