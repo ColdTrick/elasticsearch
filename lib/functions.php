@@ -125,7 +125,7 @@ function elasticsearch_get_types_for_boosting() {
 }
 
 /**
- * Get the $options for elgg_get_entities* in order to update the ElasticSearch index
+ * Get the $options for elgg_get_entities in order to update the ElasticSearch index
  *
  * @param string $type which options to get
  *
