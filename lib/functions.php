@@ -322,18 +322,21 @@ function elasticsearch_get_documents_for_deletion() {
 	$locator = new \Elgg\EntityDirLocator($plugin->getGUID());
 	$documents_path = elgg_get_data_path() . $locator->getPath() . 'documents_for_deletion/';
 	
-	$dir = @opendir($documents_path);
-	if (!$dir) {
+	try {
+		$dh = new DirectoryIterator($documents_path);
+	} catch (Exception $e) {
+		elgg_log($e->getMessage(), 'WARNING');
 		return [];
 	}
 	
 	$documents = [];
-	while (($file = readdir($dir)) !== false) {
-		if (is_dir($file)) {
+	/* @var $file SplFileInfo */
+	foreach ($dh as $file) {
+		if (!$file->isFile()) {
 			continue;
 		}
 		
-		$contents = unserialize(file_get_contents($documents_path . $file));
+		$contents = unserialize(file_get_contents($file->getRealPath()));
 		if (!is_array($contents)) {
 			continue;
 		}
@@ -346,7 +349,7 @@ function elasticsearch_get_documents_for_deletion() {
 		
 		unset($contents['time']);
 		
-		$documents[$file] = $contents;
+		$documents[$file->getFilename()] = $contents;
 	}
 	
 	return $documents;
