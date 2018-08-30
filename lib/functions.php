@@ -1,34 +1,10 @@
 <?php
-use Elgg\Database\QueryBuilder;
-use Elgg\Database\Select;
-
 /**
  * All helper functions are bundled here
  */
 
-/**
- * Function to (un)register various search hooks
- */
-function elasticsearch_prepare_search_hooks() {
-	// unregister default search hooks
-	elgg_unregister_plugin_hook_handler('search', 'object', 'search_objects_hook');
-	elgg_unregister_plugin_hook_handler('search', 'user', 'search_users_hook');
-	elgg_unregister_plugin_hook_handler('search', 'group', 'search_groups_hook');
-	elgg_unregister_plugin_hook_handler('search', 'tags', 'search_tags_hook');
-
-	// register elastic search hooks
-	elgg_register_plugin_hook_handler('search', 'group', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
-	elgg_register_plugin_hook_handler('search', 'user', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
-	elgg_register_plugin_hook_handler('search', 'object', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
-	elgg_register_plugin_hook_handler('search', 'tags', 'ColdTrick\ElasticSearch\SearchHooks::searchTags');
-	elgg_register_plugin_hook_handler('search', 'combined:all', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities', 400);
-
-	// register fallback to default search hooks
-	elgg_register_plugin_hook_handler('search', 'object', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
-	elgg_register_plugin_hook_handler('search', 'user', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
-	elgg_register_plugin_hook_handler('search', 'group', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
-	elgg_register_plugin_hook_handler('search', 'tags', 'ColdTrick\ElasticSearch\SearchHooks::searchFallback', 9000);
-}
+use Elgg\Database\QueryBuilder;
+use Elgg\Database\Select;
 
 /**
  * Get a working ElasticSearch client for further use
@@ -405,7 +381,7 @@ function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $
 	if (empty($depth)) {
 		$rows[] = elgg_format_element('th', ['colspan' => 3], $key);
 	} else {
-		$rows[] = elgg_format_element('td', ['colspan' => 3], elgg_format_element('b', '', $key));
+		$rows[] = elgg_format_element('td', ['colspan' => 3], elgg_format_element('b', [], $key));
 	}
 	
 	foreach ($merged_values as $key => $values) {

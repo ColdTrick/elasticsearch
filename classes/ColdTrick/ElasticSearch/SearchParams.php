@@ -288,7 +288,7 @@ class SearchParams {
 			$user_guid = elgg_get_logged_in_user_guid();
 		}
 		
-		if (elgg_check_access_overrides($user_guid)) {
+		if (_elgg_services()->userCapabilities->canBypassPermissionsCheck($user_guid)) {
 			return;
 		}
 		
@@ -296,34 +296,6 @@ class SearchParams {
 		if (!empty($user_guid)) {
 			// check for owned content
 			$access_filter[]['term']['owner_guid'] = $user_guid;
-				
-			// add friends check
-			$friends = elgg_get_entities_from_relationship([
-				'type' => 'user',
-				'relationship' => 'friend',
-				'relationship_guid' => $user_guid,
-				'inverse_relationship' => true,
-				'limit' => false,
-				'callback' => function ($row) {
-					return $row->guid;
-				}
-			]);
-				
-			if (!empty($friends)) {
-				$access_filter[] = [
-					'bool' => [
-						'must' => [
-				
-							'term' => [
-								'owner_guid' => $friends
-							],
-							'term' => [
-								'access_id' => ACCESS_FRIENDS
-							]
-						]
-					]
-				];
-			}
 		}
 		
 		// add acl filter

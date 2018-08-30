@@ -74,7 +74,7 @@ class SearchResult {
 			
 			$entity = elgg_trigger_plugin_hook('to:entity', 'elasticsearch', ['hit' => $hit, 'search_params' => $this->search_params], null);
 			
-			if (!($entity instanceof \ElggEntity)) {
+			if (!$entity instanceof \ElggEntity) {
 				continue;
 			}
 			

@@ -31,9 +31,6 @@ class Bootstrap extends DefaultPluginBootstrap {
 	 */
 	protected function registerPluginHooks() {
 		
-		// search hooks
-		elasticsearch_prepare_search_hooks();
-		
 		// other hooks
 		$hooks = $this->elgg()->hooks;
 		
@@ -41,6 +38,17 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('register', 'menu:page', __NAMESPACE__ . '\Admin::pageMenu');
 		$hooks->registerHandler('cron', 'minute', __NAMESPACE__ . '\Cron::minuteSync');
 		$hooks->registerHandler('cron', 'daily', __NAMESPACE__ . '\Cron::dailyCleanup');
+		
+		// search hooks
+		$hooks->registerHandler('search:fields', 'group', 'ColdTrick\ElasticSearch\SearchHooks::groupSearchFields');
+		$hooks->registerHandler('search:fields', 'object', 'ColdTrick\ElasticSearch\SearchHooks::objectSearchFields');
+		$hooks->registerHandler('search:fields', 'user', 'ColdTrick\ElasticSearch\SearchHooks::userSearchFields');
+		$hooks->registerHandler('search:fields', 'entities', 'ColdTrick\ElasticSearch\SearchHooks::searchFields');
+		
+		$hooks->registerHandler('search:options', 'all', 'ColdTrick\ElasticSearch\SearchHooks::searchOptions');
+		
+		$hooks->registerHandler('search:results', 'entities', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
+		$hooks->registerHandler('search', 'combined:all', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities', 400);
 		
 		// menu hooks
 		$hooks->registerHandler('register', 'menu:search_list', __NAMESPACE__ . '\SearchHooks::registerSortMenu');
@@ -54,7 +62,6 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::entityMetadataToObject');
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::entityCountersToObject');
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::profileTagFieldsToTags');
-		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::profileFieldsToProfileObject');
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::stripTags', 9999);
 		$hooks->registerHandler('export:metadata_names', 'elasticsearch', __NAMESPACE__ . '\Export::exportProfileMetadata');
 		$hooks->registerHandler('export:counters', 'elasticsearch', __NAMESPACE__ . '\Export::exportGroupMemberCount');

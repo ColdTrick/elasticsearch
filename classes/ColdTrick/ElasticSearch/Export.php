@@ -47,11 +47,29 @@ class Export {
 		}
 	
 		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
-		$metadata_names = elgg_trigger_plugin_hook('export:metadata_names', 'elasticsearch', $params, []);
+		$defaults = [];
+		switch ($entity->getType()) {
+			case 'user':
+				$defaults[] = 'name';
+				$defaults[] = 'username';
+				$defaults[] = 'language';
+				break;
+			case 'object':
+				$defaults[] = 'title';
+				$defaults[] = 'description';
+				break;
+			case 'group':
+			case 'site':
+				$defaults[] = 'name';
+				$defaults[] = 'description';
+				break;
+		}
+		
+		$metadata_names = elgg_trigger_plugin_hook('export:metadata_names', 'elasticsearch', $params, $defaults);
 		if (empty($metadata_names)) {
 			return;
 		}
@@ -68,13 +86,12 @@ class Export {
 		
 		$result = [];
 		foreach ($metadata as $data) {
-			$result[] = [
-				'time_created' => date('c', $data->time_created),
-				'owner_guid' => (int) $data->owner_guid,
-				'access_id' => (int) $data->access_id,
-				'name' => $data->name,
-				'value' => $data->value,
-			];
+			
+			if (!isset($result[$data->name])) {
+				$result[$data->name] = [];
+			}
+			
+			$result[$data->name] = $data->value;
 		}
 		
 		$returnvalue->metadata = $result;
@@ -143,55 +160,6 @@ class Export {
 		return $returnvalue;
 	}
 
-	/**
-	 * Hook to add user profiles fields to index
-	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
-	 */
-	public static function profileFieldsToProfileObject($hook, $type, $returnvalue, $params) {
-		
-		if (!elgg_in_context('search:index')) {
-			return;
-		}
-	
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
-			return;
-		}
-		
-		if (!in_array($entity->getType(), ['user'])) {
-			return;
-		}
-		
-		$profile_fields = elgg_get_config('profile_fields');
-		
-		if (empty($profile_fields)) {
-			return;
-		}
-		
-		$profile_data = [];
-		foreach ($profile_fields as $field_name => $type) {
-			
-			$field_value = $entity->$field_name;
-			if ($field_value) {
-				$profile_data[$field_name] = $field_value;
-			}
-		}
-		
-		if (empty($profile_data)) {
-			return;
-		}
-		
-		$returnvalue->profile = $profile_data;
-				
-		return $returnvalue;
-	}
-	
 	/**
 	 * Hook to export entity counters for search
 	 *

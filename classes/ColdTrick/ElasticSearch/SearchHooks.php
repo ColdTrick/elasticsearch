@@ -5,94 +5,270 @@ namespace ColdTrick\ElasticSearch;
 class SearchHooks {
 	
 	/**
-	 * Hook to fallback to default search functions
+	 * Set some search options before doing actual search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'search:options', 'all'
 	 *
-	 * @return void
+	 * @return void|array
 	 */
-	public static function searchFallback($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
+	public static function searchOptions(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
 			return;
 		}
 		
-		if (!in_array($type, ['object', 'user', 'group', 'tags'])) {
-			return;
+		$return = $hook->getValue();
+		
+		$sort = get_input('sort');
+		switch ($sort) {
+			case 'time_created':
+				// Elgg defaults to time_created
+				break;
+			default:
+				$return['sort'] = 'relevance';
+				$return['order'] = get_input('order', 'desc');
+				break;
 		}
 		
-		switch ($type) {
-			case 'object':
-				return search_objects_hook($hook, $type, $returnvalue, $params);
-			case 'user':
-				return search_users_hook($hook, $type, $returnvalue, $params);
-			case 'group':
-				return search_groups_hook($hook, $type, $returnvalue, $params);
-			case 'tags':
-				return search_tags_hook($hook, $type, $returnvalue, $params);
-		}
+		return $return;
 	}
-
+	
+	/**
+	 * Change object search fields
+	 *
+	 * @param \Elgg\Hook $hook 'search:fields', 'object'
+	 *
+	 * @return void|array
+	 */
+	public static function objectSearchFields(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
+			return;
+		}
+		
+		$value = (array) $hook->getValue();
+		
+		$defaults = [
+			'metadata' => [],
+		];
+		
+		$value = array_merge($defaults, $value);
+		if (empty($value['metadata'])) {
+			return;
+		}
+		
+		// remove user profile tag fields
+		$user_tags = self::getUserProfileTagsFields();
+		if (!empty($user_tags)) {
+			foreach ($value['metadata'] as $index => $metadata_name) {
+				if (!in_array($metadata_name, $user_tags)) {
+					continue;
+				}
+				
+				unset($value['metadata'][$index]);
+			}
+		}
+		
+		// remove group profile tag fields
+		$group_tags = self::getGroupProfileTagsFields();
+		if (!empty($group_tags)) {
+			foreach ($value['metadata'] as $index => $metadata_name) {
+				if (!in_array($metadata_name, $group_tags)) {
+					continue;
+				}
+				
+				unset($value['metadata'][$index]);
+			}
+		}
+		
+		return $value;
+	}
+	
+	/**
+	 * Change group search fields
+	 *
+	 * @param \Elgg\Hook $hook 'search:fields', 'group'
+	 *
+	 * @return void|array
+	 */
+	public static function groupSearchFields(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
+			return;
+		}
+		
+		// remove user profile tag fields (not present in group profile fields)
+		$value = (array) $hook->getValue();
+		
+		$defaults = [
+			'metadata' => [],
+		];
+		
+		$value = array_merge($defaults, $value);
+		if (empty($value['metadata'])) {
+			return;
+		}
+		
+		$user_tags = self::getUserProfileTagsFields();
+		if (empty($user_tags)) {
+			return;
+		}
+		
+		$group_fields = elgg_get_config('group', []);
+		foreach ($value['metadata'] as $index => $metadata_name) {
+			if (isset($group_fields[$metadata_name]) || !in_array($metadata_name, $user_tags)) {
+				continue;
+			}
+			
+			unset($value['metadata'][$index]);
+		}
+		
+		return $value;
+	}
+	
+	/**
+	 * Change user search fields
+	 *
+	 * @param \Elgg\Hook $hook 'search:fields', 'user'
+	 *
+	 * @return void|array
+	 */
+	public static function userSearchFields(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
+			return;
+		}
+		
+		// remove profile tag fields from metadata
+		$value = (array) $hook->getValue();
+		
+		$defaults = [
+			'metadata' => [],
+		];
+		
+		$value = array_merge($defaults, $value);
+		if (empty($value['metadata'])) {
+			return;
+		}
+		
+		$group_tags = self::getGroupProfileTagsFields();
+		$user_tags = self::getUserProfileTagsFields();
+		foreach ($value['metadata'] as $index => $metadata_name) {
+			$unset = false;
+			if (in_array($metadata_name, $user_tags) ) {
+				$unset = true;
+			} elseif (in_array($metadata_name, $group_tags)) {
+				$unset = true;
+			}
+			
+			if (!$unset) {
+				continue;
+			}
+			
+			unset($value['metadata'][$index]);
+		}
+		
+		return $value;
+	}
+	
+	/**
+	 * Move some search fields around
+	 *
+	 * @param \Elgg\Hook $hook 'search:fields', 'entities'
+	 *
+	 * @return void|array
+	 */
+	public static function searchFields(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
+			return;
+		}
+		
+		$value = (array) $hook->getValue();
+		
+		$defaults = [
+			'metadata' => [],
+		];
+		
+		$value = array_merge($defaults, $value);
+		if (in_array('tags', $value['metadata'])) {
+			return;
+		}
+		
+		$value['metadata'][] = 'tags';
+		
+		return $value;
+	}
+	
+	protected static function getUserProfileTagsFields() {
+		
+		$fields = elgg_get_config('profile_fields');
+		if (empty($fields)) {
+			return [];
+		}
+		
+		$result = [];
+		foreach ($fields as $metadata_name => $type) {
+			if (!in_array($type, ['tags', 'tag', 'location'])) {
+				continue;
+			}
+			
+			$result[] = $metadata_name;
+		}
+		
+		return $result;
+	}
+	
+	protected static function getGroupProfileTagsFields() {
+		
+		$fields = elgg_get_config('group');
+		if (empty($fields)) {
+			return [];
+		}
+		
+		$result = [];
+		foreach ($fields as $metadata_name => $type) {
+			if ($type !== 'tags') {
+				continue;
+			}
+			
+			$result[] = $metadata_name;
+		}
+		
+		return $result;
+	}
+	
 	/**
 	 * Hook to return search results for entity searches
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'search:result', 'entities'
 	 *
-	 * @return void
+	 * @return void|\ElggEntity[]|int
+	 * @throws \InvalidParameterException
 	 */
-	public static function searchEntities($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
-			return;
-		}
-				
+	public static function searchEntities(\Elgg\Hook $hook) {
+		
+		$params = $hook->getParams();
+		
 		$client = self::getClientForHooks($params);
 		if (!$client) {
 			return;
 		}
-				
-		switch ($type) {
-			case 'user':
-				$client->search_params->setType('user');
-				break;
-			case 'group':
-				$client->search_params->setType('group');
-				break;
-			case 'object':
-				$subtypes = elgg_extract('subtypes', $params, elgg_extract('subtype', $params, []));
 		
-				if (empty($subtypes)) {
-					return;
-				}
-				
-				$subtypes = (array) $subtypes;
-				$namespaced_subtypes = [];
-				foreach ($subtypes as $subtype) {
-					$namespaced_subtypes[] = "object.{$subtype}";
-				}
-				
-				$client->search_params->setType($namespaced_subtypes);
-				break;
-			case 'tags':
-				$tag_query = [];
-				$tag_query['bool']['must'][]['term']['tags'] = elgg_extract('query', $params);
-				$client->search_params->setQuery($tag_query);
-				break;
-			case 'combined:all':
-				// triggered by search advanced
-				$type_subtypes = elgg_extract('type_subtype_pairs', $params);
-				$types = self::entityTypeSubtypesToSearchTypes($type_subtypes);
-				
-				$client->search_params->setType($types);
-				
-				break;
+		$entity_type = elgg_extract('type', $params);
+		$entity_subtype = elgg_extract('subtype', $params);
+		
+		$type = $entity_type;
+		if (!empty($entity_subtype)) {
+			$type .= ".{$entity_subtype}";
 		}
 		
+		$client->search_params->setType($type);
+		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
+		if (!$client instanceof Client) {
+			throw new \InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Client');
+		}
 		
 		if (elgg_extract('count', $params) == true) {
 			$result = $client->search_params->count();
@@ -104,53 +280,17 @@ class SearchHooks {
 	}
 
 	/**
-	 * Hook to return a search for content with a give tag (or tags)
+	 * Is this plugin doing the actual search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
-	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function searchTags($hook, $type, $returnvalue, $params) {
-		if (!empty($returnvalue)) {
-			return;
-		}
-	
-		$client = self::getClientForHooks($params);
-		if (!$client) {
-			return;
-		}
-	
-		$type_subtype_pairs = elasticsearch_get_registered_entity_types_for_search();
-		if (empty($type_subtype_pairs)) {
-			return;
-		}
-		
-		$types = self::entityTypeSubtypesToSearchTypes($type_subtype_pairs);
-			
-		$client->search_params->setType($types);
-	
-		$tag_query = [];
-		$tag_query['bool']['must']['term']['tags'] = strtolower(elgg_extract('query', $params));
-	
-		$client->search_params->setQuery($tag_query);
-	
-		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
-	
-		if (elgg_extract('count', $params) == true) {
-			$result = $client->search_params->count();
-		} else {
-			$result = $client->search_params->execute();
-		}
-	
-		return self::transformSearchResults($result, $params);
+	protected static function handleSearch() {
+		return elgg_get_plugin_setting('search', 'elasticsearch') === 'yes';
 	}
 	
 	protected static function getClientForHooks($params) {
 	
-		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
+		if (!self::handleSearch()) {
 			return false;
 		}
 	
@@ -169,22 +309,18 @@ class SearchHooks {
 	/**
 	 * Transforms search result into hooks result array
 	 *
-	 * @param \ColdTrick\ElasticSearch\SearchResult $result the elastic search results
+	 * @param \ColdTrick\ElasticSearch\SearchResult $result      the elastic search results
+	 * @param array                                 $hook_params the search hook params
 	 *
-	 * @return array
+	 * @return array|int
 	 */
 	protected static function transformSearchResults($result, $hook_params) {
-		if (empty($result)) {
-			return [
-				'count' => 0,
-				'entities' => null,
-			];
+		
+		if (elgg_extract('count', $hook_params) === true) {
+			return $result->getCount();
 		}
 		
-		return [
-			'count' => $result->getCount(),
-			'entities' => $result->toEntities($hook_params),
-		];
+		return $result->toEntities($hook_params);
 	}
 	
 	
@@ -196,8 +332,9 @@ class SearchHooks {
 	 *
 	 * @return void
 	 */
-	public static function prepareSearchParamsForHook(&$client, $params) {
-		if (!$client) {
+	public static function prepareSearchParamsForHook(Client &$client, $params) {
+		
+		if (!$client instanceof Client) {
 			return;
 		}
 		
@@ -324,12 +461,31 @@ class SearchHooks {
 	
 	protected static function getQueryFields($params = []) {
 		
-		$default = [
-			'title',
-			'description',
-			'tags',
-		];
-		return elgg_trigger_plugin_hook('query_fields', 'elasticsearch', ['search_params' => $params], $default);
+		$result = [];
+		
+		$search_fields = elgg_extract('fields', $params, []);
+		foreach ($search_fields as $type => $names) {
+			if (empty($names)) {
+				continue;
+			}
+			
+			foreach ($names as $name) {
+				switch ($type) {
+					case 'attributes':
+						$result[] = $name;
+						break;
+					case 'metadata':
+						$result[] = "{$type}.{$name}";
+						break;
+					case 'annotations':
+					case 'private_settings':
+						// no yet supported
+						break;
+				}
+			}
+		}
+		
+		return $result;
 	}
 			
 	/**
@@ -609,10 +765,6 @@ class SearchHooks {
 		$row = new \stdClass();
 		foreach ($source as $key => $value) {
 			switch($key) {
-				case 'subtype':
-					// elastic stores the textual version of the subtype, entity_row_to_elggstar needs the int
-					$row->$key = get_subtype_id($source['type'], $value);
-					break;
 				case 'last_action':
 				case 'time_created':
 				case 'time_updated':
@@ -626,19 +778,6 @@ class SearchHooks {
 	
 		// enabled attribute is not stored in elasticsearch by default
 		$row->enabled = 'yes';
-	
-		// specials types
-		if ($row->type == 'user') {
-			// makes sure all attributes are loaded to prevent a db call
-			$external_attributes = \ElggUser::getExternalAttributes();
-			foreach($external_attributes as $key => $value) {
-				if (isset($row->$key)) {
-					continue;
-				}
-	
-				$row->$key = $value;
-			}
-		}
 	
 		try {
 			$result = entity_row_to_elggstar($row);
