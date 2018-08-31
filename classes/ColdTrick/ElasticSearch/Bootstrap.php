@@ -65,6 +65,8 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::stripTags', 9999);
 		$hooks->registerHandler('export:metadata_names', 'elasticsearch', __NAMESPACE__ . '\Export::exportProfileMetadata');
 		$hooks->registerHandler('export:counters', 'elasticsearch', __NAMESPACE__ . '\Export::exportGroupMemberCount');
+		$hooks->registerHandler('export:counters', 'elasticsearch', __NAMESPACE__ . '\Export::exportLikesCount');
+		$hooks->registerHandler('export:counters', 'elasticsearch', __NAMESPACE__ . '\Export::exportCommentsCount');
 		$hooks->registerHandler('index_entity_type_subtypes', 'elasticsearch', __NAMESPACE__ . '\Export::indexEntityTypeSubtypes');
 		$hooks->registerHandler('to:entity', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::sourceToEntity');
 	}

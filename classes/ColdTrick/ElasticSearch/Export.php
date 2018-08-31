@@ -353,31 +353,79 @@ class Export {
 	/**
 	 * Hook to export group members count
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param array  $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'export:counters', 'elasticsearch'
 	 *
 	 * @return void|array
 	 */
-	public static function exportGroupMemberCount($hook, $type, $returnvalue, $params) {
+	public static function exportGroupMemberCount(\Elgg\Hook $hook) {
 		
-		if (!is_array($returnvalue)) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggGroup) {
 			return;
 		}
 		
-		$entity = elgg_extract('entity', $params);
-		if (!($entity instanceof \ElggGroup)) {
+		$return = $hook->getValue();
+		
+		$return['member_count'] = elgg_call(ELGG_IGNORE_ACCESS, function() use ($entity) {
+			return $entity->getMembers(['count' => true]);
+		});
+		
+		return $return;
+	}
+	
+	/**
+	 * Hook to export likes count
+	 *
+	 * @param \Elgg\Hook $hook 'export:counters', 'elasticsearch'
+	 *
+	 * @return void|array
+	 */
+	public static function exportLikesCount(\Elgg\Hook $hook) {
+		
+		if (!elgg_is_active_plugin('likes')) {
 			return;
 		}
 		
-		$member_count = $entity->getMembers(['count' => true]);
-		if (empty($member_count)) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
-		$returnvalue['member_count'] = $member_count;
+		if (!(bool) elgg_trigger_plugin_hook('likes:is_likable', "{$entity->getType()}:{$entity->getSubtype()}", [], false)) {
+			$count = 0;
+		} else {
+			$count = elgg_call(ELGG_IGNORE_ACCESS, function () use ($entity) {
+				return likes_count($entity);
+			});
+		}
 		
-		return $returnvalue;
+		$return = $hook->getValue();
+		
+		$return['likes'] = $count;
+		
+		return $return;
+	}
+	
+	/**
+	 * Hook to export comments count
+	 *
+	 * @param \Elgg\Hook $hook 'export:counters', 'elasticsearch'
+	 *
+	 * @return void|array
+	 */
+	public static function exportCommentsCount(\Elgg\Hook $hook) {
+		
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
+			return;
+		}
+		
+		$return = $hook->getValue();
+		
+		$return['comments'] = elgg_call(ELGG_IGNORE_ACCESS, function() use ($entity) {
+			return $entity->countComments();
+		});
+		
+		return $return;
 	}
 }
