@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Returns a json to be used in the putMapping ElasticSearch api call
  *
  * Uses $vars['index'] as the name of the index
