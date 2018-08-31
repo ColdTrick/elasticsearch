@@ -47,14 +47,6 @@ $dynamic_templates = [
 			]
 		],
 	],
-	[
-		'profile_strings' => [
-			'path_match' => 'profile.*',
-			'mapping' => [
-				'type' => 'string',
-			],
-		],
-	],
 ];
 
 $mapping = [
