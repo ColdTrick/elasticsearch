@@ -294,7 +294,16 @@ class SearchHooks {
 	 * @return bool
 	 */
 	protected static function handleSearch() {
-		return elgg_get_plugin_setting('search', 'elasticsearch') === 'yes';
+		
+		if (elgg_in_context('livesearch')) {
+			return false;
+		}
+		
+		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	protected static function getClientForHooks($params) {
