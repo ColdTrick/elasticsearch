@@ -2,7 +2,11 @@
 
 namespace ColdTrick\ElasticSearch;
 
+use Elgg\Database\LegacyQueryOptionsAdapter;
+
 class SearchHooks {
+	
+	use LegacyQueryOptionsAdapter;
 	
 	/**
 	 * Set some search options before doing actual search
@@ -255,15 +259,20 @@ class SearchHooks {
 			return;
 		}
 		
-		$entity_type = elgg_extract('type', $params);
-		$entity_subtype = elgg_extract('subtype', $params);
-		
-		$type = $entity_type;
-		if (!empty($entity_subtype)) {
-			$type .= ".{$entity_subtype}";
+		$new_params = self::normalizeTypeSubtypeOptions($params);
+		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $new_params);
+		if (!empty($type_subtype_pairs)) {
+			foreach ($type_subtype_pairs as $type => $subtypes) {
+				
+				if (!empty($subtypes)) {
+					foreach ($subtypes as $subtype) {
+						$client->search_params->addType("{$type}.{$subtype}");
+					}
+				} else {
+					$client->search_params->addType("{$type}.{$type}");
+				}
+			}
 		}
-		
-		$client->search_params->setType($type);
 		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 		if (!$client instanceof Client) {
