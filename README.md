@@ -49,3 +49,103 @@ You can also find statistics for all available indexes on this page.
 ## Recommendations
 
 Use the [Search Advanced](http://github.com/ColdTrick/search_advanced) plugin to add extra features to search. If both are enabled this plugin provides a menu to sort/order the results.
+
+## Developers
+
+### Plugin hooks
+
+#### 'boostable_types', 'elasticsearch'
+
+Return an array of type.subtype to be used for configuaring boosting in Elasticsearch.
+
+In the format:
+```php
+[
+	'type.subtype',
+]
+```
+
+Defaults to the registered searchable type/subtypes for Elasticsearch.
+
+#### 'config:index', 'elasticsearch'
+
+Return an array with the index configuration to be used by Elasticsearch.
+
+#### 'config:mapping', 'elasticsearch'
+
+Return an array with the mapping configuration to be used by Elasticsearch.
+
+#### 'export:counters', 'elasticsearch'
+
+Return an array of counters to be exported to Elasticsearch. 
+
+In the format:
+```php
+[
+	'counter_name' => counter_value
+]
+```
+
+Params contain:
+- `entity`: the `ElggEntity` being exported
+
+#### 'export:metadata_names', 'elasticsearch'
+
+Return an array of metadata names to be exported to Elasticsearch.
+
+Params contain:
+- `entity`: the `ElggEntity` being exported
+
+#### 'index_entity_type_subtypes', 'elasticsearch'
+
+Return an array of type/subtypes allowed to be indexed by Elasticsearch.
+
+In the format:
+```php
+[
+	'type' => ['subtype1', 'subtype2'],
+]
+```
+
+Defaults to all registered searchable type/subtypes in Elgg.
+
+#### 'index:entity:prevent', 'elasticsearch'
+
+Return `true` if the provided entity shouldn't be added to the Elasticsearch index
+
+Params contain:
+- `entity`: the `ElggEntity` about to be indexed
+
+Default: `false`
+
+#### 'params', 'elasticsearch'
+
+Return an array of parameters to be using in initializing the `\ColdTrick\ElasticSearch\Client` Elasticsearch client.
+
+#### 'search', 'type_subtype_pairs'
+
+Return an array of type/subtypes allowed to be searched by Elasticsearch.
+
+In the format:
+```php
+[
+	'type' => ['subtype1', 'subtype2'],
+]
+```
+
+Defaults to all registered searchable type/subtypes in Elgg.
+
+#### 'search_params', 'elasticsearch'
+
+Return an `\ColdTrick\ElasticSearch\Client` to be used for the search. This allows you to alter the search parameters in Elasticsearch.
+
+Params contain:
+- `search_params`: an array of the search parameters as provided by Elgg search
+
+#### 'to:entity', 'elasticsearch'
+
+Return an `ElggEntity` based on the search result data from Elasticsearch.
+
+Params contain:
+- `hit`: the result from Elasticsearch
+- `search_params`: an array of the search parameters as provided by Elgg search

@@ -89,12 +89,18 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	public function indexDocument($guid) {
-		$params = $this->getDefaultDocumentParams($guid);
+		
+		$entity = get_entity($guid);
+		if (!$entity instanceof \ElggEntity) {
+			return false;
+		}
+		
+		$params = $this->getDefaultDocumentParams($entity);
 		if (empty($params)) {
 			return false;
 		}
 		
-		$params['body'] = $this->getBodyFromEntity($guid);
+		$params['body'] = $this->getBodyFromEntity($entity);
 		
 		try {
 			return $this->index($params);
@@ -104,32 +110,41 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
-	public function bulkIndexDocuments($guids = array()) {
-		if (!is_array($guids)) {
+	public function bulkIndexDocuments($entities = []) {
+		if (!is_array($entities)) {
 			return false;
 		}
 		
-		if (empty($guids)) {
-			return $guids;
+		if (empty($entities)) {
+			return $entities;
 		}
 		
 		$params = [];
-		foreach ($guids as $guid) {
-			$doc_params = $this->getDefaultDocumentParams($guid);
+		foreach ($entities as $entity) {
+			
+			if (is_numeric($entity)) {
+				// old guid support
+				$entity = get_entity($entity);
+			}
+			
+			if (!$entity instanceof \ElggEntity) {
+				continue;
+			}
+			
+			$doc_params = $this->getDefaultDocumentParams($entity);
 			if (empty($doc_params)) {
 				continue;
 			}
 					
-			$params['body'][] = array(
-				'index' => array(
+			$params['body'][] = [
+				'index' => [
 					'_index' => $doc_params['index'],
 					'_type' => $doc_params['type'],
 					'_id' => $doc_params['id']
-				)
-			);
+				],
+			];
 			
-
-			$params['body'][] = $this->getBodyFromEntity($guid);
+			$params['body'][] = $this->getBodyFromEntity($entity);
 		}
 		
 		if (empty($params)) {
@@ -203,28 +218,12 @@ class Client extends \Elasticsearch\Client {
 		return $this->default_index;
 	}
 		
-	protected function getDefaultDocumentParams($guid) {
-		if (empty($guid)) {
-			return;
-		}
-	
-		try {
-			$entity = get_entity($guid);
-		} catch (\Exception $e) {
-			return;
-		}
-		
-		if (!$entity) {
-			return;
-		}
-		
-		$params = [
-			'id' => $guid,
+	protected function getDefaultDocumentParams(\ElggEntity $entity) {
+		return [
+			'id' => $entity->guid,
 			'index' => $this->default_index,
 			'type' => $this->getDocumentTypeFromEntity($entity),
 		];
-		
-		return $params;
 	}
 	
 	public function getDocumentTypeFromEntity(\ElggEntity $entity) {
@@ -238,20 +237,7 @@ class Client extends \Elasticsearch\Client {
 		return "$type.$subtype";
 	}
 
-	protected function getBodyFromEntity($guid) {
-		if (empty($guid)) {
-			return;
-		}
-		
-		try {
-			$entity = get_entity($guid);
-		} catch (\Exception $e) {
-			return;
-		}
-		
-		if (!$entity) {
-			return;
-		}
+	protected function getBodyFromEntity(\ElggEntity $entity) {
 		
 		elgg_push_context('search:index');
 		$result = (array) $entity->toObject();

@@ -58,7 +58,7 @@ class Cron {
 	 *
 	 * This function is timed at a max runtime of 30sec
 	 *
-	 * @param array  $options   the options for elgg_get_entities()
+	 * @param array  $options  the options for elgg_get_entities()
 	 * @param int    $crontime the starttime of the cron in order to limit max runtime
 	 *
 	 * @return bool|void
@@ -88,14 +88,29 @@ class Cron {
 		$time_left = true;
 		$batch_size = 100;
 		
-		$options['callback'] = function($row) {
-			return (int) $row->guid;
-		};
 		$options['limit'] = $batch_size;
 		
-		while ($time_left && ($guids = elgg_get_entities($options))) {
+		$mark_entity_done = function (\ElggEntity $entity) {
+			$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
+			$entity->invalidateCache();
+		};
+		
+		while ($time_left && ($entities = elgg_get_entities($options))) {
 			
-			$result = $client->bulkIndexDocuments($guids);
+			foreach ($entities as $index => $entity) {
+				$params = [
+					'entity' => $entity,
+				];
+				
+				if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $params, false)) {
+					$mark_entity_done($entity);
+					
+					unset($entities[$index]);
+					continue;
+				}
+			}
+			
+			$result = $client->bulkIndexDocuments($entities);
 			if (empty($result)) {
 				break;
 			}
@@ -118,8 +133,7 @@ class Cron {
 					continue;
 				}
 				
-				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
-				$entity->invalidateCache();
+				$mark_entity_done($entity);
 			}
 			
 			if ((time() - $crontime) >= 30) {
