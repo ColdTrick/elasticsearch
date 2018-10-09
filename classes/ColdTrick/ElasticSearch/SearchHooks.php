@@ -2,11 +2,7 @@
 
 namespace ColdTrick\ElasticSearch;
 
-use Elgg\Database\LegacyQueryOptionsAdapter;
-
 class SearchHooks {
-	
-	use LegacyQueryOptionsAdapter;
 	
 	/**
 	 * Set some search options before doing actual search
@@ -259,7 +255,7 @@ class SearchHooks {
 			return;
 		}
 		
-		$new_params = self::normalizeTypeSubtypeOptions($params);
+		$new_params = $client->search_params->normalizeTypeSubtypeOptions($params);
 		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $new_params);
 		if (!empty($type_subtype_pairs)) {
 			foreach ($type_subtype_pairs as $type => $subtypes) {

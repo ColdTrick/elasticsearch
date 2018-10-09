@@ -2,7 +2,13 @@
 
 namespace ColdTrick\ElasticSearch;
 
+use Elgg\Database\LegacyQueryOptionsAdapter;
+
 class SearchParams {
+	
+	use LegacyQueryOptionsAdapter {
+		normalizeTypeSubtypeOptions as public;
+	}
 	
 	/**
 	 * The search client
