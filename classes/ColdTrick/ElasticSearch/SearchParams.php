@@ -56,11 +56,15 @@ class SearchParams {
 
 	public function count($body = null) {
 		if ($body == null) {
-			$body = $this->getBody($count = true);
+			$body = $this->getBody(true);
 		}
-		$body['search_type'] = 'count';
 		
-		return $this->execute($body);
+		$result = $this->client->count($body);
+		
+		// reset search params after each search
+		$this->params = [];
+		
+		return new SearchResult($result, $this->params);
 	}
 	
 	protected function getBody($count = false) {
@@ -101,12 +105,12 @@ class SearchParams {
 			$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
 		}
 		
-		// track scores
-		if ($this->getParam('track_scores') !== null) {
-			$result['body']['track_scores'] = $this->getParam('track_scores');
-		}
-		
 		if (!$count) {
+			// track scores
+			if ($this->getParam('track_scores') !== null) {
+				$result['body']['track_scores'] = $this->getParam('track_scores');
+			}
+			
 			// pagination
 			if (!empty($this->getParam('from'))) {
 				$result['from'] = $this->getParam('from');
