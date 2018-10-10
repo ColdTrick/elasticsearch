@@ -395,9 +395,14 @@ function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $
 			continue;
 		}
 		
+		$elgg_value = elgg_extract($key, $elgg_values);
+		if (is_array($elgg_value)) {
+			$elgg_value = implode(', ', $elgg_value);
+		}
+		
 		$rows[] = implode(PHP_EOL, [
 			elgg_format_element('td', [], $key),
-			elgg_format_element('td', [], elgg_extract($key, $elgg_values)),
+			elgg_format_element('td', [], $elgg_value),
 			elgg_format_element('td', [], elgg_extract($key, $elasticsearch_values)),
 		]);
 	}
