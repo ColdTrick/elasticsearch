@@ -383,7 +383,10 @@ class SearchHooks {
 		}
 		
 		// container filter
-		$container_guid = (int) elgg_extract('container_guid', $params);
+		$container_guid = (array) elgg_extract('container_guid', $params);
+		$container_guid = array_filter(array_map(function ($v) {
+			return (int) $v;
+		}, $container_guid));
 		if (!empty($container_guid)) {
 			$container_filter = [];
 			$container_filter['bool']['must'][]['term']['container_guid'] = $container_guid;
@@ -391,7 +394,10 @@ class SearchHooks {
 		}
 		
 		// owner filter
-		$owner_guid = (int) elgg_extract('owner_guid', $params);
+		$owner_guid = (array) elgg_extract('owner_guid', $params);
+		$owner_guid = array_filter(array_map(function ($v) {
+			return (int) $v;
+		}, $owner_guid));
 		if (!empty($owner_guid)) {
 			$owner_filter = [];
 			$owner_filter['bool']['must'][]['term']['owner_guid'] = $owner_guid;
