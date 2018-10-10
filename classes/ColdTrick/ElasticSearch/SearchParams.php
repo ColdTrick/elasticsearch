@@ -100,9 +100,25 @@ class SearchParams {
 				$no_match_filter = 'all';
 			}
 			
-			$result['body']['filter']['indices']['index'] = $index;
-			$result['body']['filter']['indices']['filter'] = $filter;
-			$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
+			if ($count) {
+				$query = $result['body']['query'];
+				unset($result['body']['query']);
+				
+				$result['body']['query']['filtered'] = [
+					'query' => $query,
+					'filter' => [
+						'indices' => [
+							'index' => $index,
+							'filter' => $filter,
+							'no_match_filter' => $no_match_filter,
+						],
+					],
+				];
+			} else {
+				$result['body']['filter']['indices']['index'] = $index;
+				$result['body']['filter']['indices']['filter'] = $filter;
+				$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
+			}
 		}
 		
 		if (!$count) {
