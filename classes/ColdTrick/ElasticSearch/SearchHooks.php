@@ -483,6 +483,8 @@ class SearchHooks {
 				continue;
 			}
 			
+			$names = array_unique($names);
+			
 			foreach ($names as $name) {
 				switch ($type) {
 					case 'attributes':
