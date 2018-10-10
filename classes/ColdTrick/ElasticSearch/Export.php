@@ -91,7 +91,7 @@ class Export {
 				$result[$data->name] = [];
 			}
 			
-			$result[$data->name] = $data->value;
+			$result[$data->name][] = $data->value;
 		}
 		
 		$returnvalue->metadata = $result;
