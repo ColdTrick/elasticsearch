@@ -248,6 +248,11 @@ class SearchHooks {
 	 */
 	public static function searchEntities(\Elgg\Hook $hook) {
 		
+		$value = $hook->getValue();
+		if (isset($value)) {
+			return;
+		}
+		
 		$params = $hook->getParams();
 		
 		$client = self::getClientForHooks($params);
