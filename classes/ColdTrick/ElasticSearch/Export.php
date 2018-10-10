@@ -87,6 +87,10 @@ class Export {
 		$result = [];
 		foreach ($metadata as $data) {
 			
+			if (elgg_is_empty($data)) {
+				continue;
+			}
+			
 			if (!isset($result[$data->name])) {
 				$result[$data->name] = [];
 			}
