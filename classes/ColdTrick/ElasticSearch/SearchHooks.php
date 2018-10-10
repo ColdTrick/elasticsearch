@@ -19,16 +19,14 @@ class SearchHooks {
 		
 		$return = $hook->getValue();
 		
-		$sort = get_input('sort');
-		switch ($sort) {
-			case 'time_created':
-				// Elgg defaults to time_created
-				break;
-			default:
-				$return['sort'] = 'relevance';
-				$return['order'] = get_input('order', 'desc');
-				break;
+		$sort = elgg_extract('sort', $return, 'relevance');
+		if ($sort === 'time_created' && !get_input('sort')) {
+			// default sorting by Elgg is time_created
+			$sort = 'relevance';
 		}
+		
+		$return['sort'] = $sort;
+		$return['order'] = elgg_extract('order', $return, 'desc');
 		
 		return $return;
 	}
