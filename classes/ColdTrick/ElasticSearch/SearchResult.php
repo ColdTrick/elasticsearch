@@ -70,13 +70,20 @@ class SearchResult {
 		$entities = [];
 		
 		foreach ($hits as $hit) {
-			$source = elgg_extract('_source', $hit);
+			$params = [
+				'hit' => $hit,
+				'search_params' => $this->search_params,
+			];
 			
-			$entity = elgg_trigger_plugin_hook('to:entity', 'elasticsearch', ['hit' => $hit, 'search_params' => $this->search_params], null);
+			$hit = elgg_trigger_plugin_hook('to:entity:before', 'elasticsearch', $params, $hit);
+			$params['hit'] = $hit;
 			
+			$entity = elgg_trigger_plugin_hook('to:entity', 'elasticsearch', $params, null);
 			if (!$entity instanceof \ElggEntity) {
 				continue;
 			}
+			
+			$source = elgg_extract('_source', $hit);
 			
 			// set correct search highlighting
 			$highlight = (array) elgg_extract('highlight', $hit, []);

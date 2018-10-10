@@ -219,11 +219,17 @@ class Client extends \Elasticsearch\Client {
 	}
 		
 	protected function getDefaultDocumentParams(\ElggEntity $entity) {
-		return [
+		$defaults = [
 			'id' => $entity->guid,
 			'index' => $this->default_index,
 			'type' => $this->getDocumentTypeFromEntity($entity),
 		];
+		
+		$params = [
+			'entity' => $entity,
+		];
+		
+		return elgg_trigger_plugin_hook('index:entity', 'elasticsearch', $params, $defaults);
 	}
 	
 	public function getDocumentTypeFromEntity(\ElggEntity $entity) {

@@ -109,6 +109,13 @@ In the format:
 
 Defaults to all registered searchable type/subtypes in Elgg.
 
+#### 'index:entity', 'elasticsearch'
+
+Return an array with index information used by Elasticsearch to store the entity in the index
+
+Params contain:
+- `entity`: the `ElggEntity` about to be indexed
+
 #### 'index:entity:prevent', 'elasticsearch'
 
 Return `true` if the provided entity shouldn't be added to the Elasticsearch index
@@ -140,6 +147,14 @@ Defaults to all registered searchable type/subtypes in Elgg.
 Return an `\ColdTrick\ElasticSearch\Client` to be used for the search. This allows you to alter the search parameters in Elasticsearch.
 
 Params contain:
+- `search_params`: an array of the search parameters as provided by Elgg search
+
+#### 'to:entity:before', 'elasticsearch'
+
+Change the Elasticsearch hit data before it's converted to an `ElggEntity`
+
+Params contain:
+- `hit`: the result from Elasticsearch
 - `search_params`: an array of the search parameters as provided by Elgg search
 
 #### 'to:entity', 'elasticsearch'
