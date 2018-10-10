@@ -48,7 +48,8 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('search:options', 'all', 'ColdTrick\ElasticSearch\SearchHooks::searchOptions');
 		
 		$hooks->registerHandler('search:results', 'entities', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
-		$hooks->registerHandler('search', 'combined:all', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities', 400);
+		$hooks->registerHandler('search:results', 'combined:objects', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
+		$hooks->registerHandler('search:results', 'combined:all', 'ColdTrick\ElasticSearch\SearchHooks::searchEntities');
 		
 		// menu hooks
 		$hooks->registerHandler('register', 'menu:search_list', __NAMESPACE__ . '\SearchHooks::registerSortMenu');
