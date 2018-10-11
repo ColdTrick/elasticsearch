@@ -123,6 +123,15 @@ class SearchParams {
 			if (!empty($this->getParam('highlight'))) {
 				$result['body']['highlight'] = $this->getParam('highlight');
 			}
+			
+			// aggregation
+			$aggregation = $this->getAggregation();
+			if (!empty($aggregation)) {
+				$result['body']['aggs']['wrapper'] = [
+					'aggs' => $aggregation,
+					'filter' => $filter ?: new \stdClass(),
+				];
+			}
 		}
 		
 		return $result;
@@ -193,6 +202,13 @@ class SearchParams {
 		return $result;
 	}
 	
+	/**
+	 * Execute a search query
+	 *
+	 * @param array $body optional search body
+	 *
+	 * @return \ColdTrick\ElasticSearch\SearchResult
+	 */
 	public function execute($body = null) {
 		if ($body == null) {
 			$body = $this->getBody();
@@ -207,12 +223,24 @@ class SearchParams {
 			$this->client->setSuggestions($suggest);
 		}
 		
+		$aggregations = $result->getAggregations();
+		if (!empty($aggregations)) {
+			$this->client->setAggregations(elgg_extract('wrapper', $aggregations));
+		}
+		
 		// reset search params after each search
 		$this->params = [];
 		
 		return $result;
 	}
 
+	/**
+	 * Execute a count query
+	 *
+	 * @param array $body optional search body
+	 *
+	 * @return \ColdTrick\ElasticSearch\SearchResult
+	 */
 	public function count($body = null) {
 		if ($body == null) {
 			$body = $this->getBody(true);
@@ -226,6 +254,13 @@ class SearchParams {
 		return new SearchResult($result, $this->params);
 	}
 	
+	/**
+	 * Set the index to search in
+	 *
+	 * @param string $index the name of the index
+	 *
+	 * @return void
+	 */
 	public function setIndex($index) {
 		$this->params['index'] = $index;
 	}
@@ -241,6 +276,13 @@ class SearchParams {
 		$this->params['type'] = $type;
 	}
 
+	/**
+	 * Add a type to the search params
+	 *
+	 * @param string $type the new type to add
+	 *
+	 * @return void
+	 */
 	public function addType($type) {
 		$types = (array) $this->getType();
 		$types[] = $type;
@@ -406,5 +448,22 @@ class SearchParams {
 	
 	public function getParams() {
 		return $this->params;
+	}
+	
+	public function setAggregation($aggregation) {
+		if (empty($aggregation)) {
+			unset($this->params['aggregation']);
+			return;
+		}
+		
+		$this->params['aggregation'] = $aggregation;
+	}
+	
+	public function addAggregation($aggregation) {
+		$this->params['aggregation'] = array_merge_recursive($this->getParam('aggregation', []), $aggregation);
+	}
+	
+	public function getAggregation() {
+		return $this->getParam('aggregation');
 	}
 }

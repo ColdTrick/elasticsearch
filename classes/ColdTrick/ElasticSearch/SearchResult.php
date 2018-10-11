@@ -59,6 +59,10 @@ class SearchResult {
 		return elgg_extract('suggest', $this->result);
 	}
 	
+	public function getAggregations() {
+		return elgg_extract('aggregations', $this->result);
+	}
+	
 	public function toEntities($params) {
 		
 		$hits = $this->getHits();

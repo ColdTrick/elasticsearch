@@ -26,6 +26,13 @@ class Client extends \Elasticsearch\Client {
 	protected $suggestions;
 	
 	/**
+	 * The aggregations
+	 *
+	 * @var array
+	 */
+	protected $aggregations;
+	
+	/**
 	 * The search params
 	 *
 	 * @var \ColdTrick\ElasticSearch\SearchParams
@@ -288,6 +295,14 @@ class Client extends \Elasticsearch\Client {
 	
 	public function getSuggestions() {
 		return $this->suggestions;
+	}
+	
+	public function setAggregations($data) {
+		$this->aggregations = $data;
+	}
+	
+	public function getAggregations() {
+		return $this->aggregations;
 	}
 	
 	/**
