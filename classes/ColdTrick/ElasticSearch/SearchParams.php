@@ -34,39 +34,6 @@ class SearchParams {
 		$this->params = [];
 	}
 	
-	public function execute($body = null) {
-		if ($body == null) {
-			$body = $this->getBody();
-		}
-		
-		$result = $this->client->search($body);
-		
-		$result = new SearchResult($result, $this->params);
-		
-		$suggest = $result->getSuggestions();
-		if (!empty($suggest)) {
-			$this->client->setSuggestions($suggest);
-		}
-		
-		// reset search params after each search
-		$this->params = [];
-		
-		return $result;
-	}
-
-	public function count($body = null) {
-		if ($body == null) {
-			$body = $this->getBody(true);
-		}
-		
-		$result = $this->client->count($body);
-		
-		// reset search params after each search
-		$this->params = [];
-		
-		return new SearchResult($result, $this->params);
-	}
-	
 	protected function getBody($count = false) {
 		$result = [];
 		
@@ -159,6 +126,104 @@ class SearchParams {
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * Get a value of a param
+	 *
+	 * @param string $name    the parameter to get
+	 * @param mixed  $default the default return value (default: null)
+	 *
+	 * @return mixed
+	 */
+	protected function getParam($name, $default = null) {
+		if (!isset($this->params[$name])) {
+			return $default;
+		}
+		
+		return $this->params[$name];
+	}
+
+	/**
+	 * Returns an array of functions to be used in the function_score array
+	 *
+	 * @return array
+	 */
+	protected static function getScoreFunctions() {
+		
+		$result = [];
+		
+		// add function scoring for type boosting
+		$types = elasticsearch_get_types_for_boosting();
+		if (!empty($types)) {
+			foreach ($types as $type) {
+				$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
+				if (!($weight > 0) || $weight == 1) {
+					continue;
+				}
+				
+				$result[] = [
+					'filter' => [
+						'term' => [
+							'_type' => $type,
+						],
+					],
+					'weight' => $weight,
+				];
+			}
+		}
+		
+		$decay_offset = (int) elgg_get_plugin_setting('decay_offset', 'elasticsearch', 0);
+		$decay_scale = (int) elgg_get_plugin_setting('decay_scale', 'elasticsearch');
+		$decay_decay = elgg_get_plugin_setting('decay_decay', 'elasticsearch');
+		
+		if (!empty($decay_scale) && !empty($decay_decay)) {
+			$result[] = [
+				'gauss' => [
+					'time_created' => [
+						'origin' => date('c'),
+						'scale' => "{$decay_scale}d",
+						'offset' => "{$decay_offset}d",
+						'decay' => $decay_decay,
+					],
+				],
+			];
+		}
+
+		return $result;
+	}
+	
+	public function execute($body = null) {
+		if ($body == null) {
+			$body = $this->getBody();
+		}
+		
+		$result = $this->client->search($body);
+		
+		$result = new SearchResult($result, $this->params);
+		
+		$suggest = $result->getSuggestions();
+		if (!empty($suggest)) {
+			$this->client->setSuggestions($suggest);
+		}
+		
+		// reset search params after each search
+		$this->params = [];
+		
+		return $result;
+	}
+
+	public function count($body = null) {
+		if ($body == null) {
+			$body = $this->getBody(true);
+		}
+		
+		$result = $this->client->count($body);
+		
+		// reset search params after each search
+		$this->params = [];
+		
+		return new SearchResult($result, $this->params);
 	}
 	
 	public function setIndex($index) {
@@ -341,70 +406,5 @@ class SearchParams {
 	
 	public function getParams() {
 		return $this->params;
-	}
-	
-	/**
-	 * Get a value of a param
-	 *
-	 * @param string $name    the parameter to get
-	 * @param mixed  $default the default return value (default: null)
-	 *
-	 * @return mixed
-	 */
-	protected function getParam($name, $default = null) {
-		if (!isset($this->params[$name])) {
-			return $default;
-		}
-		
-		return $this->params[$name];
-	}
-
-	/**
-	 * Returns an array of functions to be used in the function_score array
-	 *
-	 * @return array
-	 */
-	protected static function getScoreFunctions() {
-		
-		$result = [];
-		
-		// add function scoring for type boosting
-		$types = elasticsearch_get_types_for_boosting();
-		if (!empty($types)) {
-			foreach ($types as $type) {
-				$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
-				if (!($weight > 0) || $weight == 1) {
-					continue;
-				}
-				
-				$result[] = [
-					'filter' => [
-						'term' => [
-							'_type' => $type,
-						],
-					],
-					'weight' => $weight,
-				];
-			}
-		}
-		
-		$decay_offset = (int) elgg_get_plugin_setting('decay_offset', 'elasticsearch', 0);
-		$decay_scale = (int) elgg_get_plugin_setting('decay_scale', 'elasticsearch');
-		$decay_decay = elgg_get_plugin_setting('decay_decay', 'elasticsearch');
-		
-		if (!empty($decay_scale) && !empty($decay_decay)) {
-			$result[] = [
-				'gauss' => [
-					'time_created' => [
-						'origin' => date('c'),
-						'scale' => "{$decay_scale}d",
-						'offset' => "{$decay_offset}d",
-						'decay' => $decay_decay,
-					],
-				],
-			];
-		}
-
-		return $result;
 	}
 }
