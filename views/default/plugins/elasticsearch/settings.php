@@ -86,7 +86,15 @@ if (!empty($types)) {
 		$row = [];
 		$setting_name = "type_boosting_{$type}";
 		
-		$row[] = elgg_format_element('td', [], $type);
+		$label = $type;
+		list($entity_type, $entity_subtype) = explode('.', $type);
+		$key = implode(':', ['item', $entity_type, $entity_subtype]);
+		if (elgg_language_key_exists($key)) {
+			$label = elgg_echo($key);
+			$label .= elgg_format_element('span', ['class' => 'elgg-subtext'], " ({$type})");
+		}
+		
+		$row[] = elgg_format_element('td', [], $label);
 		$row[] = elgg_format_element('td', [], elgg_view_field([
 			'#type' => 'text',
 			'#class' => 'man',
