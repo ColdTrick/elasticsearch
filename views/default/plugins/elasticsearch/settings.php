@@ -3,11 +3,6 @@
 /* @var $plugin \ElggPlugin */
 $plugin = elgg_extract('entity', $vars);
 
-$noyes_options = [
-	'no' => elgg_echo('option:no'),
-	'yes' => elgg_echo('option:yes'),
-];
-
 // host configuration
 $host = elgg_view_field([
 	'#type' => 'text',
@@ -47,30 +42,36 @@ echo elgg_view_module('info', elgg_echo('elasticsearch:settings:host:header'), $
 
 // features
 $features = elgg_view_field([
-	'#type' => 'select',
+	'#type' => 'checkbox',
 	'#label' => elgg_echo('elasticsearch:settings:sync'),
 	'#help' => elgg_echo('elasticsearch:settings:sync:description'),
 	'name' => 'params[sync]',
-	'value' => $plugin->sync,
-	'options_values' => $noyes_options,
+	'default' => 'no',
+	'value' => 'yes',
+	'checked' => $plugin->sync === 'yes',
+	'switch' => true,
 ]);
 
 $features .= elgg_view_field([
-	'#type' => 'select',
+	'#type' => 'checkbox',
 	'#label' => elgg_echo('elasticsearch:settings:search'),
 	'#help' => elgg_echo('elasticsearch:settings:search:description'),
 	'name' => 'params[search]',
-	'value' => $plugin->search,
-	'options_values' => $noyes_options,
+	'default' => 'no',
+	'value' => 'yes',
+	'checked' => $plugin->search === 'yes',
+	'switch' => true,
 ]);
 
 $features .= elgg_view_field([
-	'#type' => 'select',
+	'#type' => 'checkbox',
 	'#label' => elgg_echo('elasticsearch:settings:cron_validate'),
 	'#help' => elgg_echo('elasticsearch:settings:cron_validate:description'),
 	'name' => 'params[cron_validate]',
-	'value' => $plugin->cron_validate,
-	'options_values' => $noyes_options,
+	'default' => 'no',
+	'value' => 'yes',
+	'checked' => $plugin->cron_validate === 'yes',
+	'switch' => true,
 ]);
 
 echo elgg_view_module('info', elgg_echo('elasticsearch:settings:features:header'), $features);
