@@ -40,6 +40,13 @@ function elasticsearch_get_client() {
 	$params['logging'] = true;
 	$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
 	
+	// check SSL setting
+	if ((int) elgg_get_plugin_setting('ignore_ssl', 'elasticsearch')) {
+		$params['guzzleOptions'] = [
+			\Guzzle\Http\Client::SSL_CERT_AUTHORITY => false,
+		];
+	}
+	
 	// trigger hook so other plugins can infuence the params
 	$params = elgg_trigger_plugin_hook('params', 'elasticsearch', $params, $params);
 	

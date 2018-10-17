@@ -18,6 +18,16 @@ $host = elgg_view_field([
 ]);
 
 $host .= elgg_view_field([
+	'#type' => 'checkbox',
+	'#label' => elgg_echo('elasticsearch:settings:ignore_ssl'),
+	'#help' => elgg_echo('elasticsearch:settings:ignore_ssl:description'),
+	'name' => 'params[ignore_ssl]',
+	'value' => 1,
+	'checked' => !empty($plugin->ignore_ssl),
+	'switch' => true,
+]);
+
+$host .= elgg_view_field([
 	'#type' => 'text',
 	'#label' => elgg_echo('elasticsearch:settings:index'),
 	'#help' => elgg_echo('elasticsearch:settings:index:suggestion', [elgg_get_config('dbname')]),

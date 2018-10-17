@@ -29,5 +29,6 @@ return [
 		'sync' => 'no',
 		'search' => 'no',
 		'cron_validate' => 'no',
+		'ignore_ssl' => 0,
 	],
 ];

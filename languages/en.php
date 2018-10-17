@@ -21,6 +21,8 @@ return array(
 	'elasticsearch:settings:host:header' => "ElasticSearch host settings",
 	'elasticsearch:settings:host' => "API host",
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",
+	'elasticsearch:settings:ignore_ssl' => "Disable SSL verification",
+	'elasticsearch:settings:ignore_ssl:description' => "If your hosts use HTTPS, but you use self-signed certificates you can disable SSL verification with this setting.",
 	'elasticsearch:settings:index' => "Index to use for Elgg data",
 	'elasticsearch:settings:index:suggestion' => "You need to configure an index to store all the Elgg data in. If you don't know which index to use, maybe '%s' is a suggestion?",
 	'elasticsearch:settings:search_alias' => "Search index alias (optional)",
