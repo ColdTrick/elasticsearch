@@ -28,6 +28,7 @@ return [
 	'settings' => [
 		'sync' => 'no',
 		'search' => 'no',
+		'search_score' => 'no',
 		'cron_validate' => 'no',
 		'ignore_ssl' => 0,
 	],

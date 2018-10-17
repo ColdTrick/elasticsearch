@@ -65,6 +65,17 @@ $features .= elgg_view_field([
 
 $features .= elgg_view_field([
 	'#type' => 'checkbox',
+	'#label' => elgg_echo('elasticsearch:settings:search_score'),
+	'#help' => elgg_echo('elasticsearch:settings:search_score:description'),
+	'name' => 'params[search_score]',
+	'default' => 'no',
+	'value' => 'yes',
+	'checked' => $plugin->search_score === 'yes',
+	'switch' => true,
+]);
+
+$features .= elgg_view_field([
+	'#type' => 'checkbox',
 	'#label' => elgg_echo('elasticsearch:settings:cron_validate'),
 	'#help' => elgg_echo('elasticsearch:settings:cron_validate:description'),
 	'name' => 'params[cron_validate]',

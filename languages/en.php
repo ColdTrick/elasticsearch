@@ -33,6 +33,8 @@ return array(
 	'elasticsearch:settings:sync:description' => "You need to enable synchronization to ElasticSearch, this will prevent inserting data on your ElasticSearch server if you're not ready yet.",
 	'elasticsearch:settings:search' => "Use ElasticSearch as the search engine",
 	'elasticsearch:settings:search:description' => "Once you've set up ElasticSearch correctly and it's populated with data, you can switch to use it as the search engine.",
+	'elasticsearch:settings:search_score' => "Show search score in results",
+	'elasticsearch:settings:search_score:description' => "Display the search result score to administrators in the search results. This can help explain why results are ordered as they are.",
 	'elasticsearch:settings:cron_validate' => "Validate the search index daily",
 	'elasticsearch:settings:cron_validate:description' => "Validate the index to make sure no content is left in the index that shouldn't be there and all content that should be there is present.",
 	
@@ -132,4 +134,5 @@ return array(
 	'elasticsearch:action:admin:reindex_entity:success' => "The entity is scheduled for reindexing",
 	
 	'elasticsearch:suggest' => "Did you mean %s instead of %s?",
+	'elasticsearch:search_score' => "Score: %s",
 );
