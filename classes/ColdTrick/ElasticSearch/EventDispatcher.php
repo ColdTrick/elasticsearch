@@ -133,11 +133,7 @@ class EventDispatcher {
 	 */
 	protected static function checkComments($entity) {
 	
-		if (!($entity instanceof \ElggEntity)) {
-			return;
-		}
-		
-		if (!in_array($entity->getSubtype(), ['comment', 'discussion_reply'])) {
+		if (!$entity instanceof \ElggComment) {
 			return;
 		}
 		
