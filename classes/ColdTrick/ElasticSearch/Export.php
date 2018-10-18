@@ -159,7 +159,7 @@ class Export {
 			$tags = array_merge($current_tags, $tags);
 		}
 		
-		$returnvalue->tags = $tags;
+		$returnvalue->tags = array_unique($tags);
 		
 		return $returnvalue;
 	}
