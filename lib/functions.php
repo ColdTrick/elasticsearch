@@ -288,6 +288,7 @@ function elasticsearch_get_documents_for_deletion() {
 	try {
 		$dir = new DirectoryIterator($documents_path);
 	} catch (Exception $e) {
+		elgg_log($e->getMessage(), 'WARNING');
 		return [];
 	}
 	
@@ -298,9 +299,7 @@ function elasticsearch_get_documents_for_deletion() {
 			continue;
 		}
 		
-		$fh = $fileinfo->openFile('r');
-		$contents = $fh->fread($fh->getSize());
-		unset($fh); // closes file handler
+		$contents = file_get_contents($fileinfo->getRealPath());
 		if (empty($contents)) {
 			continue;
 		}

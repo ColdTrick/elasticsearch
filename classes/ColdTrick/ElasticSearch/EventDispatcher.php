@@ -52,6 +52,9 @@ class EventDispatcher {
 	 */
 	public static function delete($event, $type, $object) {
 		
+		// ignore access during cleanup
+		$ia = elgg_set_ignore_access(true);
+		
 		if ($object instanceof \ElggEntity) {
 			self::deleteEntity($object);
 		} elseif ($object instanceof \ElggRelationship) {
@@ -60,6 +63,9 @@ class EventDispatcher {
 		
 		self::checkComments($object);
 		self::updateEntityForAnnotation($object);
+		
+		// restore access
+		elgg_set_ignore_access($ia);
 	}
 	
 	/**
