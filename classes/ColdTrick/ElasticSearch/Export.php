@@ -159,6 +159,10 @@ class Export {
 			$tags = array_merge($current_tags, $tags);
 		}
 		
+		// make all lowercase (for better uniqueness)
+		$tags = array_map('strtolower', $tags);
+		
+		// make them unique
 		$returnvalue->tags = array_unique($tags);
 		
 		return $returnvalue;
