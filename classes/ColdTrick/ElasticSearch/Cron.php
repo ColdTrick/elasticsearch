@@ -45,7 +45,7 @@ class Cron {
 			
 			$time_left = self::batchSync($options, $starttime);
 			if ($time_left === false) {
-				return;
+				break;
 			}
 		}
 		
