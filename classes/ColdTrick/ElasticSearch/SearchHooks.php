@@ -510,6 +510,18 @@ class SearchHooks {
 			}
 		}
 		
+		// apply field boosting
+		$field_boosting = (array) elgg_extract('field_boosting', $params, []);
+		
+		foreach ($result as $index => $fieldname) {
+			$boost = elgg_extract($fieldname, $field_boosting);
+			if (elgg_is_empty($boost)) {
+				continue;
+			}
+			
+			$result[$index] = "{$fieldname}^{$boost}";
+		}
+		
 		return $result;
 	}
 			
