@@ -258,21 +258,6 @@ class SearchHooks {
 			return;
 		}
 		
-		$new_params = $client->search_params->normalizeTypeSubtypeOptions($params);
-		$type_subtype_pairs = elgg_extract('type_subtype_pairs', $new_params);
-		if (!empty($type_subtype_pairs)) {
-			foreach ($type_subtype_pairs as $type => $subtypes) {
-				
-				if (!empty($subtypes)) {
-					foreach ($subtypes as $subtype) {
-						$client->search_params->addType("{$type}.{$subtype}");
-					}
-				} else {
-					$client->search_params->addType("{$type}.{$type}");
-				}
-			}
-		}
-		
 		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
 		if (!$client instanceof Client) {
 			throw new \InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Client');
@@ -315,9 +300,8 @@ class SearchHooks {
 		if (!$client) {
 			return false;
 		}
-	
-		self::prepareSearchParamsForHook($client, $params);
-	
+		
+		$client->search_params->initializeSearchParams($params);
 		$client->search_params->addEntityAccessFilter();
 	
 		return $client;
@@ -340,191 +324,6 @@ class SearchHooks {
 		return $result->toEntities($hook_params);
 	}
 	
-	
-	/**
-	 * Prepares client search params based on hook params
-	 *
-	 * @param \ColdTrick\ElasticSearch\Client $client search client
-	 * @param array                           $params hook params
-	 *
-	 * @return void
-	 */
-	public static function prepareSearchParamsForHook(Client &$client, $params) {
-		
-		if (!$client instanceof Client) {
-			return;
-		}
-		
-		$client->search_params->setFrom(elgg_extract('offset', $params, 0));
-		$client->search_params->setSize(elgg_extract('limit', $params, elgg_get_config('default_limit')));
-		
-		$query = elgg_extract('query', $params);
-		if (!empty($query)) {
-		
-			if (stristr($query, ' ')) {
-				// also include a full sentence as part of the search query
-				$query .= ' || "' . $query . '"';
-			}
-			
-			$elastic_query = [];
-						
-			$elastic_query['bool']['must'][]['simple_query_string'] = [
-				'fields' => self::getQueryFields($params),
-				'query' => $query,
-				'default_operator' => 'AND',
-			];
-												
-			if (!elgg_extract('count', $params, false)) {
-				$client->search_params->setSuggestion($query);
-				$client->search_params->setHighlight(self::getDefaultHighlightParams($query));
-			}
-			
-			$client->search_params->setQuery($elastic_query);
-		}
-		
-		// container filter
-		$container_guid = (array) elgg_extract('container_guid', $params);
-		$container_guid = array_filter(array_map(function ($v) {
-			return (int) $v;
-		}, $container_guid));
-		if (!empty($container_guid)) {
-			$container_filter = [];
-			$container_filter['bool']['must'][]['term']['container_guid'] = $container_guid;
-			$client->search_params->addFilter($container_filter);
-		}
-		
-		// owner filter
-		$owner_guid = (array) elgg_extract('owner_guid', $params);
-		$owner_guid = array_filter(array_map(function ($v) {
-			return (int) $v;
-		}, $owner_guid));
-		if (!empty($owner_guid)) {
-			$owner_filter = [];
-			$owner_filter['bool']['must'][]['term']['owner_guid'] = $owner_guid;
-			$client->search_params->addFilter($owner_filter);
-		}
-		
-		// sort & order
-		$sort = elgg_extract('sort', $params, 'relevance');
-		$order = elgg_extract('order', $params, 'desc');
-		$sort_field = false;
-		
-		switch ($sort) {
-			case 'newest':
-				$sort_field = 'time_created';
-				$order = 'desc';
-				break;
-			case 'oldest':
-				$sort_field = 'time_created';
-				$order = 'asc';
-				break;
-			case 'alpha_az':
-				$sort_field = 'title.raw';
-				$order = 'asc';
-				break;
-			case 'alpha_za':
-				$sort_field = 'title.raw';
-				$order = 'desc';
-				break;
-			case 'alpha':
-				$sort_field = 'title.raw';
-				break;
-			case 'relevance':
-				// if there is no specific sorting requested, sort by score
-				// in case of identical score, sort by time created (newest first)
-			
-				$client->search_params->addSort('_score', []);
-				$sort_field = 'time_created';
-				$sort = 'desc';
-				break;
-		}
-		
-		if (!empty($sort_field)) {
-			$client->search_params->addSort($sort_field, [
-				'order' => $order,
-				'ignore_unmapped' => true,
-				'missing' => '_last',
-			]);
-		}
-	}
-	
-	protected static function getDefaultHighlightParams($query) {
-		$result = [];
-		
-		// global settings
-		$result['encoder'] = 'html';
-		$result['pre_tags'] = ['<strong class="search-highlight search-highlight-color1">'];
-		$result['post_tags'] = ['</strong>'];
-		$result['number_of_fragments'] = 3;
-		$result['fragment_size'] = 100;
-		$result['type'] = 'plain';
-		
-		// title
-		$title_query['bool']['must']['match']['title']['query'] = $query;
-		$result['fields']['title'] = [
-			'number_of_fragments' => 0,
-			'highlight_query' => $title_query,
-		];
-		
-		// description
-		$description_query['bool']['must']['match']['description']['query'] = $query;
-		$result['fields']['description'] = [
-			'highlight_query' => $description_query,
-		];
-		
-		// tags
-		$tags_query['bool']['must']['match']['tags']['query'] = $query;
-		$result['fields']['tags'] = [
-			'number_of_fragments' => 0,
-			'highlight_query' => $tags_query,
-		];
-		
-		return $result;
-	}
-	
-	protected static function getQueryFields($params = []) {
-		
-		$result = [];
-		
-		$search_fields = elgg_extract('fields', $params, []);
-		foreach ($search_fields as $type => $names) {
-			if (empty($names)) {
-				continue;
-			}
-			
-			$names = array_unique($names);
-			
-			foreach ($names as $name) {
-				switch ($type) {
-					case 'attributes':
-						$result[] = $name;
-						break;
-					case 'metadata':
-						$result[] = "{$type}.{$name}";
-						break;
-					case 'annotations':
-					case 'private_settings':
-						// no yet supported
-						break;
-				}
-			}
-		}
-		
-		// apply field boosting
-		$field_boosting = (array) elgg_extract('field_boosting', $params, []);
-		
-		foreach ($result as $index => $fieldname) {
-			$boost = elgg_extract($fieldname, $field_boosting);
-			if (elgg_is_empty($boost)) {
-				continue;
-			}
-			
-			$result[$index] = "{$fieldname}^{$boost}";
-		}
-		
-		return $result;
-	}
-			
 	/**
 	 * Hook to add items to the search_list menu
 	 *
@@ -823,30 +622,6 @@ class SearchHooks {
 			return;
 		}
 	
-		return $result;
-	}
-	
-
-	/**
-	 * Convert type/subtype array to an array of normalized types
-	 *
-	 * @param array $type_subtypes Array of types with their associated subtypes
-	 *
-	 * @return array
-	 */
-	public static function entityTypeSubtypesToSearchTypes($type_subtypes) {
-		$result = [];
-		foreach ($type_subtypes as $type => $subtypes) {
-			if (empty($subtypes)) {
-				$result[] = $type;
-				continue;
-			}
-			
-			foreach ($subtypes as $subtype) {
-				$result[] = "{$type}.{$subtype}";
-			}
-		}
-		
 		return $result;
 	}
 }
