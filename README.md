@@ -164,3 +164,20 @@ Return an `ElggEntity` based on the search result data from Elasticsearch.
 Params contain:
 - `hit`: the result from Elasticsearch
 - `search_params`: an array of the search parameters as provided by Elgg search
+
+### Parameters passed to `elgg_search`
+
+#### field_boosting
+
+In the parameters passed to `elgg_search` you can add a configuration to control field boosting in Elasticsearch. Add the key
+`field_boosting` to the array which holds an array with fieldname and the boosting for that field.
+
+Example:
+```php
+[
+	'field_boosting' => [
+		'title' => 2, // title is worth double
+		'description' => 0.5 // description is worth half
+	],
+]
+```
