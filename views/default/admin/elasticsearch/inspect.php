@@ -87,7 +87,7 @@ if (empty($entity)) {
 		$table_content = $header;
 		$table_content .= elgg_format_element('tbody', [], '<tr>' . implode('</tr><tr>', $rows) . '</tr>');
 		
-		$result .= elgg_format_element('table', ['class' => 'elgg-table'], $table_content);
+		$result .= elgg_format_element('table', ['class' => ['elgg-table', 'elasticsearch-inspect-table']], $table_content);
 	}
 }
 
