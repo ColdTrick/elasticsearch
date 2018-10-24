@@ -161,9 +161,13 @@ class Export {
 		
 		// make all lowercase (for better uniqueness)
 		$tags = array_map('strtolower', $tags);
+		// make unique
+		$tags = array_unique($tags);
+		// reset array indexes
+		$tags = array_values($tags);
 		
 		// make them unique
-		$returnvalue->tags = array_unique($tags);
+		$returnvalue->tags = $tags;
 		
 		return $returnvalue;
 	}
