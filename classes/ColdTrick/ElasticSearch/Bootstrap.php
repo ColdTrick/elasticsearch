@@ -57,7 +57,6 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('register', 'menu:search_list', __NAMESPACE__ . '\SearchHooks::registerSortMenu');
 		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::filterProfileFields');
 		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::sortByGroupMembersCount');
-		$hooks->registerHandler('query_fields', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::queryProfileFields');
 		
 		// extend exportable values
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::entityToObject');
