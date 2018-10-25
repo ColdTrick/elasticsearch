@@ -67,6 +67,7 @@ return array(
 	
 	'elasticsearch:stats:elgg' => "Elgg information",
 	'elasticsearch:stats:elgg:total' => "Content that should have been indexed",
+	'elasticsearch:stats:elgg:total:help' => "This could include content (like banned users) which isn't actually indexed by Elasticsearch.",
 	'elasticsearch:stats:elgg:no_index_ts' => "New content to be indexed",
 	'elasticsearch:stats:elgg:update' => "Updated content to be reindexed",
 	'elasticsearch:stats:elgg:reindex' => "Content to be reindexed",

@@ -14,7 +14,11 @@ $options = elasticsearch_get_bulk_options('count');
 $count = elgg_get_entities($options);
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:total') . '</td>';
+$content .= '<td>' . elgg_echo('elasticsearch:stats:elgg:total');
+$content .= elgg_view('output/longtext', [
+	'value' => elgg_echo('elasticsearch:stats:elgg:total:help'),
+	'class' => 'elgg-subtext',
+]) . '</td>';
 $content .= "<td>{$count}</td>";
 $content .= '</tr>';
 
