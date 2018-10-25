@@ -386,19 +386,13 @@ class SearchHooks {
 	/**
 	 * Hook to add profile field filters to search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'search_params', 'elasticsearch'
 	 *
-	 * @return void
+	 * @return void|\ColdTrick\ElasticSearch\Client
 	 */
-	public static function filterProfileFields($hook, $type, $returnvalue, $params) {
-		if (empty($params) || !is_array($params)) {
-			return;
-		}
+	public static function filterProfileFields(\Elgg\Hook $hook) {
 		
-		$search_params = elgg_extract('search_params', $params);
+		$search_params = $hook->getParam('search_params');
 		if (empty($search_params) || !is_array($search_params)) {
 			return;
 		}
@@ -410,21 +404,21 @@ class SearchHooks {
 		
 		$filter = elgg_extract('search_filter', $search_params, []);
 		$profile_field_filter = elgg_extract('profile_fields', $filter, []);
-// 		$profile_field_soundex_filter = elgg_extract('profile_fields_soundex', $filter, []);
-		
 		if (empty($profile_field_filter)) {
 			return;
 		}
 		
 		$queries = [];
 		foreach ($profile_field_filter as $field_name => $value) {
-			if ($value === "") {
-				continue;
-			}
+			
 			$value = strtolower($value);
 			$value = str_replace('&amp;', '&', $value);
 			$value = str_replace('\\', ' ', $value);
 			$value = str_replace('/', ' ', $value);
+			$value = trim($value);
+			if (elgg_is_empty($value)) {
+				continue;
+			}
 			
 			$string_value = $value;
 			
@@ -434,22 +428,18 @@ class SearchHooks {
 			
 			$sub_query = [];
 			$sub_query['nested']['path'] = 'metadata';
-			$sub_query['nested']['query']['bool']['must'][] = [
-				'term' => [
-					'metadata.name' => $field_name,
-				],
-			];
+			
 			$shoulds = [];
 			$shoulds['bool']['should'][] = [
 				'query_string' => [
-					'default_field' => 'metadata.value',
+					'default_field' => "metadata.{$field_name}",
 					'query' => "*{$value}*",
 					'default_operator' => 'AND',
 				],
 			];
 			$shoulds['bool']['should'][] = [
 				'query_string' => [
-					'default_field' => 'metadata.value',
+					'default_field' => "metadata.{$field_name}",
 					'query' => "'{$string_value}'",
 					'default_operator' => 'AND',
 				],
@@ -458,15 +448,17 @@ class SearchHooks {
 			$sub_query['nested']['query']['bool']['must'][] = $shoulds;
 			
 			$queries['bool']['must'][] = $sub_query;
-			
 		}
 		
 		if (empty($queries)) {
 			return;
 		}
 		
-		$returnvalue->search_params->addQuery($queries);
-		return $returnvalue;
+		$client = $hook->getValue();
+		
+		$client->search_params->addQuery($queries);
+		
+		return $client;
 	}
 		
 	/**
