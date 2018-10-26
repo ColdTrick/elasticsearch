@@ -473,19 +473,7 @@ class SearchHooks {
 	 */
 	public static function sortByGroupMembersCount($hook, $type, $returnvalue, $params) {
 		
-		if (empty($params) || !is_array($params)) {
-			return;
-		}
-		
 		$search_params = elgg_extract('search_params', $params);
-		if (empty($search_params) || !is_array($search_params)) {
-			return;
-		}
-		
-		$type = elgg_extract('type', $search_params);
-		if ($type !== 'group') {
-			return;
-		}
 		
 		$sort = elgg_extract('sort', $search_params);
 		$order = elgg_extract('order', $search_params, 'desc');
@@ -495,7 +483,8 @@ class SearchHooks {
 		
 		$sort_config = [
 			'order' => $order,
-			'missing' => 0,
+			'missing' => '_last',
+			'unmapped_type' => 'long',
 		];
 		$returnvalue->search_params->addSort('counters.member_count', $sort_config);
 		$returnvalue->search_params->addSort('_score');
