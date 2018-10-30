@@ -25,7 +25,7 @@ class Views {
 		}
 		
 		$imprint = elgg_extract('imprint', $result, []);
-		$imprint[] = [
+		$imprint['elasticsearch_score'] = [
 			'icon_name' => 'search',
 			'content' => elgg_echo('elasticsearch:search_score', [$entity->getVolatileData('search_score')]),
 		];

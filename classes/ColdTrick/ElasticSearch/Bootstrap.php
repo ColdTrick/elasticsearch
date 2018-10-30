@@ -39,7 +39,7 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('register', 'menu:page', __NAMESPACE__ . '\Admin::pageMenu');
 		$hooks->registerHandler('cron', 'minute', __NAMESPACE__ . '\Cron::minuteSync');
 		$hooks->registerHandler('cron', 'daily', __NAMESPACE__ . '\Cron::dailyCleanup');
-		$hooks->registerHandler('view_vars', 'object/elements/imprint/contents', __NAMESPACE__ . '\Views::displaySearchScoreInImprint');
+		$hooks->registerHandler('view_vars', 'object/elements/imprint/contents', __NAMESPACE__ . '\Views::displaySearchScoreInImprint', 999);
 		
 		// search hooks
 		$hooks->registerHandler('search:fields', 'group', 'ColdTrick\ElasticSearch\SearchHooks::groupSearchFields');
