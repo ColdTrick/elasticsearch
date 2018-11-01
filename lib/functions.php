@@ -309,6 +309,19 @@ function elasticsearch_remove_document_for_deletion($guid) {
 	if ($fh->exists()) {
 		$fh->delete();
 	}
+	
+	// check if the entity still exists in Elgg (could be unregistered as searchable)
+	// and remove indexing timestamp so it can be reindexed when needed
+	$ia = elgg_set_ignore_access(true);
+	$hidden = access_show_hidden_entities(true);
+	
+	$entity = get_entity($guid);
+	if ($entity instanceof ElggEntity) {
+		$entity->removePrivateSetting(ELASTICSEARCH_INDEXED_NAME);
+	}
+	
+	elgg_set_ignore_access($ia);
+	access_show_hidden_entities($hidden);
 }
 
 /**
