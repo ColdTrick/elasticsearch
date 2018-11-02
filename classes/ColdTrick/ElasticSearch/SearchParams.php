@@ -183,11 +183,12 @@ class SearchParams {
 		$decay_offset = (int) elgg_get_plugin_setting('decay_offset', 'elasticsearch', 0);
 		$decay_scale = (int) elgg_get_plugin_setting('decay_scale', 'elasticsearch');
 		$decay_decay = elgg_get_plugin_setting('decay_decay', 'elasticsearch');
+		$decay_time_field = elgg_get_plugin_setting('decay_time_field', 'elasticsearch');
 		
-		if (!empty($decay_scale) && !empty($decay_decay)) {
+		if (!empty($decay_scale) && !empty($decay_decay) && !empty($decay_time_field)) {
 			$result[] = [
 				'gauss' => [
-					'time_created' => [
+					$decay_time_field => [
 						'origin' => date('c'),
 						'scale' => "{$decay_scale}d",
 						'offset' => "{$decay_offset}d",

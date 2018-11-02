@@ -31,5 +31,6 @@ return [
 		'search_score' => 'no',
 		'cron_validate' => 'no',
 		'ignore_ssl' => 0,
+		'decay_time_field' => 'time_created',
 	],
 ];

@@ -55,6 +55,11 @@ return array(
 	'elasticsearch:settings:decay_scale:help' => "Enter the number of days until (max) the lowest decay multiplier will be applied.",
 	'elasticsearch:settings:decay_decay' => "Decay",
 	'elasticsearch:settings:decay_decay:help' => "Enter the decay multiplier that will be applied when scale is reached. Enter a number between 1 and 0. The lower the number, the lower the score.",
+	'elasticsearch:settings:decay_time_field' => "Time field",
+	'elasticsearch:settings:decay_time_field:help' => "Select the time field to apply the decay on",
+	'elasticsearch:settings:decay_time_field:time_created' => "Creation date",
+	'elasticsearch:settings:decay_time_field:time_updated' => "Last update",
+	'elasticsearch:settings:decay_time_field:last_action' => "Last action",
 	
 	'elasticsearch:stats:cluster' => "Cluster information",
 	'elasticsearch:stats:cluster_name' => "Cluster name",

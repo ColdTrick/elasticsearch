@@ -132,6 +132,7 @@ if (!empty($types)) {
 	echo elgg_view_module('info', elgg_echo('elasticsearch:settings:type_boosting:title'), $boosting);
 }
 
+// decay score manipulation
 $decay = elgg_view('output/longtext', ['value' => elgg_echo('elasticsearch:settings:decay:info')]);
 
 $decay .= elgg_view_field([
@@ -158,6 +159,19 @@ $decay .= elgg_view_field([
 	'#help' => elgg_echo('elasticsearch:settings:decay_decay:help'),
 	'name' => 'params[decay_decay]',
 	'value' => $plugin->decay_decay,
+]);
+
+$decay .= elgg_view_field([
+	'#type' => 'select',
+	'#label' => elgg_echo('elasticsearch:settings:decay_time_field'),
+	'#help' => elgg_echo('elasticsearch:settings:decay_time_field:help'),
+	'name' => 'params[decay_time_field]',
+	'value' => $plugin->decay_time_field,
+	'options_values' => [
+		'time_created' => elgg_echo('elasticsearch:settings:decay_time_field:time_created'),
+		'time_updated' => elgg_echo('elasticsearch:settings:decay_time_field:time_updated'),
+		'last_action' => elgg_echo('elasticsearch:settings:decay_time_field:last_action'),
+	],
 ]);
 
 echo elgg_view_module('info', elgg_echo('elasticsearch:settings:decay:title'), $decay);
