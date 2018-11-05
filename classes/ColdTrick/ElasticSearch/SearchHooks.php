@@ -172,7 +172,7 @@ class SearchHooks {
 	/**
 	 * Move some search fields around
 	 *
-	 * @param \Elgg\Hook $hook 'search:fields', 'entities'
+	 * @param \Elgg\Hook $hook 'search:fields', 'all'
 	 *
 	 * @return void|array
 	 */
@@ -185,15 +185,28 @@ class SearchHooks {
 		$value = (array) $hook->getValue();
 		
 		$defaults = [
+			'attributes' => [],
 			'metadata' => [],
 		];
 		
-		$value = array_merge($defaults, $value);
-		if (in_array('tags', $value['metadata'])) {
-			return;
-		}
+		$metadata_should_be_attribute = [
+			'description',
+			'name',
+			'tags',
+			'title',
+			'username',
+		];
 		
-		$value['metadata'][] = 'tags';
+		$value = array_merge($defaults, $value);
+		
+		foreach ($value['metadata'] as $index => $name) {
+			if (!in_array($name, $metadata_should_be_attribute)) {
+				continue;
+			}
+			
+			$value['attributes'][] = $name;
+			unset($value['metadata'][$index]);
+		}
 		
 		return $value;
 	}
