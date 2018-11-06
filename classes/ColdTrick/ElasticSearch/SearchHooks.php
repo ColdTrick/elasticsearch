@@ -208,6 +208,43 @@ class SearchHooks {
 			unset($value['metadata'][$index]);
 		}
 		
+		$value['attributes'] = array_values(array_unique($value['attributes']));
+		
+		return $value;
+	}
+	
+	/**
+	 * When searching in the attribute name, move it to title according to the mapping
+	 *
+	 * @param \Elgg\Hook $hook 'search:fields', 'all'
+	 *
+	 * @return void|array
+	 */
+	public static function searchFieldsNameToTitle(\Elgg\Hook $hook) {
+		
+		if (!self::handleSearch()) {
+			return;
+		}
+		
+		$value = (array) $hook->getValue();
+		if (!isset($value['attributes']) || !in_array('name', $value['attributes'])) {
+			return;
+		}
+		
+		
+		foreach ($value['attributes'] as $index => $name) {
+			if ($name !== 'name') {
+				continue;
+			}
+			
+			$value['attributes'][] = 'title';
+			unset($value['attributes'][$index]);
+			
+			break;
+		}
+		
+		$value['attributes'] = array_values(array_unique($value['attributes']));
+		
 		return $value;
 	}
 	

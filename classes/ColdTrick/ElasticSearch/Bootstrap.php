@@ -46,6 +46,7 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('search:fields', 'object', __NAMESPACE__ . '\SearchHooks::objectSearchFields');
 		$hooks->registerHandler('search:fields', 'user', __NAMESPACE__ . '\SearchHooks::userSearchFields');
 		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFields', 999);
+		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFieldsNameToTitle', 999);
 		
 		$hooks->registerHandler('search:options', 'all', __NAMESPACE__ . '\SearchHooks::searchOptions');
 		
