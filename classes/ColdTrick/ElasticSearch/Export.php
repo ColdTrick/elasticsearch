@@ -12,7 +12,7 @@ class Export {
 	 * @param string $returnvalue current return value
 	 * @param array  $params      supplied params
 	 *
-	 * @return void
+	 * @return \stdClass
 	 */
 	public static function entityToObject($hook, $type, $returnvalue, $params) {
 		
@@ -28,6 +28,36 @@ class Export {
 		// add some extra values to be submitted to the search index
 		$returnvalue->last_action = date('c', $entity->last_action);
 		$returnvalue->access_id = $entity->access_id;
+		$returnvalue->indexed_type = self::getEntityIndexType($entity);
+		
+		return $returnvalue;
+	}
+	
+	/**
+	 * Get the type under which the entity will be indexed
+	 *
+	 * Defaults to 'type.subtype'
+	 *
+	 * @param \ElggEntity $entity the entity to index
+	 *
+	 * @return string
+	 */
+	protected static function getEntityIndexType(\ElggEntity $entity) {
+		$parts = [
+			$entity->getType(),
+			$entity->getSubtype(),
+		];
+		
+		$parts = array_filter($parts);
+		
+		$index_type = implode('.', $parts);
+		
+		$params = [
+			'entity' => $entity,
+			'default' => $index_type,
+		];
+		
+		return elgg_trigger_plugin_hook('index:entity:type', 'elasticsearch', $params, $index_type);
 	}
 
 	/**

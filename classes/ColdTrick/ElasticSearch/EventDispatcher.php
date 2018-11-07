@@ -185,10 +185,10 @@ class EventDispatcher {
 			return;
 		}
 		
-		elasticsearch_add_document_for_deletion($entity->getGUID(), [
+		elasticsearch_add_document_for_deletion($entity->guid, [
 			'_index' => $client->getIndex(),
-			'_type' => $client->getDocumentTypeFromEntity($entity),
-			'_id' => $entity->getGUID(),
+			'_type' => 'entities',
+			'_id' => $entity->guid,
 		]);
 	}
 	

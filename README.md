@@ -109,13 +109,6 @@ In the format:
 
 Defaults to all registered searchable type/subtypes in Elgg.
 
-#### 'index:entity', 'elasticsearch'
-
-Return an array with index information used by Elasticsearch to store the entity in the index
-
-Params contain:
-- `entity`: the `ElggEntity` about to be indexed
-
 #### 'index:entity:prevent', 'elasticsearch'
 
 Return `true` if the provided entity shouldn't be added to the Elasticsearch index
@@ -124,6 +117,16 @@ Params contain:
 - `entity`: the `ElggEntity` about to be indexed
 
 Default: `false`
+
+#### 'index:entity:type', 'elasticsearch'
+
+Return a string under which type/subtype the entity should be indexed. This is used for type filtering during the search (eg. all blogs)
+
+Params contain:
+- `entity`: the `ElggEntity` about to be indexed
+- `default`: the default type/subtype for this entity
+
+Default: `{entity_type}.{entity_subtype}` (eg. `object.blog`)
 
 #### 'params', 'elasticsearch'
 

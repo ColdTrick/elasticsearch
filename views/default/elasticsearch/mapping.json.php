@@ -29,6 +29,10 @@ $properties = [
 		'type' => 'string',
 		'analyzer' => 'case_insensitive_sort',
 	],
+	'indexed_type' => [
+		'type' => 'string',
+		'analyzer' => 'keyword',
+	],
 ];
 	
 $dynamic_templates = [

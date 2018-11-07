@@ -139,9 +139,6 @@ class Client extends \Elasticsearch\Client {
 			}
 			
 			$doc_params = $this->getDefaultDocumentParams($entity);
-			if (empty($doc_params)) {
-				continue;
-			}
 					
 			$params['body'][] = [
 				'index' => [
@@ -226,30 +223,13 @@ class Client extends \Elasticsearch\Client {
 	}
 		
 	protected function getDefaultDocumentParams(\ElggEntity $entity) {
-		$defaults = [
+		return [
 			'id' => $entity->guid,
 			'index' => $this->default_index,
-			'type' => $this->getDocumentTypeFromEntity($entity),
+			'type' => 'entities',
 		];
-		
-		$params = [
-			'entity' => $entity,
-		];
-		
-		return elgg_trigger_plugin_hook('index:entity', 'elasticsearch', $params, $defaults);
 	}
 	
-	public function getDocumentTypeFromEntity(\ElggEntity $entity) {
-		$type = $entity->getType();
-		$subtype = $entity->getSubType();
-		
-		if (empty($subtype)) {
-			return "$type";
-		}
-		
-		return "$type.$subtype";
-	}
-
 	protected function getBodyFromEntity(\ElggEntity $entity) {
 		
 		elgg_push_context('search:index');

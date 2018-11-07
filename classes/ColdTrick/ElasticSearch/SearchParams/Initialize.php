@@ -269,16 +269,23 @@ trait Initialize {
 			return;
 		}
 		
+		$types = [];
+		
 		foreach ($type_subtype_pairs as $type => $subtypes) {
+			if (empty($subtypes)) {
+				$types[] = "{$type}.{$type}";
+				continue;
+			}
 			
-			if (!empty($subtypes)) {
-				foreach ($subtypes as $subtype) {
-					$this->addType("{$type}.{$subtype}");
-				}
-			} else {
-				$this->addType("{$type}.{$type}");
+			foreach ($subtypes as $subtype) {
+				$types[] = "{$type}.{$subtype}";
 			}
 		}
+		
+		$type_filter['terms']['indexed_type'] = $types;
+		$filter['bool']['must'][] = $type_filter;
+		
+		$this->addFilter($filter);
 	}
 	
 	/**

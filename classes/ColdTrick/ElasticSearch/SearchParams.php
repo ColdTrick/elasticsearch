@@ -43,9 +43,7 @@ class SearchParams {
 		}
 		
 		// type
-		if (!empty($this->getParam('type'))) {
-			$result['type'] = $this->getParam('type');
-		}
+		$result['type'] = 'entities';
 		
 		// query
 		if (!empty($this->getParam('query'))) {
@@ -172,7 +170,7 @@ class SearchParams {
 				$result[] = [
 					'filter' => [
 						'term' => [
-							'_type' => $type,
+							'indexed_type' => $type,
 						],
 					],
 					'weight' => $weight,
@@ -262,35 +260,6 @@ class SearchParams {
 	 */
 	public function setIndex($index) {
 		$this->params['index'] = $index;
-	}
-	
-	/**
-	 * Sets the type to be search
-	 *
-	 * @param string|array $type the type to be searched
-	 *
-	 * @return void
-	 */
-	public function setType($type) {
-		$this->params['type'] = $type;
-	}
-
-	/**
-	 * Add a type to the search params
-	 *
-	 * @param string $type the new type to add
-	 *
-	 * @return void
-	 */
-	public function addType($type) {
-		$types = (array) $this->getType();
-		$types[] = $type;
-	
-		$this->params['type'] = $types;
-	}
-	
-	public function getType() {
-		return $this->getParam('type');
 	}
 	
 	public function addFilter($filter) {
