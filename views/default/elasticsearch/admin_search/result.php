@@ -27,7 +27,7 @@ $format_table = function($results) {
 		$rows[] = elgg_format_element('tr', [], implode(PHP_EOL, $row));
 	}
 	
-	return elgg_format_element('table', ['class' => ['elgg-table', 'mbl']], implode(PHP_EOL, $rows));
+	return elgg_format_element('table', ['class' => ['elgg-table', 'mbl', 'elasticsearch-inspect-table']], implode(PHP_EOL, $rows));
 };
 
 // general stats
