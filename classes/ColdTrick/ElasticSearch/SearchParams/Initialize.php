@@ -244,6 +244,15 @@ trait Initialize {
 				$sort_field = 'time_created';
 				$sort = 'desc';
 				break;
+			// support default elgg sort fields
+			case 'time_created':
+			case 'time_updated':
+			case 'last_action':
+				$sort_field = $sort;
+				break;
+			case 'name':
+				$sort_field = 'title.raw';
+				break;
 		}
 		
 		if (!empty($sort_field)) {
