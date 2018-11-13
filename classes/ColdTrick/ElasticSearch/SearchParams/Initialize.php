@@ -28,6 +28,7 @@ trait Initialize {
 		$this->initializeQuery($search_params);
 		$this->initializeContainerGUID($search_params);
 		$this->initializeOwnerGUID($search_params);
+		$this->initializeSorting($search_params);
 		$this->initializeTypeSubtypePairs($search_params);
 		$this->initializeTimeConstraints($search_params);
 		$this->initializeAccessConstraints($search_params);
