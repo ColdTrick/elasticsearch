@@ -1,6 +1,11 @@
 Version history
 ===============
 
+3.5.3 (2018-11-15):
+
+- changed: validating of the Elasticsearch now checks searchable state
+- fixed: fetch correct input
+
 3.5.2 (2018-10-31):
 
 - fixed: correctly loop through deletion documents
