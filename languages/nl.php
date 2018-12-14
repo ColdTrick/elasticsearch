@@ -1,10 +1,37 @@
 <?php
 /**
- * This file was created by Translation Editor v6.0-beta
- * On 2017-07-20 11:41
+ * This file was created by Translation Editor v7.0-beta
+ * On 2018-12-14 15:25
  */
 
 return array (
+  'elasticsearch:settings:ignore_ssl' => 'Schakel SSL verificatie uti',
+  'elasticsearch:settings:ignore_ssl:description' => 'Indien de host HTTPS gebruikt, maar dit gebeurt middels een self-signed certificaat kun je SSL verificatie uitschakelen middels deze instelling.',
+  'elasticsearch:settings:search_score' => 'Toon zoekscore in resultaten',
+  'elasticsearch:settings:search_score:description' => 'Toon de zoekresultaat score aan de beheerders in de zoekresultaten. Dit kan helpen bij het verklaren van de resultaat volgorde.',
+  'elasticsearch:settings:type_boosting:title' => 'Content Type Boosting',
+  'elasticsearch:settings:type_boosting:info' => 'Indien je de score van een content type wilt beïnvloeden gedurende de zoekopdracht kun je hieronder een vermenigvuldigingsfactor opgeven.
+Als je soortgelijke zoekresultaten wilt sorteren op basis van hun content type moet je een kleine vermenigvuldigingsfactor gebruiken, bijvoorbeeld 1.01.
+Als je gebruikers altijd bovenaan de resultaten wilt hebben, ongeacht de kwaliteit van het resultaat, kun je een grote vermenigvuldigingsfactor gebruiken.
+
+Meer informatie over content type boosting kun je kijken op de Elasticsearch documentatie website.',
+  'elasticsearch:settings:type_boosting:type' => 'Content type',
+  'elasticsearch:settings:type_boosting:multiplier' => 'Vermenigvuldigingsfactor',
+  'elasticsearch:settings:decay:title' => 'Content verval',
+  'elasticsearch:settings:decay:info' => 'Indien geconfigureerd zal de verval factor worden toegepast op alle zoekresultaten',
+  'elasticsearch:settings:decay_offset' => 'Begin',
+  'elasticsearch:settings:decay_offset:help' => 'Geef het aantal dagen op voordat (min) de verval factor zal worden toegepast.',
+  'elasticsearch:settings:decay_scale' => 'Schaal',
+  'elasticsearch:settings:decay_scale:help' => 'Geef het aantal dagen op waarna (max) de laagste verval factor zal worden toegepast.',
+  'elasticsearch:settings:decay_decay' => 'Verval',
+  'elasticsearch:settings:decay_decay:help' => 'Geef de verval factor op welke zal worden toegepast indien de schaal is bereikt. Geef een nummer tussen 1 en 0 op. Hoe lager het nummer, hoe lager de zoekscore.',
+  'elasticsearch:settings:decay_time_field' => 'Tijdveld',
+  'elasticsearch:settings:decay_time_field:help' => 'Selecteer het tijdveld waarop het verval moet worden toegepast',
+  'elasticsearch:settings:decay_time_field:time_created' => 'Creatiedatum',
+  'elasticsearch:settings:decay_time_field:time_updated' => 'Laatste update',
+  'elasticsearch:settings:decay_time_field:last_action' => 'Laatste actie',
+  'elasticsearch:stats:elgg:total:help' => 'Dit kan content bevatten (zoals geblokkeerde gebruikers) welke niet zal worden gesynchroniseerd naar Elasticsearch.',
+  'elasticsearch:search_score' => 'Zoekscore: %s',
   'elasticsearch:settings:cron_validate' => 'Valideer de zoekindex dagelijks',
   'elasticsearch:settings:cron_validate:description' => 'Valideer de index om er zeker van te zijn dat er geen content is zit welke er niet meer in hoort en om er zeker van te zijn dat alle content welke er wel in hoort er ook is.',
   'admin:elasticsearch:inspect' => 'Inspecteren',
