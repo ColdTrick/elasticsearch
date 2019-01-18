@@ -101,6 +101,7 @@ trait Initialize {
 						if (strpos($name, 'profile:') === 0) {
 							$name = substr($name, strlen('profile:'));
 							$result[] = "metadata.{$name}";
+							break;
 						}
 						break;
 					case 'private_settings':
