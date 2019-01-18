@@ -97,6 +97,12 @@ trait Initialize {
 						$result[] = "{$type}.{$name}";
 						break;
 					case 'annotations':
+						// support user profile fields
+						if (strpos($name, 'profile:') === 0) {
+							$name = substr($name, strlen('profile:'));
+							$result[] = "metadata.{$name}";
+						}
+						break;
 					case 'private_settings':
 						// no yet supported
 						break;
