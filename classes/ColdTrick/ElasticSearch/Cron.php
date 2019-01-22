@@ -225,6 +225,7 @@ class Cron {
 		];
 		
 		$searchable_types = elasticsearch_get_registered_entity_types();
+		$dbprefix = elgg_get_config('dbprefix');
 		
 		// ignore Elgg access
 		$ia = elgg_set_ignore_access(true);
@@ -252,7 +253,13 @@ class Cron {
 					'limit' => false,
 					'callback' => function ($row) {
 						return (int) $row->guid;
-					}
+					},
+					'joins' => [
+						"LEFT JOIN {$dbprefix}users_entity ue ON e.guid = ue.guid",
+					],
+					'wheres' => [
+						"(e.type != 'user' OR ue.banned = 'no'))", // banned users should not be indexed
+					],
 				]);
 				
 				$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
