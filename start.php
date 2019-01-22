@@ -70,4 +70,5 @@ function elasticsearch_init() {
 	elgg_register_action('elasticsearch/admin/reindex', dirname(__FILE__) . '/actions/admin/reindex.php', 'admin');
 	elgg_register_action('elasticsearch/admin/download_log', dirname(__FILE__) . '/actions/admin/download_log.php', 'admin');
 	elgg_register_action('elasticsearch/admin/reindex_entity', dirname(__FILE__) . '/actions/admin/reindex_entity.php', 'admin');
+	elgg_register_action('elasticsearch/admin/delete_entity', dirname(__FILE__) . '/actions/admin/delete_entity.php', 'admin');
 }

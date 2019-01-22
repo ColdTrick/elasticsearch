@@ -1,10 +1,28 @@
 <?php
 /**
- * This file was created by Translation Editor v6.0-beta
- * On 2017-07-20 11:41
+ * This file was created by Translation Editor v6.1
+ * On 2019-01-22 11:50
  */
 
 return array (
+  'elasticsearch:settings:type_boosting:title' => 'Content type boosting',
+  'elasticsearch:settings:type_boosting:info' => 'Indien je de score van een content type tijdens het zoeken wilt beïnvloeden kun je hier een vermenigvuldigingsfactor opgeven.
+Indien je soortgelijke zoekresultaten wilt sorteren op basis van type moet je een kleine vermenigvuldigingsfactor gebruiken, bijvoorbeeld 1.01.
+Indien je gebruikers altijd bovenaan de zoekresultaten wilt hebben, ongeacht de kwaliteit van het resultaat, moet je een grote vermenigvuldigingsfactor gebruiken.
+
+Meer informatie over query time boosting kan worden gevonden op de elasticsearch documentatie website.',
+  'elasticsearch:settings:type_boosting:type' => 'Content Type',
+  'elasticsearch:settings:type_boosting:multiplier' => 'Vermenigvuldigingsfactor',
+  'elasticsearch:settings:decay:title' => 'Content verval',
+  'elasticsearch:settings:decay:info' => 'Indien geconfigureerd zal de verval factor worden toegepast op alle zoekresultaten',
+  'elasticsearch:settings:decay_offset' => 'Begin',
+  'elasticsearch:settings:decay_offset:help' => 'Geef het aantal dagen op voordat (min) de verval factor zal worden toegepast.',
+  'elasticsearch:settings:decay_scale' => 'Schaal',
+  'elasticsearch:settings:decay_scale:help' => 'Geef het aantal dagen op waarna (max) de laagste verval factor zal worden toegepast.',
+  'elasticsearch:settings:decay_decay' => 'Verval',
+  'elasticsearch:settings:decay_decay:help' => 'Geef de verval factor op welke zal worden toegepast indien de schaal is bereikt. Geef een nummer tussen 1 en 0 op. Hoe lager het nummer, hoe lager de zoekscore.',
+  'elasticsearch:inspect:result:delete' => 'Verwijder de entiteit uit de index',
+  'elasticsearch:action:admin:delete_entity:success' => 'De entiteit is ingepland om te worden verwijderd uit de index',
   'elasticsearch:settings:cron_validate' => 'Valideer de zoekindex dagelijks',
   'elasticsearch:settings:cron_validate:description' => 'Valideer de index om er zeker van te zijn dat er geen content is zit welke er niet meer in hoort en om er zeker van te zijn dat alle content welke er wel in hoort er ook is.',
   'admin:elasticsearch:inspect' => 'Inspecteren',

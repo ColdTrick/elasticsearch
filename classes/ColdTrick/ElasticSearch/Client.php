@@ -305,7 +305,7 @@ class Client extends \Elasticsearch\Client {
 	 *
 	 * @return false|array
 	 */
-	public function inspect($guid) {
+	public function inspect($guid, $return_raw = false) {
 		$guid = (int) $guid;
 		if ($guid < 1) {
 			return false;
@@ -332,6 +332,10 @@ class Client extends \Elasticsearch\Client {
 			$hit = $s->getHit($guid);
 			if (empty($hit)) {
 				return false;
+			}
+			
+			if ((bool) $return_raw) {
+				return $hit;
 			}
 			
 			return elgg_extract('_source', $hit);
