@@ -90,7 +90,7 @@ return array(
 	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
 	
-	'elasticsearch:inspect:guid' => "Please enter the GUID of the entity you wish to inpect",
+	'elasticsearch:inspect:guid' => "Please enter the GUID of the entity you wish to inspect",
 	'elasticsearch:inspect:guid:help' => "All entities in Elgg have a GUID, mostly you can find this in the URL to the entity (eg blog/view/1234)",
 	'elasticsearch:inspect:submit' => "Inspect",
 	
