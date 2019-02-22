@@ -258,7 +258,7 @@ class Cron {
 						"LEFT JOIN {$dbprefix}users_entity ue ON e.guid = ue.guid",
 					],
 					'wheres' => [
-						"(e.type != 'user' OR ue.banned = 'no'))", // banned users should not be indexed
+						"(e.type != 'user' OR ue.banned = 'no')", // banned users should not be indexed
 					],
 				]);
 				
