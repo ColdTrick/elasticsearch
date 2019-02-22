@@ -1,7 +1,7 @@
 <?php
 /**
- * This file was created by Translation Editor v7.0-beta
- * On 2018-12-14 15:25
+ * This file was created by Translation Editor v6.1
+ * On 2019-01-22 11:50
  */
 
 return array (
@@ -32,6 +32,8 @@ Meer informatie over content type boosting kun je kijken op de Elasticsearch doc
   'elasticsearch:settings:decay_time_field:last_action' => 'Laatste actie',
   'elasticsearch:stats:elgg:total:help' => 'Dit kan content bevatten (zoals geblokkeerde gebruikers) welke niet zal worden gesynchroniseerd naar Elasticsearch.',
   'elasticsearch:search_score' => 'Zoekscore: %s',
+  'elasticsearch:inspect:result:delete' => 'Verwijder de entiteit uit de index',
+  'elasticsearch:action:admin:delete_entity:success' => 'De entiteit is ingepland om te worden verwijderd uit de index',
   'elasticsearch:settings:cron_validate' => 'Valideer de zoekindex dagelijks',
   'elasticsearch:settings:cron_validate:description' => 'Valideer de index om er zeker van te zijn dat er geen content is zit welke er niet meer in hoort en om er zeker van te zijn dat alle content welke er wel in hoort er ook is.',
   'admin:elasticsearch:inspect' => 'Inspecteren',

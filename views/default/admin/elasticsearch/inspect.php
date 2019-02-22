@@ -21,10 +21,14 @@ $registered_types = elasticsearch_get_registered_entity_types();
 $entity = get_entity($guid);
 if (empty($entity)) {
 	// Entity doesn't exist in Elgg
-	$result = elgg_echo('notfound');
+	$result = elgg_view('output/longtext', [
+		'value' => elgg_echo('notfound'),
+	]);
 } elseif (!array_key_exists($entity->getType(), $registered_types) || (array_key_exists($entity->getType(), $registered_types) && !empty($entity->getSubtype()) && !in_array($entity->getSubtype(), $registered_types[$entity->getType()]))) {
 	// entity won't be exported to ES
-	$result = elgg_echo('elasticsearch:inspect:result:error:type_subtype');
+	$result = elgg_view('output/longtext', [
+		'value' => elgg_echo('elasticsearch:inspect:result:error:type_subtype'),
+	]);
 } else {
 	// show inspect result
 	elgg_push_context('search:index');
@@ -33,12 +37,19 @@ if (empty($entity)) {
 	
 	$last_indexed = $entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME);
 	if (is_null($last_indexed)) {
-		$result = elgg_echo('elasticsearch:inspect:result:last_indexed:none');
+		$result = elgg_view('output/longtext', [
+			'value' => elgg_echo('elasticsearch:inspect:result:last_indexed:none'),
+		]);
 	} elseif (empty($last_indexed)) {
-		$result = elgg_echo('elasticsearch:inspect:result:last_indexed:scheduled');
+		$result = elgg_view('output/longtext', [
+			'value' => elgg_echo('elasticsearch:inspect:result:last_indexed:scheduled'),
+		]);
 	} else {
-		$result = elgg_echo('elasticsearch:inspect:result:last_indexed:time', [date('c', $last_indexed)]);
-		$result .= '<br />' . elgg_view('output/url', [
+		$result = elgg_view('output/longtext', [
+			'value' => elgg_echo('elasticsearch:inspect:result:last_indexed:time', [date('c', $last_indexed)]),
+		]);
+		$result .= elgg_view('output/url', [
+			'icon' => 'refresh',
 			'text' => elgg_echo('elasticsearch:inspect:result:reindex'),
 			'href' => elgg_generate_action_url('elasticsearch/admin/reindex_entity', [
 				'guid' => $entity->guid,
@@ -50,8 +61,19 @@ if (empty($entity)) {
 	$client = elasticsearch_get_client();
 	$elasticsearch_content = $client->inspect($guid);
 	if (empty($elasticsearch_content)) {
-		$result = elgg_echo('elasticsearch:inspect:result:error:not_indexed');
+		$result = elgg_view('output/longtext', [
+			'value' => elgg_echo('elasticsearch:inspect:result:error:not_indexed'),
+		]);
 	} else {
+		// add button to delete entity from index
+		$result .= elgg_view('output/url', [
+			'icon' => 'delete',
+			'text' => elgg_echo('elasticsearch:inspect:result:delete'),
+			'href' => elgg_generate_action_url('elasticsearch/admin/delete_entity', [
+				'guid' => $entity->guid,
+			]),
+			'class' => 'elgg-button elgg-button-action',
+		]);
 		
 		// needed for listing all possible values
 		$merged = array_replace_recursive($current_content, $elasticsearch_content);

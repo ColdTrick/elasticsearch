@@ -103,6 +103,7 @@ return array(
 	'elasticsearch:inspect:result:last_indexed:scheduled' => "This entity is scheduled to be (re)indexed",
 	'elasticsearch:inspect:result:last_indexed:time' => "This entity was last indexed: %s",
 	'elasticsearch:inspect:result:reindex' => "Schedule for reindexing",
+	'elasticsearch:inspect:result:delete' => "Remove entity from index",
 	
 	// menus
 	'elasticsearch:menu:search_list:sort:title' => "Change the sort order of the results",
@@ -138,6 +139,7 @@ return array(
 	'elasticsearch:action:admin:index_management:delete_alias' => "The alias '%s' was deleted from the index '%s'",
 	
 	'elasticsearch:action:admin:reindex_entity:success' => "The entity is scheduled for reindexing",
+	'elasticsearch:action:admin:delete_entity:success' => "The entity is scheduled for deletion from the index",
 	
 	'elasticsearch:suggest' => "Did you mean %s instead of %s?",
 	'elasticsearch:search_score' => "Score: %s",

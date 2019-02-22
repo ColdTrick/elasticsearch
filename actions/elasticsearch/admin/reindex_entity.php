@@ -1,6 +1,6 @@
 <?php
 
-$guid = (int) get_input(guid);
+$guid = (int) get_input('guid');
 if (empty($guid)) {
 	return elgg_error_response(elgg_echo('error:missing_data'));
 }

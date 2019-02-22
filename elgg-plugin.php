@@ -24,6 +24,9 @@ return [
 		'elasticsearch/admin/reindex_entity' => [
 			'access' => 'admin',
 		],
+		'elasticsearch/admin/delete_entity' => [
+			'access' => 'admin',
+		],
 	],
 	'settings' => [
 		'sync' => 'no',

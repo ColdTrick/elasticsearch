@@ -2,6 +2,8 @@
 
 namespace ColdTrick\ElasticSearch;
 
+use Elgg\Database\QueryBuilder;
+
 class Cron {
 	
 	/**
@@ -222,6 +224,8 @@ class Cron {
 			'scroll' => '2m',
 		];
 		
+		$searchable_types = elasticsearch_get_registered_entity_types();
+		
 		// ignore Elgg access
 		$ia = elgg_set_ignore_access(true);
 		
@@ -241,12 +245,25 @@ class Cron {
 					break;
 				}
 				
+				// only validate searchable types, so unregistered types get removed from the index
 				$elgg_guids = elgg_get_entities([
+					'type_subtype_pairs' => $searchable_types ?: null,
 					'guids' => $elasticsearch_guids,
 					'limit' => false,
 					'callback' => function ($row) {
 						return (int) $row->guid;
 					},
+					'wheres' => [
+						function (QueryBuilder $qb, $main_alias) {
+							// banned users should not be indexed
+							$md = $qb->joinMetadataTable($main_alias, 'guid', 'banned', 'left');
+							
+							return $qb->merge([
+								$qb->compare("{$main_alias}.type", '!=', 'user', ELGG_VALUE_STRING),
+								$qb->compare("{$md}.value", '=', 'no', ELGG_VALUE_STRING),
+							], 'OR');
+						},
+					],
 				]);
 				
 				$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
