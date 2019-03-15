@@ -4,8 +4,6 @@ namespace ColdTrick\ElasticSearch;
 
 class SearchHooks {
 	
-	static $registered;
-	
 	/**
 	 * Check search params for unsupported options
 	 *
@@ -13,7 +11,7 @@ class SearchHooks {
 	 *
 	 * @return void|array
 	 */
-	public static function initSearchHooks(\Elgg\Hook $hook) {
+	public static function searchParams(\Elgg\Hook $hook) {
 		
 		$search_params = $hook->getValue();
 		if (isset($search_params['_elasticsearch_supported'])) {
@@ -27,28 +25,6 @@ class SearchHooks {
 		}
 		
 		$search_params['_elasticsearch_supported'] = true;
-		
-		if (!isset(self::$registered)) {
-			self::$registered = true;
-			
-			// register hooks
-			$hooks = elgg()->hooks;
-			
-			$hooks->registerHandler('search:fields', 'group', __NAMESPACE__ . '\SearchHooks::groupSearchFields');
-			$hooks->registerHandler('search:fields', 'object', __NAMESPACE__ . '\SearchHooks::objectSearchFields');
-			$hooks->registerHandler('search:fields', 'user', __NAMESPACE__ . '\SearchHooks::userSearchFields');
-			$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFields', 999);
-			$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFieldsNameToTitle', 999);
-			
-			$hooks->registerHandler('search:options', 'all', __NAMESPACE__ . '\SearchHooks::searchOptions');
-			
-			$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::filterProfileFields');
-			$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::sortByGroupMembersCount');
-			
-			$hooks->registerHandler('search:results', 'entities', __NAMESPACE__ . '\SearchHooks::searchEntities');
-			$hooks->registerHandler('search:results', 'combined:objects', __NAMESPACE__ . '\SearchHooks::searchEntities');
-			$hooks->registerHandler('search:results', 'combined:all', __NAMESPACE__ . '\SearchHooks::searchEntities');
-		}
 		
 		return $search_params;
 	}
@@ -67,6 +43,9 @@ class SearchHooks {
 		}
 		
 		$return = $hook->getValue();
+		if (elgg_extract('_elasticsearch_supported', $return) === false) {
+			return;
+		}
 		
 		$sort = elgg_extract('sort', $return, 'relevance');
 		if ($sort === 'time_created' && !get_input('sort')) {
@@ -228,6 +207,10 @@ class SearchHooks {
 	public static function searchFields(\Elgg\Hook $hook) {
 		
 		if (!self::handleSearch()) {
+			return;
+		}
+		
+		if ($hook->getParam('_elasticsearch_supported') === false) {
 			return;
 		}
 		
