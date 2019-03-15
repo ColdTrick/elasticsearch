@@ -5,6 +5,49 @@ namespace ColdTrick\ElasticSearch;
 class SearchHooks {
 	
 	/**
+	 * Check search params for unsupported options
+	 *
+	 * @param \Elgg\Hook $hook 'search:params', 'all'
+	 *
+	 * @return void|array
+	 */
+	public static function initSearchHooks(\Elgg\Hook $hook) {
+		
+		$search_params = $hook->getValue();
+		if (isset($search_params['_elasticsearch_supported'])) {
+			return;
+		}
+		
+		if (!self::handleSearch() || self::detectUnsupportedSearchParams($search_params)) {
+			$search_params['_elasticsearch_supported'] = false;
+			
+			return $search_params;
+		}
+		
+		$search_params['_elasticsearch_supported'] = true;
+		
+		// register hooks
+		$hooks = elgg()->hooks;
+		
+		$hooks->registerHandler('search:fields', 'group', __NAMESPACE__ . '\SearchHooks::groupSearchFields');
+		$hooks->registerHandler('search:fields', 'object', __NAMESPACE__ . '\SearchHooks::objectSearchFields');
+		$hooks->registerHandler('search:fields', 'user', __NAMESPACE__ . '\SearchHooks::userSearchFields');
+		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFields', 999);
+		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFieldsNameToTitle', 999);
+		
+		$hooks->registerHandler('search:options', 'all', __NAMESPACE__ . '\SearchHooks::searchOptions');
+		
+		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::filterProfileFields');
+		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::sortByGroupMembersCount');
+		
+		$hooks->registerHandler('search:results', 'entities', __NAMESPACE__ . '\SearchHooks::searchEntities');
+		$hooks->registerHandler('search:results', 'combined:objects', __NAMESPACE__ . '\SearchHooks::searchEntities');
+		$hooks->registerHandler('search:results', 'combined:all', __NAMESPACE__ . '\SearchHooks::searchEntities');
+		
+		return $search_params;
+	}
+	
+	/**
 	 * Set some search options before doing actual search
 	 *
 	 * @param \Elgg\Hook $hook 'search:options', 'all'
@@ -340,12 +383,23 @@ class SearchHooks {
 		return true;
 	}
 	
+	/**
+	 * Get The Elasticsearch client for searches
+	 *
+	 * @param array $params search params
+	 *
+	 * @return false|\ColdTrick\ElasticSearch\Client
+	 */
 	protected static function getClientForHooks($params) {
-	
+		
 		if (!self::handleSearch()) {
 			return false;
 		}
-	
+		
+		if (self::detectUnsupportedSearchParams($params)) {
+			return false;
+		}
+		
 		$client = elasticsearch_get_client();
 		if (!$client) {
 			return false;
@@ -355,6 +409,29 @@ class SearchHooks {
 		$client->search_params->addEntityAccessFilter();
 	
 		return $client;
+	}
+	
+	/**
+	 * Check the search params for unsupported params
+	 *
+	 * @param array $params search params
+	 *
+	 * @return bool
+	 */
+	protected static function detectUnsupportedSearchParams(array $params) {
+		
+		$keys = [
+			'metadata_name_value_pair',
+			'metadata_name_value_pairs',
+		];
+		
+		foreach ($keys as $key) {
+			if (!empty($params[$key])) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	/**

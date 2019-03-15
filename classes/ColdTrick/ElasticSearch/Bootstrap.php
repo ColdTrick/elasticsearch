@@ -42,22 +42,10 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('view_vars', 'object/elements/imprint/contents', __NAMESPACE__ . '\Views::displaySearchScoreInImprint', 999);
 		
 		// search hooks
-		$hooks->registerHandler('search:fields', 'group', __NAMESPACE__ . '\SearchHooks::groupSearchFields');
-		$hooks->registerHandler('search:fields', 'object', __NAMESPACE__ . '\SearchHooks::objectSearchFields');
-		$hooks->registerHandler('search:fields', 'user', __NAMESPACE__ . '\SearchHooks::userSearchFields');
-		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFields', 999);
-		$hooks->registerHandler('search:fields', 'all', __NAMESPACE__ . '\SearchHooks::searchFieldsNameToTitle', 999);
-		
-		$hooks->registerHandler('search:options', 'all', __NAMESPACE__ . '\SearchHooks::searchOptions');
-		
-		$hooks->registerHandler('search:results', 'entities', __NAMESPACE__ . '\SearchHooks::searchEntities');
-		$hooks->registerHandler('search:results', 'combined:objects', __NAMESPACE__ . '\SearchHooks::searchEntities');
-		$hooks->registerHandler('search:results', 'combined:all', __NAMESPACE__ . '\SearchHooks::searchEntities');
+		$hooks->registerHandler('search:params', 'all', __NAMESPACE__ . '\SearchHooks::initSearchHooks');
 		
 		// menu hooks
 		$hooks->registerHandler('register', 'menu:search_list', __NAMESPACE__ . '\SearchHooks::registerSortMenu');
-		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::filterProfileFields');
-		$hooks->registerHandler('search_params', 'elasticsearch', __NAMESPACE__ . '\SearchHooks::sortByGroupMembersCount');
 		
 		// extend exportable values
 		$hooks->registerHandler('to:object', 'entity', __NAMESPACE__ . '\Export::entityToObject');
