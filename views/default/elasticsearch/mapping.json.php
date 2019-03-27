@@ -51,6 +51,14 @@ $dynamic_templates = [
 			]
 		],
 	],
+	[
+		'metadata_strings' => [
+			'path_match' => 'metadata.*',
+			'mapping' => [
+				'type' => 'string',
+			],
+		],
+	],
 ];
 
 $mapping = [
