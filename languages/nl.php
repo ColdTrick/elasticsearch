@@ -5,7 +5,7 @@
  */
 
 return array (
-  'elasticsearch:settings:ignore_ssl' => 'Schakel SSL verificatie uti',
+  'elasticsearch:settings:ignore_ssl' => 'Schakel SSL verificatie uit',
   'elasticsearch:settings:ignore_ssl:description' => 'Indien de host HTTPS gebruikt, maar dit gebeurt middels een self-signed certificaat kun je SSL verificatie uitschakelen middels deze instelling.',
   'elasticsearch:settings:search_score' => 'Toon zoekscore in resultaten',
   'elasticsearch:settings:search_score:description' => 'Toon de zoekresultaat score aan de beheerders in de zoekresultaten. Dit kan helpen bij het verklaren van de resultaat volgorde.',
