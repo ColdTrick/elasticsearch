@@ -78,6 +78,10 @@ class SearchHooks {
 			'metadata' => [],
 		];
 		
+		$ignored_metadata_names = [
+			'tags',
+		];
+		
 		$value = array_merge($defaults, $value);
 		if (empty($value['metadata'])) {
 			return;
@@ -87,6 +91,10 @@ class SearchHooks {
 		$user_tags = self::getUserProfileTagsFields();
 		if (!empty($user_tags)) {
 			foreach ($value['metadata'] as $index => $metadata_name) {
+				if (in_array($metadata_name, $ignored_metadata_names)) {
+					continue;
+				}
+				
 				if (!in_array($metadata_name, $user_tags)) {
 					continue;
 				}
@@ -99,6 +107,10 @@ class SearchHooks {
 		$group_tags = self::getGroupProfileTagsFields();
 		if (!empty($group_tags)) {
 			foreach ($value['metadata'] as $index => $metadata_name) {
+				if (in_array($metadata_name, $ignored_metadata_names)) {
+					continue;
+				}
+				
 				if (!in_array($metadata_name, $group_tags)) {
 					continue;
 				}
