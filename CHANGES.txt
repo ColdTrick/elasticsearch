@@ -1,6 +1,39 @@
 Version history
 ===============
 
+4.0 (2019-04-17):
+
+- added: decay time field selector
+- added: hooks for export and restoreof entity
+- added: likes and comments counters to export
+- added: plugin hook to prevent an entity from being indexed
+- added: plugin settings to disable SSL verification
+- added: plugin setting to display search score to admins
+- added: query field boosting support
+- added: support for aggregations
+- added: support for more elgg_get_entities options during search
+- changed: admin search using improved JS file
+- changed: increased minimal Elgg version requirement to 3.0
+- changed: indexing of entities now under 1 type
+- changed: moved start.php contents to elgg-plugin and Bootstrap
+- changed: search hook registration
+- changed: transform some Elgg metadata search fields to attributes
+- changed: use count API when needed
+- changed: WIP making search work again
+- fix: tags export always as lowercase strings
+- fixed: admin search js
+- fixed: correctly handle filters on count queries
+- fixed: correctly search through profile fields
+- fixed: dynamic mapping for metadata
+- fixed: incorrect database query
+- fixed: make sure tags are unique
+- fixed: metadata export
+- fixed: object search field cleaned up too much
+- fixed: php notice
+- removed: need for custom css
+- removed: unneeded code
+- removed: unneeded hook code
+
 3.6 (2019-01-24):
 
 - added: option to remove entity from index
