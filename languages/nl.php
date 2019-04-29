@@ -1,10 +1,11 @@
 <?php
 /**
- * This file was created by Translation Editor v6.1
- * On 2019-01-22 11:50
+ * This file was created by Translation Editor v7.0.2
+ * On 2019-04-29 12:05
  */
 
 return array (
+  'elasticsearch:settings:pattern:float' => 'Alleen getallen (0-9) en een punt (.) zijn toegestaan',
   'elasticsearch:settings:ignore_ssl' => 'Schakel SSL verificatie uit',
   'elasticsearch:settings:ignore_ssl:description' => 'Indien de host HTTPS gebruikt, maar dit gebeurt middels een self-signed certificaat kun je SSL verificatie uitschakelen middels deze instelling.',
   'elasticsearch:settings:search_score' => 'Toon zoekscore in resultaten',

@@ -18,6 +18,8 @@ return array(
 	'elasticsearch:error:alias_not_configured' => "No alias is configured in the plugin settings",
 	'elasticsearch:error:search' => "An error occured during your search operation. Please contact the site administrator if this problem persists.",
 	
+	'elasticsearch:settings:pattern:float' => "Only numbers (0-9) and period (.) are allowed",
+	
 	'elasticsearch:settings:host:header' => "ElasticSearch host settings",
 	'elasticsearch:settings:host' => "API host",
 	'elasticsearch:settings:host:description' => "You can configure multiple hosts by seperating them with a comma (,).",

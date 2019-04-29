@@ -122,6 +122,8 @@ if (!empty($types)) {
 			'#class' => 'man',
 			'name' => "params[{$setting_name}]",
 			'value' => $plugin->$setting_name,
+			'pattern' => '[0-9.]+',
+			'title' => elgg_echo('elasticsearch:settings:pattern:float'),
 		]));
 		
 		$rows[] = elgg_format_element('tr', [], implode(PHP_EOL, $row));
@@ -159,6 +161,8 @@ $decay .= elgg_view_field([
 	'#help' => elgg_echo('elasticsearch:settings:decay_decay:help'),
 	'name' => 'params[decay_decay]',
 	'value' => $plugin->decay_decay,
+	'pattern' => '[0-9.]+',
+	'title' => elgg_echo('elasticsearch:settings:pattern:float'),
 ]);
 
 $decay .= elgg_view_field([
