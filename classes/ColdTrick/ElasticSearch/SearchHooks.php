@@ -424,6 +424,8 @@ class SearchHooks {
 		$keys = [
 			'metadata_name_value_pair',
 			'metadata_name_value_pairs',
+			'relationship',
+			'relationship_guid',
 		];
 		
 		foreach ($keys as $key) {
