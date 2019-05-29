@@ -1,6 +1,10 @@
 Version history
 ===============
 
+4.0.1 (2019-05-29):
+
+- fixed: don't handle searches with relationship set
+
 4.0 (2019-04-17):
 
 - added: decay time field selector
