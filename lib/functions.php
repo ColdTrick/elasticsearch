@@ -305,6 +305,10 @@ function elasticsearch_get_documents_for_deletion() {
 	$locator = new \Elgg\EntityDirLocator($plugin->guid);
 	$documents_path = elgg_get_data_path() . $locator->getPath() . 'documents_for_deletion/';
 	
+	if (!is_dir($documents_path)) {
+		return [];
+	}
+	
 	try {
 		$dir = new DirectoryIterator($documents_path);
 	} catch (Exception $e) {
