@@ -27,6 +27,7 @@ class SearchHooks {
 		$search_params['_elasticsearch_supported'] = true;
 		
 		self::transformSearchParamFields($search_params);
+		self::transformSearchParamQueryInLivesearch($search_params);
 		
 		return $search_params;
 	}
@@ -76,6 +77,27 @@ class SearchHooks {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Add wildcard to livesearch queries to find more content
+	 *
+	 * @param array $search_params the search params
+	 *
+	 * @return void
+	 */
+	protected static function transformSearchParamQueryInLivesearch(array &$search_params) {
+		
+		if (!isset($search_params['query'])) {
+			return;
+		}
+		
+		$query = elgg_extract('query', $search_params);
+		$query = filter_var($query, FILTER_SANITIZE_STRING);
+		$query = trim($query);
+		$query = rtrim($query, '*');
+		
+		$search_params['query'] = $query . '*';
 	}
 	
 	/**
