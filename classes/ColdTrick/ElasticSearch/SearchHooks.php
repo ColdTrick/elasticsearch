@@ -26,7 +26,56 @@ class SearchHooks {
 		
 		$search_params['_elasticsearch_supported'] = true;
 		
+		self::transformSearchParamFields($search_params);
+		
 		return $search_params;
+	}
+	
+	/**
+	 * Transform provided search fields to the correct elasticsearch fields
+	 *
+	 * @param array $search_params the search params
+	 *
+	 * @return void
+	 */
+	protected static function transformSearchParamFields(array &$search_params) {
+		
+		if (!isset($search_params['fields'])) {
+			return;
+		}
+		
+		$metadata_should_be_attribute = [
+			'description',
+			'name',
+			'tags',
+			'title',
+			'username',
+		];
+		
+		foreach ($search_params['fields'] as $type => $fields) {
+			if ($type !== 'metadata') {
+				continue;
+			}
+			
+			if (!isset($search_params['fields']['attributes'])) {
+				$search_params['fields']['attributes'] = [];
+			}
+			
+			foreach ($fields as $index => $field) {
+				if (!in_array($field, $metadata_should_be_attribute)) {
+					continue;
+				}
+				
+				$search_params['fields']['attributes'][] = $field;
+				unset($search_params['fields']['metadata'][$index]);
+				
+				// add title alias for name
+				// @see self::searchFieldsNameToTitle()
+				if ($field === 'name') {
+					$search_params['fields']['attributes'][] = 'title';
+				}
+			}
+		}
 	}
 	
 	/**
@@ -372,10 +421,6 @@ class SearchHooks {
 	 * @return bool
 	 */
 	protected static function handleSearch() {
-		
-		if (elgg_in_context('livesearch')) {
-			return false;
-		}
 		
 		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
 			return false;
