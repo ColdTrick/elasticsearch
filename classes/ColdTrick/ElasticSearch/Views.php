@@ -34,4 +34,28 @@ class Views {
 		
 		return $result;
 	}
+	
+	/**
+	 * Allow search for banned users in livesearch as no banned users are indexed in Elasticsearch
+	 * and this prevents the addition of unsupported params which would prevent Elasticsearch from
+	 * providing the search results
+	 *
+	 * NOTE: Elasticsearch doesn't support searching for banned users as they aren't indexed
+	 *
+	 * @param \Elgg\Hook $hook 'view_vars', 'resources/livesearch/users'
+	 *
+	 * @return void|array
+	 */
+	public static function allowBannedUsers(\Elgg\Hook $hook) {
+		
+		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
+			return;
+		}
+		
+		$vars = $hook->getValue();
+		
+		$vars['include_banned'] = true;
+		
+		return $vars;
+	}
 }

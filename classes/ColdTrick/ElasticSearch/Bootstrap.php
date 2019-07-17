@@ -39,6 +39,7 @@ class Bootstrap extends DefaultPluginBootstrap {
 		$hooks->registerHandler('cron', 'minute', __NAMESPACE__ . '\Cron::minuteSync');
 		$hooks->registerHandler('cron', 'daily', __NAMESPACE__ . '\Cron::dailyCleanup');
 		$hooks->registerHandler('view_vars', 'object/elements/imprint/contents', __NAMESPACE__ . '\Views::displaySearchScoreInImprint', 999);
+		$hooks->registerHandler('view_vars', 'resources/livesearch/users', __NAMESPACE__ . '\Views::allowBannedUsers', 600);
 		
 		// search hooks
 		$hooks->registerHandler('search:params', 'all', __NAMESPACE__ . '\SearchHooks::searchParams');
