@@ -88,7 +88,7 @@ class SearchHooks {
 	 */
 	protected static function transformSearchParamQueryInLivesearch(array &$search_params) {
 		
-		if (!isset($search_params['query'])) {
+		if (!elgg_in_context('livesearch') || !isset($search_params['query'])) {
 			return;
 		}
 		
