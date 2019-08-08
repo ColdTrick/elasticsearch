@@ -7,30 +7,29 @@ class Export {
 	/**
 	 * Hook to adjust exportable values of basic entities for search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return \stdClass
 	 */
-	public static function entityToObject($hook, $type, $returnvalue, $params) {
+	public static function entityToObject(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 	
-		// add some extra values to be submitted to the search index
-		$returnvalue->last_action = date('c', $entity->last_action);
-		$returnvalue->access_id = $entity->access_id;
-		$returnvalue->indexed_type = self::getEntityIndexType($entity);
+		$return = $hook->getValue();
 		
-		return $returnvalue;
+		// add some extra values to be submitted to the search index
+		$return->last_action = date('c', $entity->last_action);
+		$return->access_id = $entity->access_id;
+		$return->indexed_type = self::getEntityIndexType($entity);
+		
+		return $return;
 	}
 	
 	/**
@@ -63,20 +62,17 @@ class Export {
 	/**
 	 * Hook to export entity metadata for search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return void
 	 */
-	public static function entityMetadataToObject($hook, $type, $returnvalue, $params) {
+	public static function entityMetadataToObject(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
-		$entity = elgg_extract('entity', $params);
+		$entity = $hook->getEntityParam();
 		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
@@ -99,13 +95,13 @@ class Export {
 				break;
 		}
 		
-		$metadata_names = elgg_trigger_plugin_hook('export:metadata_names', 'elasticsearch', $params, $defaults);
+		$metadata_names = elgg_trigger_plugin_hook('export:metadata_names', 'elasticsearch', $hook->getParams(), $defaults);
 		if (empty($metadata_names)) {
 			return;
 		}
 		
 		$metadata = elgg_get_metadata([
-			'guid' => $entity->getGUID(),
+			'guid' => $entity->guid,
 			'metadata_names' => $metadata_names,
 			'limit' => false,
 		]);
@@ -128,29 +124,27 @@ class Export {
 			$result[$data->name][] = $data->value;
 		}
 		
-		$returnvalue->metadata = $result;
+		$return = $hook->getValue();
+		$return->metadata = $result;
 		
-		return $returnvalue;
+		return $return;
 	}
 
 	/**
 	 * Hook to join user/group profile tag fields with tags
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return void
 	 */
-	public static function profileTagFieldsToTags($hook, $type, $returnvalue, $params) {
+	public static function profileTagFieldsToTags(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
@@ -184,8 +178,10 @@ class Export {
 			return;
 		}
 		
-		if (isset($returnvalue->tags)) {
-			$current_tags = (array) $returnvalue->tags;
+		$return = $hook->getValue();
+		
+		if (isset($return->tags)) {
+			$current_tags = (array) $return->tags;
 			$tags = array_merge($current_tags, $tags);
 		}
 		
@@ -197,69 +193,66 @@ class Export {
 		$tags = array_values($tags);
 		
 		// make them unique
-		$returnvalue->tags = $tags;
+		$return->tags = $tags;
 		
-		return $returnvalue;
+		return $return;
 	}
 
 	/**
 	 * Hook to export entity counters for search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return void
 	 */
-	public static function entityCountersToObject($hook, $type, $returnvalue, $params) {
+	public static function entityCountersToObject(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
-		$counters = elgg_trigger_plugin_hook('export:counters', 'elasticsearch', $params, []);
+		$counters = elgg_trigger_plugin_hook('export:counters', 'elasticsearch', $hook->getParams(), []);
 		if (empty($counters)) {
 			return;
 		}
 		
-		$returnvalue->counters = $counters;
+		$return = $hook->getValue();
 		
-		return $returnvalue;
+		$return->counters = $counters;
+		
+		return $return;
 	}
 	
 	/**
 	 * Hook to export relationship entities for search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return void
 	 */
-	public static function entityRelationshipsToObject($hook, $type, $returnvalue, $params) {
+	public static function entityRelationshipsToObject(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
 	
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 	
-		$relationships = get_entity_relationships($entity->getGUID());
+		$relationships = get_entity_relationships($entity->guid);
 		if (empty($relationships)) {
 			return;
 		}
 	
 		$result = [];
+		/* @var $relationship \ElggRelationship */
 		foreach ($relationships as $relationship) {
 			$result[] = [
 				'id' => (int) $relationship->id,
@@ -270,70 +263,64 @@ class Export {
 			];
 		}
 		
-		if (!isset($returnvalue->relationships)) {
-			$returnvalue->relationships = $result;
-		} elseif (is_array($returnvalue->relationships)) {
-			$returnvalue->relationships = array_merge($returnvalue->relationships, $result);
+		$return = $hook->getValue();
+		
+		if (!isset($return->relationships)) {
+			$return->relationships = $result;
+		} elseif (is_array($return->relationships)) {
+			$return->relationships = array_merge($return->relationships, $result);
 		}
 		
-		return $returnvalue;
+		return $return;
 	}
 	
 	/**
 	 * Hook to strip tags from selected entity fields
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:object', 'entity'
 	 *
 	 * @return void
 	 */
-	public static function stripTags($hook, $type, $returnvalue, $params) {
+	public static function stripTags(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('search:index')) {
 			return;
 		}
-	
+		
+		$return = $hook->getValue();
+		
 		$fields = ['title', 'name', 'description'];
 		
 		foreach ($fields as $field) {
 			
-			if (!isset($returnvalue->$field)) {
+			if (!isset($return->$field)) {
 				continue;
 			}
 			
-			$curval = $returnvalue->$field;
+			$curval = $return->$field;
 			if (empty($curval)) {
 				continue;
 			}
 			
 			$curval = html_entity_decode($curval, ENT_QUOTES, 'UTF-8');
 			
-			$returnvalue->$field = elgg_strip_tags($curval);
+			$return->$field = elgg_strip_tags($curval);
 		}
 		
-		return $returnvalue;
+		return $return;
 	}
 	
 	/**
 	 * Hook to extend the exportable metadata names
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param array  $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'export:metadata_names', 'elasticsearch'
 	 *
 	 * @return void|array
 	 */
-	public static function exportProfileMetadata($hook, $type, $returnvalue, $params) {
+	public static function exportProfileMetadata(\Elgg\Hook $hook) {
 		
-		if (!is_array($returnvalue)) {
-			return;
-		}
-		
-		$entity = elgg_extract('entity', $params);
-		if (!$entity) {
+		$entity = $hook->getEntityParam();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
@@ -350,8 +337,8 @@ class Export {
 		
 		$profile_fields = elgg_get_config($config_field);
 		$field_names = array_keys($profile_fields);
-				
-		return array_merge($returnvalue, $field_names);
+		
+		return array_merge($hook->getValue(), $field_names);
 	}
 	
 	/**

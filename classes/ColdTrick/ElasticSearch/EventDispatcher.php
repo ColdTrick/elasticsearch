@@ -7,13 +7,13 @@ class EventDispatcher {
 	/**
 	 * Listen to all create events and update Elasticsearch as needed
 	 *
-	 * @param string        $event  the name of the event
-	 * @param string        $type   the type of the event
-	 * @param \ElggExtender $object the affected content
+	 * @param \Elgg\Event $event 'create', 'all'
 	 *
 	 * @return void
 	 */
-	public static function create($event, $type, $object) {
+	public static function create(\Elgg\Event $event) {
+		
+		$object = $event->getObject();
 		if ($object instanceof \ElggRelationship) {
 			self::updateRelationship($object);
 		}
@@ -25,14 +25,13 @@ class EventDispatcher {
 	/**
 	 * Listen to all update events and update Elasticsearch as needed
 	 *
-	 * @param string        $event  the name of the event
-	 * @param string        $type   the type of the event
-	 * @param \ElggExtender $object the affected content
+	 * @param \Elgg\Event $event 'update', 'all'
 	 *
 	 * @return void
 	 */
-	public static function update($event, $type, $object) {
+	public static function update(\Elgg\Event $event) {
 		
+		$object = $event->getObject();
 		if ($object instanceof \ElggEntity) {
 			self::updateEntity($object);
 		}
@@ -44,13 +43,13 @@ class EventDispatcher {
 	/**
 	 * Listen to all delete events and update Elasticsearch as needed
 	 *
-	 * @param string        $event  the name of the event
-	 * @param string        $type   the type of the event
-	 * @param \ElggExtender $object the affected content
+	 * @param \Elgg\Event $event 'delete', 'all'
 	 *
 	 * @return void
 	 */
-	public static function delete($event, $type, $object) {
+	public static function delete(\Elgg\Event $event) {
+		
+		$object = $event->getObject();
 		
 		// ignore access during cleanup
 		elgg_call(ELGG_IGNORE_ACCESS, function() use ($object) {
@@ -69,14 +68,13 @@ class EventDispatcher {
 	/**
 	 * Listen to all disable events and update Elasticsearch as needed
 	 *
-	 * @param string        $event  the name of the event
-	 * @param string        $type   the type of the event
-	 * @param \ElggExtender $object the affected content
+	 * @param \Elgg\Event $event 'disable', 'all'
 	 *
 	 * @return void
 	 */
-	public static function disable($event, $type, $object) {
+	public static function disable(\Elgg\Event $event) {
 	
+		$object = $event->getObject();
 		if ($object instanceof \ElggEntity) {
 			self::disableEntity($object);
 		}
@@ -88,15 +86,14 @@ class EventDispatcher {
 	/**
 	 * Listen to ban user events and update Elasticsearch as needed
 	 *
-	 * @param string    $event the name of the event
-	 * @param string    $type  the type of the event
-	 * @param \ElggUser $user  the affected user
+	 * @param \Elgg\Event $event 'ban', 'user'
 	 *
 	 * @return void
 	 */
-	public static function banUser($event, $type, $user) {
+	public static function banUser(\Elgg\Event $event) {
 		
-		if (!($user instanceof \ElggUser)) {
+		$user = $event->getObject();
+		if (!$user instanceof \ElggUser) {
 			return;
 		}
 		
@@ -115,7 +112,7 @@ class EventDispatcher {
 	 * @return void
 	 */
 	protected static function updateEntityForAnnotation($annotation) {
-		if (!($annotation instanceof \ElggAnnotation)) {
+		if (!$annotation instanceof \ElggAnnotation) {
 			return;
 		}
 		
@@ -245,10 +242,6 @@ class EventDispatcher {
 	 * @return bool
 	 */
 	protected static function isSearchableEntity(\ElggEntity $entity) {
-		
-		if (empty($entity) || !($entity instanceof \ElggEntity)) {
-			return false;
-		}
 		
 		$type = $entity->getType();
 		$type_subtypes = elasticsearch_get_registered_entity_types();

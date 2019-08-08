@@ -2,6 +2,8 @@
 
 namespace ColdTrick\ElasticSearch;
 
+use Elgg\Menu\MenuItems;
+
 class SearchHooks {
 	
 	/**
@@ -534,14 +536,11 @@ class SearchHooks {
 	/**
 	 * Hook to add items to the search_list menu
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param string $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'register', 'menu:search_list'
 	 *
-	 * @return void
+	 * @return MenuItems
 	 */
-	public static function registerSortMenu($hook, $type, $returnvalue, $params) {
+	public static function registerSortMenu(\Elgg\Hook $hook) {
 		
 		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
 			return;
@@ -552,17 +551,19 @@ class SearchHooks {
 		
 		$current_sort = get_input('sort', 'relevance');
 		
+		$return = $hook->getValue();
+		
 		// sort parent menu
-		$returnvalue[] = \ElggMenuItem::factory([
+		$return[] = \ElggMenuItem::factory([
 			'name' => 'sort',
 			'text' => elgg_view_icon('eye'),
-			'href' => '#',
+			'href' => false,
 			'title' => $title
 		]);
 		
 		$items = ['relevance', 'alpha_az', 'alpha_za', 'newest', 'oldest'];
 		foreach ($items as $item) {
-			$returnvalue[] = \ElggMenuItem::factory([
+			$return[] = \ElggMenuItem::factory([
 				'name' => $item,
 				'text' => elgg_echo("elasticsearch:menu:search_list:sort:{$item}"),
 				'href' => elgg_http_add_url_query_elements($url, ['sort' => $item, 'order' => null, 'offset' => null]),
@@ -572,11 +573,11 @@ class SearchHooks {
 			]);
 		}
 		
-		$search_params = (array) elgg_extract('search_params', $params, []);
+		$search_params = (array) $hook->getParam('search_params', []);
 		$type = elgg_extract('type', $search_params);
 		switch ($type) {
 			case 'group':
-				$returnvalue[] = \ElggMenuItem::factory([
+				$return[] = \ElggMenuItem::factory([
 					'name' => 'members_count',
 					'text' => elgg_echo("elasticsearch:menu:search_list:sort:member_count"),
 					'href' => elgg_http_add_url_query_elements($url, ['sort' => 'member_count', 'order' => 'desc', 'offset' => null]),
@@ -586,8 +587,8 @@ class SearchHooks {
 				]);
 				break;
 		}
-				
-		return $returnvalue;
+		
+		return $return;
 	}
 		
 	/**
@@ -671,16 +672,13 @@ class SearchHooks {
 	/**
 	 * Hook to add profile field filters to search
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param Client $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'search_params', 'elasticsearch'
 	 *
 	 * @return void|Client
 	 */
-	public static function sortByGroupMembersCount($hook, $type, $returnvalue, $params) {
+	public static function sortByGroupMembersCount(\Elgg\Hook $hook) {
 		
-		$search_params = elgg_extract('search_params', $params);
+		$search_params = $hook->getParam('search_params');
 		
 		$sort = elgg_extract('sort', $search_params);
 		$order = elgg_extract('order', $search_params, 'desc');
@@ -693,25 +691,26 @@ class SearchHooks {
 			'missing' => '_last',
 			'unmapped_type' => 'long',
 		];
-		$returnvalue->search_params->addSort('counters.member_count', $sort_config);
-		$returnvalue->search_params->addSort('_score');
 		
-		return $returnvalue;
+		/* @var $return Client */
+		$return = $hook->getValue();
+		
+		$return->search_params->addSort('counters.member_count', $sort_config);
+		$return->search_params->addSort('_score');
+		
+		return $return;
 	}
 	
 	/**
 	 * Hook to transform a search result to an Elgg Entity
 	 *
-	 * @param string $hook        the name of the hook
-	 * @param string $type        the type of the hook
-	 * @param Client $returnvalue current return value
-	 * @param array  $params      supplied params
+	 * @param \Elgg\Hook $hook 'to:entity', 'elasticsearch'
 	 *
-	 * @return void|Client
+	 * @return void|false|\ElggEntity
 	 */
-	public static function sourceToEntity($hook, $type, $returnvalue, $params) {
+	public static function sourceToEntity(\Elgg\Hook $hook) {
 	
-		$hit = elgg_extract('hit', $params);
+		$hit = $hook->getParam('hit');
 		$index = elgg_extract('_index', $hit);
 		
 		$elgg_index = elgg_get_plugin_setting('index', 'elasticsearch');
@@ -739,12 +738,9 @@ class SearchHooks {
 		$row->enabled = 'yes';
 	
 		try {
-			$result = entity_row_to_elggstar($row);
+			return entity_row_to_elggstar($row);
 		} catch (\Exception $e) {
 			elgg_log($e->getMessage(), 'NOTICE');
-			return;
 		}
-	
-		return $result;
 	}
 }
