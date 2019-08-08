@@ -86,68 +86,68 @@ class Cron {
 		}
 		
 		set_time_limit(40);
-		$ia = elgg_set_ignore_access(true);
-		$time_left = true;
+		
 		$batch_size = 100;
 		
 		$options['limit'] = $batch_size;
 		
-		$mark_entity_done = function (\ElggEntity $entity) {
-			$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
-			$entity->invalidateCache();
-		};
-		
-		while ($time_left && ($entities = elgg_get_entities($options))) {
+		return elgg_call(ELGG_IGNORE_ACCESS, function() use ($options, $crontime, $client) {
+			$time_left = true;
 			
-			foreach ($entities as $index => $entity) {
-				$params = [
-					'entity' => $entity,
-				];
+			$mark_entity_done = function (\ElggEntity $entity) {
+				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
+				$entity->invalidateCache();
+			};
+			
+			while ($time_left && ($entities = elgg_get_entities($options))) {
 				
-				if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $params, false)) {
-					$mark_entity_done($entity);
+				foreach ($entities as $index => $entity) {
+					$params = [
+						'entity' => $entity,
+					];
 					
-					unset($entities[$index]);
-					continue;
+					if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $params, false)) {
+						$mark_entity_done($entity);
+						
+						unset($entities[$index]);
+						continue;
+					}
+				}
+				
+				$result = $client->bulkIndexDocuments($entities);
+				if (empty($result)) {
+					break;
+				}
+				
+				$items = elgg_extract('items', $result);
+				foreach ($items as $item) {
+					$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
+					$status = elgg_extract('status', elgg_extract('index', $item));
+					
+					if ($status !== 200) {
+						continue;
+					}
+					
+					if (empty($guid)) {
+						continue;
+					}
+					
+					$entity = get_entity($guid);
+					if (!$entity instanceof \ElggEntity) {
+						continue;
+					}
+					
+					$mark_entity_done($entity);
+				}
+				
+				if ((time() - $crontime) >= 30) {
+					$time_left = false;
+					break;
 				}
 			}
 			
-			$result = $client->bulkIndexDocuments($entities);
-			if (empty($result)) {
-				break;
-			}
-			
-			$items = elgg_extract('items', $result);
-			foreach ($items as $item) {
-				$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
-				$status = elgg_extract('status', elgg_extract('index', $item));
-				
-				if ($status !== 200) {
-					continue;
-				}
-				
-				if (empty($guid)) {
-					continue;
-				}
-				
-				$entity = get_entity($guid);
-				if (!$entity instanceof \ElggEntity) {
-					continue;
-				}
-				
-				$mark_entity_done($entity);
-			}
-			
-			if ((time() - $crontime) >= 30) {
-				$time_left = false;
-				break;
-			}
-		}
-		
-		// restore access
-		elgg_set_ignore_access($ia);
-		
-		return $time_left;
+			return $time_left;
+		});
 	}
 	
 	/**
@@ -224,73 +224,71 @@ class Cron {
 			'scroll' => '2m',
 		];
 		
-		$searchable_types = elasticsearch_get_registered_entity_types();
-		
-		// ignore Elgg access
-		$ia = elgg_set_ignore_access(true);
-		
 		try {
-			while ($result = $client->scroll($scroll_params)) {
-				// update scroll_id
-				$new_scroll_id = elgg_extract('_scroll_id', $result);
-				if (!empty($new_scroll_id)) {
-					$scroll_params['scroll_id'] = $new_scroll_id;
-				}
+			// ignore Elgg access
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($client, &$scroll_params, $search_params) {
 				
-				// process results
-				$search_result = new SearchResult($result, $search_params);
+				$searchable_types = elasticsearch_get_registered_entity_types();
 				
-				$elasticsearch_guids = $search_result->toGuids();
-				if (empty($elasticsearch_guids)) {
-					break;
-				}
-				
-				// only validate searchable types, so unregistered types get removed from the index
-				$elgg_guids = elgg_get_entities([
-					'type_subtype_pairs' => $searchable_types ?: null,
-					'guids' => $elasticsearch_guids,
-					'limit' => false,
-					'callback' => function ($row) {
-						return (int) $row->guid;
-					},
-					'wheres' => [
-						function (QueryBuilder $qb, $main_alias) {
-							// banned users should not be indexed
-							$md = $qb->joinMetadataTable($main_alias, 'guid', 'banned', 'left');
-							
-							return $qb->merge([
-								$qb->compare("{$main_alias}.type", '!=', 'user', ELGG_VALUE_STRING),
-								$qb->compare("{$md}.value", '=', 'no', ELGG_VALUE_STRING),
-							], 'OR');
+				while ($result = $client->scroll($scroll_params)) {
+					// update scroll_id
+					$new_scroll_id = elgg_extract('_scroll_id', $result);
+					if (!empty($new_scroll_id)) {
+						$scroll_params['scroll_id'] = $new_scroll_id;
+					}
+					
+					// process results
+					$search_result = new SearchResult($result, $search_params);
+					
+					$elasticsearch_guids = $search_result->toGuids();
+					if (empty($elasticsearch_guids)) {
+						break;
+					}
+					
+					// only validate searchable types, so unregistered types get removed from the index
+					$elgg_guids = elgg_get_entities([
+						'type_subtype_pairs' => $searchable_types ?: null,
+						'guids' => $elasticsearch_guids,
+						'limit' => false,
+						'callback' => function ($row) {
+							return (int) $row->guid;
 						},
-					],
-				]);
-				
-				$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
-				if (empty($guids_not_in_elgg)) {
-					continue;
-				}
-				
-				// remove all left over documents
-				foreach ($guids_not_in_elgg as $guid) {
-					
-					// need to get the hist from Elasticsearch to get the type, since it's not in Elgg anymore
-					$hit = $search_result->getHit($guid);
-					
-					elasticsearch_add_document_for_deletion($guid, [
-						'_index' => $client->getIndex(),
-						'_type' => elgg_extract('_type', $hit),
-						'_id' => $guid,
+						'wheres' => [
+							function (QueryBuilder $qb, $main_alias) {
+								// banned users should not be indexed
+								$md = $qb->joinMetadataTable($main_alias, 'guid', 'banned', 'left');
+								
+								return $qb->merge([
+									$qb->compare("{$main_alias}.type", '!=', 'user', ELGG_VALUE_STRING),
+									$qb->compare("{$md}.value", '=', 'no', ELGG_VALUE_STRING),
+								], 'OR');
+							},
+						],
 					]);
+					
+					$guids_not_in_elgg = array_diff($elasticsearch_guids, $elgg_guids);
+					if (empty($guids_not_in_elgg)) {
+						continue;
+					}
+					
+					// remove all left over documents
+					foreach ($guids_not_in_elgg as $guid) {
+						
+						// need to get the hist from Elasticsearch to get the type, since it's not in Elgg anymore
+						$hit = $search_result->getHit($guid);
+						
+						elasticsearch_add_document_for_deletion($guid, [
+							'_index' => $client->getIndex(),
+							'_type' => elgg_extract('_type', $hit),
+							'_id' => $guid,
+						]);
+					}
 				}
-			}
+			});
 		} catch (\Exception $e) {
 			// probably reached the end of the scroll
 			// elgg_log('Elasticsearch cleanup: ' . $e->getMessage(), 'ERROR');
 		}
-		
-		// restore access
-		elgg_set_ignore_access($ia);
 		
 		// clear scroll
 		try {
@@ -311,64 +309,61 @@ class Cron {
 		set_time_limit(0);
 		
 		// ignore access
-		$ia = elgg_set_ignore_access(true);
+		elgg_call(ELGG_IGNORE_ACCESS, function() {
 		
-		// find unindexed GUIDs
-		$guids = [];
-		$unindexed = [];
-		
-		$batch = new \ElggBatch('elgg_get_entities', [
-			'type_subtype_pairs' => elasticsearch_get_registered_entity_types_for_search(),
-			'limit' => false,
-			'private_setting_name_value_pairs' => [
-				'name' => ELASTICSEARCH_INDEXED_NAME,
-				'value' => 0,
-				'operand' => '>',
-			],
-			'callback' => function ($row) {
-				return (int) $row->guid;
-			},
-		]);
-			
-		foreach ($batch as $guid) {
-			$guids[] = $guid;
-			
-			if (count($guids) < 250) {
-				continue;
-			}
-			
-			$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
+			// find unindexed GUIDs
 			$guids = [];
-		}
-		
-		if (!empty($guids)) {
-			$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
-		}
-		
-		if (empty($unindexed)) {
-			// restore access
-			elgg_set_ignore_access($ia);
+			$unindexed = [];
 			
-			return;
-		}
-		
-		// reindex entities
-		// do this in chunks to prevent SQL-query limit hits
-		$chunks = array_chunk($unindexed, 250);
-		foreach ($chunks as $chunk) {
-			$reindex = new \ElggBatch('elgg_get_entities', [
-				'guids' => $chunk,
+			$batch = elgg_get_entities([
+				'type_subtype_pairs' => elasticsearch_get_registered_entity_types_for_search(),
 				'limit' => false,
+				'batch' => true,
+				'private_setting_name_value_pairs' => [
+					'name' => ELASTICSEARCH_INDEXED_NAME,
+					'value' => 0,
+					'operand' => '>',
+				],
+				'callback' => function ($row) {
+					return (int) $row->guid;
+				},
 			]);
-			/* @var $entity \ElggEntity */
-			foreach ($reindex as $entity) {
-				// mark for reindex
-				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
+			
+			foreach ($batch as $guid) {
+				$guids[] = $guid;
+				
+				if (count($guids) < 250) {
+					continue;
+				}
+				
+				$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
+				$guids = [];
 			}
-		}
-		
-		// restore access
-		elgg_set_ignore_access($ia);
+			
+			if (!empty($guids)) {
+				$unindexed = array_merge($unindexed, self::findUnindexedGUIDs($guids));
+			}
+			
+			if (empty($unindexed)) {
+				return;
+			}
+			
+			// reindex entities
+			// do this in chunks to prevent SQL-query limit hits
+			$chunks = array_chunk($unindexed, 250);
+			foreach ($chunks as $chunk) {
+				$reindex = elgg_get_entities([
+					'guids' => $chunk,
+					'limit' => false,
+					'batch' => true,
+				]);
+				/* @var $entity \ElggEntity */
+				foreach ($reindex as $entity) {
+					// mark for reindex
+					$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, 0);
+				}
+			}
+		});
 	}
 	
 	/**
