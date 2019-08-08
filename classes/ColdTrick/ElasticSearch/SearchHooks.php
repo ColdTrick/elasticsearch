@@ -363,6 +363,11 @@ class SearchHooks {
 		return $value;
 	}
 	
+	/**
+	 * Get all configured tag fields for users
+	 *
+	 * @return string[]
+	 */
 	protected static function getUserProfileTagsFields() {
 		
 		$fields = elgg_get_config('profile_fields');
@@ -382,6 +387,11 @@ class SearchHooks {
 		return $result;
 	}
 	
+	/**
+	 * Get all configured tag fields for groups
+	 *
+	 * @return string[]
+	 */
 	protected static function getGroupProfileTagsFields() {
 		
 		$fields = elgg_get_config('group');

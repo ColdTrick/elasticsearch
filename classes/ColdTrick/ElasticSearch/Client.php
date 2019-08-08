@@ -49,6 +49,10 @@ class Client extends \Elasticsearch\Client {
 		parent::__construct($params);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Elasticsearch\Client::search()
+	 */
 	public function search($params = array()) {
 		
 		if (!isset($params['index'])) {
@@ -65,6 +69,10 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Elasticsearch\Client::suggest()
+	 */
 	public function suggest($params = []) {
 		if (!isset($params['index'])) {
 			$params['index'] = $this->getSearchIndex();
@@ -80,6 +88,10 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see \Elasticsearch\Client::count()
+	 */
 	public function count($params = []) {
 		if (!isset($params['index'])) {
 			$params['index'] = $this->getSearchIndex();
@@ -95,6 +107,13 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
+	/**
+	 * Add an entity to the elasticsearch index
+	 *
+	 * @param int $guid the GUID of the entity to index
+	 *
+	 * @return false|array
+	 */
 	public function indexDocument($guid) {
 		
 		$entity = get_entity($guid);
@@ -117,6 +136,13 @@ class Client extends \Elasticsearch\Client {
 		}
 	}
 	
+	/**
+	 * Bulk index entities
+	 *
+	 * @param \ElggEntity[] $entities entities to index
+	 *
+	 * @return bool|array|void
+	 */
 	public function bulkIndexDocuments($entities = []) {
 		if (!is_array($entities)) {
 			return false;
@@ -210,10 +236,20 @@ class Client extends \Elasticsearch\Client {
 		
 	}
 	
+	/**
+	 * Get the default idex
+	 *
+	 * @return string
+	 */
 	public function getIndex() {
 		return $this->default_index;
 	}
 	
+	/**
+	 * Get the search index (alias)
+	 *
+	 * @return string
+	 */
 	public function getSearchIndex() {
 		if ($this->search_alias) {
 			return $this->search_alias;
@@ -221,7 +257,14 @@ class Client extends \Elasticsearch\Client {
 		
 		return $this->default_index;
 	}
-		
+	
+	/**
+	 * Get default indexing settings for an entity
+	 *
+	 * @param \ElggEntity $entity entity
+	 *
+	 * @return array
+	 */
 	protected function getDefaultDocumentParams(\ElggEntity $entity) {
 		return [
 			'id' => $entity->guid,
@@ -230,6 +273,13 @@ class Client extends \Elasticsearch\Client {
 		];
 	}
 	
+	/**
+	 * Get body (data) for indexing of an entity
+	 *
+	 * @param \ElggEntity $entity entity
+	 *
+	 * @return array
+	 */
 	protected function getBodyFromEntity(\ElggEntity $entity) {
 		
 		elgg_push_context('search:index');
@@ -239,6 +289,13 @@ class Client extends \Elasticsearch\Client {
 		return $result;
 	}
 	
+	/**
+	 * Log errors
+	 *
+	 * @param \Exception $e exception
+	 *
+	 * @return void
+	 */
 	protected function registerErrorForException(\Exception $e) {
 		$message = $e->getMessage();
 		
@@ -252,6 +309,14 @@ class Client extends \Elasticsearch\Client {
 		register_error(elgg_echo('elasticsearch:error:search'));
 	}
 	
+	/**
+	 * Log the current request to developers log
+	 *
+	 * @param array $params  search params
+	 * @param string $action action name (search, count, etc)
+	 *
+	 * @return void
+	 */
 	protected function requestToScreen($params, $action = '') {
 		
 		$cache = elgg_get_config('log_cache');
@@ -269,18 +334,42 @@ class Client extends \Elasticsearch\Client {
 		elgg_log($msg, 'NOTICE');
 	}
 	
+	/**
+	 * Set suggestions from search result
+	 *
+	 * @param array $data suggestions
+	 *
+	 * @return void
+	 */
 	public function setSuggestions($data) {
 		$this->suggestions = $data;
 	}
 	
+	/**
+	 * Get suggestions from search
+	 *
+	 * @return array
+	 */
 	public function getSuggestions() {
 		return $this->suggestions;
 	}
 	
+	/**
+	 * Set aggregations from search  result
+	 *
+	 * @param array $data
+	 *
+	 * @return void
+	 */
 	public function setAggregations($data) {
 		$this->aggregations = $data;
 	}
 	
+	/**
+	 * Get aggregations from search result
+	 *
+	 * @return array
+	 */
 	public function getAggregations() {
 		return $this->aggregations;
 	}

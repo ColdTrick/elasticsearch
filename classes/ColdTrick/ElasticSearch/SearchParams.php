@@ -32,6 +32,13 @@ class SearchParams {
 		$this->params = [];
 	}
 	
+	/**
+	 * Build body for elasticsearch client
+	 *
+	 * @param bool $count result should be a count (default: false)
+	 *
+	 * @return array
+	 */
 	protected function getBody($count = false) {
 		$result = [];
 		
@@ -262,46 +269,117 @@ class SearchParams {
 		$this->params['index'] = $index;
 	}
 	
+	/**
+	 * Add filter to search params
+	 *
+	 * @param array $filter new filter
+	 *
+	 * @return void
+	 */
 	public function addFilter($filter) {
 		$this->params['filter'] = array_merge_recursive($this->getParam('filter', []), $filter);
 	}
 	
+	/**
+	 * Set filter for search params
+	 *
+	 * @param array $filter new filter
+	 *
+	 * @return void
+	 */
 	public function setFilter($filter) {
 		$this->params['filter'] = $filter;
 	}
 	
+	/**
+	 * Get filter for search
+	 *
+	 * @return mixed
+	 */
 	public function getFilter() {
 		return $this->getParam('filter');
 	}
 
+	/**
+	 * Add no match filter to search params
+	 *
+	 * @param array $filter new filter
+	 *
+	 * @return void
+	 */
 	public function addNoMatchFilter($filter) {
 		$this->params['no_match_filter'] = array_merge_recursive($this->getParam('no_match_filter', []), $filter);
 	}
 	
+	/**
+	 * Set no match filter for search params
+	 *
+	 * @param array $filter new filter
+	 *
+	 * @return void
+	 */
 	public function setNoMatchFilter($filter) {
 		$this->params['no_match_filter'] = $filter;
 	}
 	
+	/**
+	 * Get no match filter for search
+	 *
+	 * @return mixed
+	 */
 	public function getNoMatchFilter() {
 		return $this->getParam('no_match_filter');
 	}
-		
+	
+	/**
+	 * Add query to search params
+	 *
+	 * @param array $query new query
+	 *
+	 * @return void
+	 */
 	public function addQuery($query = []) {
 		$this->params['query'] = array_merge_recursive($this->getParam('query', []), $query);
 	}
 
+	/**
+	 * Set query for search params
+	 *
+	 * @param array $query new query
+	 *
+	 * @return void
+	 */
 	public function setQuery($query = []) {
 		$this->params['query'] = $query;
 	}
 
+	/**
+	 * Get query for search
+	 *
+	 * @return mixed
+	 */
 	public function getQuery() {
 		return $this->getParam('query');
 	}
 	
+	/**
+	 * Track search scores
+	 *
+	 * @param bool $track_scores should scored be tracked
+	 *
+	 * @return void
+	 */
 	public function trackScores($track_scores = true) {
 		$this->params['track_scores'] = $track_scores;
 	}
 	
+	/**
+	 * Set sorting params for search
+	 *
+	 * @param array $sort sorting
+	 *
+	 * @return void
+	 */
 	public function setSort($sort = []) {
 		$this->params['sort'] = $sort;
 	}
@@ -311,6 +389,8 @@ class SearchParams {
 	 *
 	 * @param string $field       name of the field to sort on
 	 * @param array  $sort_config configuration of the sort (like order)
+	 *
+	 * @return void
 	 */
 	public function addSort($field, $sort_config = []) {
 		if (empty($field)) {
@@ -332,27 +412,68 @@ class SearchParams {
 		$this->params['sort'][$field] = $sort_config;
 	}
 	
+	/**
+	 * Get sorting params for search
+	 *
+	 * @return mixed
+	 */
 	public function getSort() {
 		return $this->getParam('sort');
 	}
 	
+	/**
+	 * Set limit on search results
+	 *
+	 * @param int $size
+	 *
+	 * @return void
+	 */
 	public function setSize($size) {
 		$this->params['size'] = (int) $size;
-		
 	}
 	
+	/**
+	 * Set limit on search results
+	 *
+	 * @param int $size
+	 *
+	 * @return void
+	 * @see self::setSize()
+	 */
 	public function setLimit($limit) {
 		$this->setSize($limit);
 	}
 	
+	/**
+	 * Set offset for search
+	 *
+	 * @param int $from offset
+	 *
+	 * @return void
+	 */
 	public function setFrom($from) {
 		$this->params['from'] = (int) $from;
 	}
 	
+	/**
+	 * Set offset for search
+	 *
+	 * @param int $from offset
+	 *
+	 * @return void
+	 * @see self::setFrom()
+	 */
 	public function setOffset($offset) {
 		$this->setFrom($offset);
 	}
 	
+	/**
+	 * Set suggestion params for search
+	 *
+	 * @param string $query search query
+	 *
+	 * @return void
+	 */
 	public function setSuggestion($query) {
 		if (empty($query)) {
 			unset($this->params['suggest']);
@@ -360,14 +481,21 @@ class SearchParams {
 		
 		$this->params['suggest']['text'] = $query;
 		$this->params['suggest']['suggestions']['phrase'] = [
-			"field" => "_all",
-			"direct_generator" => [[
-				"field" => "_all",
-				"suggest_mode" => "missing",
+			'field' => '_all',
+			'direct_generator' => [[
+				'field' => '_all',
+				'suggest_mode' => 'missing',
 			]],
 		];
 	}
 
+	/**
+	 * Set highlight settings
+	 *
+	 * @param array $data highlight settings
+	 *
+	 * @return void
+	 */
 	public function setHighlight($data) {
 	
 		if (empty($data)) {
@@ -378,10 +506,22 @@ class SearchParams {
 		$this->params['highlight'] = $data;
 	}
 	
+	/**
+	 * Gte highlight settings
+	 *
+	 * @return mixed
+	 */
 	public function getHighlight() {
 		return $this->getParam('highlight', []);
 	}
 	
+	/**
+	 * Add access filters
+	 *
+	 * @param int $user_guid user guid to set filter for (default: current users)
+	 *
+	 * @return void
+	 */
 	public function addEntityAccessFilter($user_guid = 0) {
 		$user_guid = sanitise_int($user_guid, false);
 		
@@ -414,10 +554,22 @@ class SearchParams {
 		$this->addFilter($filter);
 	}
 	
+	/**
+	 * Get search params
+	 *
+	 * @return array
+	 */
 	public function getParams() {
 		return $this->params;
 	}
 	
+	/**
+	 * Set aggregation search params
+	 *
+	 * @param array $aggregation aggregation
+	 *
+	 * @return void
+	 */
 	public function setAggregation($aggregation) {
 		if (empty($aggregation)) {
 			unset($this->params['aggregation']);
@@ -427,10 +579,22 @@ class SearchParams {
 		$this->params['aggregation'] = $aggregation;
 	}
 	
+	/**
+	 * Add aggregation to search params
+	 *
+	 * @param array $aggregation aggregation
+	 *
+	 * @return void
+	 */
 	public function addAggregation($aggregation) {
 		$this->params['aggregation'] = array_merge_recursive($this->getParam('aggregation', []), $aggregation);
 	}
 	
+	/**
+	 * Get aggregation search params
+	 *
+	 * @return mixed
+	 */
 	public function getAggregation() {
 		return $this->getParam('aggregation');
 	}

@@ -4,6 +4,7 @@ namespace ColdTrick\ElasticSearch;
 
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Processor\IntrospectionProcessor;
+use Monolog\Handler\HandlerInterface;
 
 /**
  * Custom Logger class that writes to dataroot

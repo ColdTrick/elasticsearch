@@ -1,9 +1,17 @@
 <?php
+
 namespace ColdTrick\ElasticSearch;
 
 class SearchResult {
 	
+	/**
+	 * @var array
+	 */
 	protected $result;
+	
+	/**
+	 * @var array
+	 */
 	protected $search_params;
 	
 	public function __construct($result = [], $search_params) {
@@ -11,10 +19,20 @@ class SearchResult {
 		$this->search_params = $search_params;
 	}
 	
+	/**
+	 * Get search results
+	 *
+	 * @return array
+	 */
 	public function getResult() {
 		return $this->result;
 	}
 	
+	/**
+	 * Get search result count
+	 *
+	 * @return int
+	 */
 	public function getCount() {
 		
 		$hits = elgg_extract('hits', $this->result);
@@ -25,6 +43,11 @@ class SearchResult {
 		return elgg_extract('count', $this->result, 0);
 	}
 	
+	/**
+	 * Get search hits
+	 *
+	 * @return array
+	 */
 	public function getHits() {
 		$hits = elgg_extract('hits', $this->result, []);
 		
@@ -55,14 +78,31 @@ class SearchResult {
 		return false;
 	}
 	
+	/**
+	 * Get search suggestions
+	 *
+	 * @return array
+	 */
 	public function getSuggestions() {
 		return elgg_extract('suggest', $this->result);
 	}
 	
+	/**
+	 * Get aggregations
+	 *
+	 * @return array
+	 */
 	public function getAggregations() {
 		return elgg_extract('aggregations', $this->result);
 	}
 	
+	/**
+	 * Convert search results to entities
+	 *
+	 * @param array $params additional params
+	 *
+	 * @return \ElggEntity[]
+	 */
 	public function toEntities($params) {
 		
 		$hits = $this->getHits();
