@@ -107,7 +107,7 @@ class SearchResult {
 		
 		$hits = $this->getHits();
 		
-		if (!$hits) {
+		if (empty($hits)) {
 			return [];
 		}
 		
@@ -187,7 +187,7 @@ class SearchResult {
 	public function toGuids() {
 		
 		$hits = $this->getHits();
-		if (!$hits) {
+		if (empty($hits)) {
 			return [];
 		}
 		

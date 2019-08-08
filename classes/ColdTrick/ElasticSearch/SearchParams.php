@@ -424,7 +424,7 @@ class SearchParams {
 	/**
 	 * Set limit on search results
 	 *
-	 * @param int $size
+	 * @param int $size limit
 	 *
 	 * @return void
 	 */
@@ -435,7 +435,7 @@ class SearchParams {
 	/**
 	 * Set limit on search results
 	 *
-	 * @param int $size
+	 * @param int $limit limit
 	 *
 	 * @return void
 	 * @see self::setSize()
@@ -458,7 +458,7 @@ class SearchParams {
 	/**
 	 * Set offset for search
 	 *
-	 * @param int $from offset
+	 * @param int $offset offset
 	 *
 	 * @return void
 	 * @see self::setFrom()
