@@ -1,6 +1,6 @@
 # Elasticsearch
 
-![Elgg 3.0](https://img.shields.io/badge/Elgg-3.0-green.svg)
+![Elgg 3.2](https://img.shields.io/badge/Elgg-3.2-green.svg)
 [![Build Status](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/coldtrick/elasticsearch/v/stable.svg)](https://packagist.org/packages/coldtrick/elasticsearch)
