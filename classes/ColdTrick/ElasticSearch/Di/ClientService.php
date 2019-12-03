@@ -52,8 +52,10 @@ class ClientService {
 		try {
 			$this->client = ClientBuilder::fromConfig($config);
 		} catch (\Elasticsearch\Common\Exceptions\RuntimeException $e) {
-			elgg()->logger;
+			$this->logger->error($e);
 		}
+		
+		return $this->client;
 	}
 	
 	/**
