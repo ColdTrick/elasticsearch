@@ -10,7 +10,7 @@
 	},
 	"require": {
 		"composer/installers": "^1.0.8",
-		"elasticsearch/elasticsearch": "^1.0"
+		"elasticsearch/elasticsearch": "~7.4.0"
 	},
 	"require-dev": {
 		"coldtrick/sniffs": "dev-master",

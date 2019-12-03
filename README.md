@@ -1,6 +1,7 @@
 # Elasticsearch
 
 ![Elgg 3.2](https://img.shields.io/badge/Elgg-3.2-green.svg)
+![ElasticSearch 7.4](https://img.shields.io/badge/ElasticSearch-7.4-green.svg)
 [![Build Status](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/build.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/ColdTrick/elasticsearch/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/coldtrick/elasticsearch/v/stable.svg)](https://packagist.org/packages/coldtrick/elasticsearch)
@@ -11,6 +12,8 @@ An Elasticsearch implementation for Elgg
 ## Requirements
 
 A working [ElasticSearch](https://www.elastic.co/) server is required. Also the minute cron has to be working on your Elgg installation. The minute cron is used to update the index with all the required changes (create/update/delete).
+
+The current supported version of ElasticSearch is: 7.4.x
 
 ## Configuration
 
