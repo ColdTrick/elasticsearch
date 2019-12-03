@@ -1,6 +1,7 @@
 <?php
 
 use ColdTrick\ElasticSearch\Bootstrap;
+use ColdTrick\ElasticSearch\Upgrades\RemoveLogs;
 
 define('ELASTICSEARCH_INDEXED_NAME', 'elasticsearch_last_indexed');
 
@@ -35,5 +36,8 @@ return [
 		'cron_validate' => 'no',
 		'ignore_ssl' => 0,
 		'decay_time_field' => 'time_created',
+	],
+	'upgrades' => [
+		RemoveLogs::class,
 	],
 ];

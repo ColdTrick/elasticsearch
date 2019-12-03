@@ -39,7 +39,8 @@ The index management page (found under Administer -> ElasticSearch -> Indices in
 
 ### Log files
 
-Based on the log level of your Elgg site, there will also be logging of the Elastic Search PHP client library. Log messages will be written to a file. For every day there will be a file. You can view them on the Administer -> ElasticSearch -> Logging page.
+Based on the log level of your Elgg site, there will also be logging of the ElasticSearch PHP client library. 
+Logging will appear in the same location as all other Elgg logs.
 
 ### Statistics
 

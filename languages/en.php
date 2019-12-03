@@ -4,9 +4,11 @@ return array(
 	'admin:elasticsearch' => "ElasticSearch",
 	'admin:elasticsearch:statistics' => "Statistics",
 	'admin:elasticsearch:search' => "Search",
-	'admin:elasticsearch:logging' => "Logging",
 	'admin:elasticsearch:indices' => "Indices",
 	'admin:elasticsearch:inspect' => "Inspect",
+	
+	'elasticsearch:upgrade:2019120300:title' => "Remove Elasticsearch logs",
+	'elasticsearch:upgrade:2019120300:description' => "Removes all the old style log files. As logging is handled differently",
 	
 	'elasticsearch:admin_search:results' => "Search Results",
 	'elasticsearch:admin_search:results:info' => "Results will be shown here",
@@ -82,9 +84,6 @@ return array(
 	'elasticsearch:stats:elgg:reindex:last_ts' => "Current time to be used to compare if reindex is needed: %s",
 	'elasticsearch:stats:elgg:delete' => "Content waiting to be deleted",
 	
-	'elasticsearch:logging:description' => "Here you can find logging of the ElasticSearch API interface. Logfiles are seperated by year, month and day.",
-	'elasticsearch:logging:root' => "Logging root",
-
 	'elasticsearch:indices:index' => "Index",
 	'elasticsearch:indices:alias' => "Alias",
 	'elasticsearch:indices:create' => "Create",

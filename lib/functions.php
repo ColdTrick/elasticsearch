@@ -37,8 +37,6 @@ function elasticsearch_get_client() {
 	array_walk($hosts, 'elasticsearch_cleanup_host');
 	
 	$params['hosts'] = $hosts;
-	$params['logging'] = true;
-	$params['logObject'] = new ColdTrick\ElasticSearch\DatarootLogger('log');
 	
 	// check SSL setting
 	if ((int) elgg_get_plugin_setting('ignore_ssl', 'elasticsearch')) {

@@ -11,9 +11,6 @@ class Bootstrap extends DefaultPluginBootstrap {
 	 */
 	public function init() {
 		
-		// ajax views
-		elgg_register_ajax_view('elasticsearch/logging/view');
-		
 		// view extends
 		elgg_extend_view('admin.css', 'elasticsearch/admin.css');
 		
