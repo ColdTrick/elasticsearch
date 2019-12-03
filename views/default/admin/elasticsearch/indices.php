@@ -1,20 +1,16 @@
 <?php
 
-$client = elasticsearch_get_client();
-if (empty($client)) {
+use ColdTrick\ElasticSearch\Di\ClientService;
+
+$service = ClientService::instance();
+
+if (!$service->isClientReady()) {
 	echo elgg_echo('elasticsearch:error:no_client');
 	return;
 }
 
 // check if server is up
-$alive = false;
-try {
-	$alive = $client->ping();
-} catch (Exception $e) {
-	
-}
-
-if (!$alive) {
+if (!$service->ping()) {
 	echo elgg_echo('elasticsearch:error:host_unavailable');
 	return;
 }
@@ -23,30 +19,25 @@ $elgg_index = elgg_get_plugin_setting('index', 'elasticsearch');
 $search_alias = elgg_get_plugin_setting('search_alias', 'elasticsearch');
 $elgg_index_found = false;
 
-try {
-	$status = $client->indices()->status();
-} catch (Exception $e){}
-
-$indices = elgg_extract('indices', $status);
+$indices = $service->getIndexStatus();
 
 echo '<table class="elgg-table">';
 
 echo '<thead>';
 echo '<tr>';
-echo '<th>' . elgg_echo('elasticsearch:indices:index') . '</th>';
-echo '<th class="center">' . elgg_echo('elasticsearch:indices:create') . '</th>';
-echo '<th class="center">' . elgg_echo('elasticsearch:indices:add_mappings') . '</th>';
-echo '<th class="center">' . elgg_echo('elasticsearch:indices:alias') . '</th>';
-echo '<th class="center">' . elgg_echo('delete') . '</th>';
-echo '<th class="center">' . elgg_echo('elasticsearch:indices:optimize') . '</th>';
-echo '<th class="center">' . elgg_echo('elasticsearch:indices:flush') . '</th>';
+echo elgg_format_element('th', [], elgg_echo('elasticsearch:indices:index'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:create'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:add_mappings'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:alias'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('delete'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:flush'));
 echo '</tr>';
 echo '</thead>';
 
-
-echo '<tbody>'; // begin content
-
+// begin content
+$rows = [];
 foreach ($indices as $name => $status) {
+	$cells = [];
 	$current = false;
 	$alias_configured = false;
 	
@@ -55,101 +46,105 @@ foreach ($indices as $name => $status) {
 		$current = true;
 	}
 	
-	if (!empty($search_alias) && $client->indices()->existsAlias(['index' => $name, 'name' => $search_alias])) {
+	if (!empty($search_alias) && $service->indexHasAlias($name, $search_alias)) {
 		$alias_configured = true;
 	}
 	
-	echo '<tr>';
+	// index name
+	$output_name = $name;
 	if ($current) {
-		echo '<td><b>' . $name . '</b></td>';
-	} else {
-		echo '<td>' . $name . '</td>';
+		$output_name = elgg_format_element('strong', [], $output_name);
 	}
+	
+	$cells[] = elgg_format_element('td', [], $output_name);
+	
 	// create
-	echo '<td>&nbsp;</td>';
+	$cells[] = elgg_format_element('td', ['class' => 'center'], '&nbsp;');
 	
 	// add mappings
+	$mapping = '&nbsp;';
 	if ($current) {
-		echo '<td class="center">' . elgg_view('output/url', [
-			'text' => elgg_view_icon('round-plus'),
+		$mapping = elgg_view('output/url', [
+			'icon' => 'round-plus',
+			'text' => false,
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'add_mappings',
 				'index' => $name,
 			]),
 			'confirm' => true,
-		]) . '</td>';
-	} else {
-		echo '<td>&nbsp;</td>';
+		]);
 	}
 	
+	$cells[] = elgg_format_element('td', ['class' => 'center'], $mapping);
+	
 	// add alias
+	$alias = '&nbsp;';
 	if (!empty($search_alias) && !$alias_configured) {
-		echo '<td class="center">' . elgg_view('output/url', [
-			'text' => elgg_view_icon('round-plus'),
+		$alias = elgg_view('output/url', [
+			'icon' => 'round-plus',
+			'text' => false,
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'add_alias',
 				'index' => $name,
 			]),
 			'confirm' => true,
-		]) . '</td>';
+		]);
 	} elseif (!empty($search_alias) && $alias_configured) {
-		echo '<td class="center">' . elgg_view('output/url', [
-			'text' => elgg_view_icon('delete-alt'),
+		$alias = elgg_view('output/url', [
+			'icon' => 'delete-alt',
+			'text' => false,
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'delete_alias',
 				'index' => $name,
 			]),
 			'confirm' => true,
-		]) . '</td>';
-	} else {
-		echo '<td>&nbsp;</td>';
+		]);
 	}
+	
+	$cells[] = elgg_format_element('td', ['class' => 'center'], $alias);
+	
 	// delete
-	echo '<td class="center">' . elgg_view('output/url', [
-		'text' => elgg_view_icon('delete-alt'),
+	$cells[] = elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
+		'icon' => 'delete-alt',
+		'text' => false,
 		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 			'task' => 'delete',
 			'index' => $name,
 		]),
 		'confirm' => true,
-	]) . '</td>';
-	// optimize
-	echo '<td class="center">' . elgg_view('output/url', [
-		'text' => elgg_view_icon('refresh'),
-		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
-			'task' => 'optimize',
-			'index' => $name,
-		]),
-		'confirm' => true,
-	]) . '</td>';
+	]));
+	
 	// flush
-	echo '<td class="center">' . elgg_view('output/url', [
-		'text' => elgg_view_icon('round-checkmark'),
+	$cells[] = elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
+		'icon' => 'round-checkmark',
+		'text' => false,
 		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 			'task' => 'flush',
 			'index' => $name,
 		]),
 		'confirm' => true,
-	]) . '</td>';
+	]));
 	
-	echo '</tr>';
+	$rows[] = elgg_format_element('tr', [], implode(PHP_EOL, $cells));
 }
 
-echo '</tbody>'; // end content
+echo elgg_format_element('tbody', [], implode(PHP_EOL, $rows));
+// end content
 
 if (!$elgg_index_found) {
 	echo '<tfoot>';
 	echo '<tr>';
-	echo '<td><b>' . $elgg_index . '</b></td>';
-	echo '<td class="center">' . elgg_view('output/url', [
-		'text' => elgg_view_icon('round-plus'),
+	echo elgg_format_element('td', [], elgg_format_element('strong', [], $elgg_index));
+	echo elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
+		'icon' => 'round-plus',
+		'text' => false,
 		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 			'task' => 'create',
 			'index' => $elgg_index,
 		]),
 		'confirm' => true,
-	]) . '</td>';
-	echo '<td colspan="5">&nbsp;</td>';
+	]));
+	echo elgg_format_element('td', ['class' => 'center', 'colspan' => 5], '&nbsp;');
 	echo '</tr>';
 	echo '</tfoot>';
 }

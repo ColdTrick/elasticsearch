@@ -88,7 +88,6 @@ return array(
 	'elasticsearch:indices:alias' => "Alias",
 	'elasticsearch:indices:create' => "Create",
 	'elasticsearch:indices:add_mappings' => "Add mappings",
-	'elasticsearch:indices:optimize' => "Optimize",
 	'elasticsearch:indices:flush' => "Flush",
 	
 	'elasticsearch:inspect:guid' => "Please enter the GUID of the entity you wish to inspect",
@@ -120,7 +119,6 @@ return array(
 	
 	// actions
 	'elasticsearch:action:admin:index_management:error:flush' => "An error occured during the flush of the index: %s",
-	'elasticsearch:action:admin:index_management:error:optimize' => "An error occured during the optimization of the index: %s",
 	'elasticsearch:action:admin:index_management:error:delete' => "An error occured during the deletion of the index: %s",
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
 	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
@@ -132,7 +130,6 @@ return array(
 	'elasticsearch:action:admin:index_management:error:delete_alias' => "An error occured while deleting the alias '%s' from the index '%s'",
 	
 	'elasticsearch:action:admin:index_management:flush' => "The index '%s' was flushed",
-	'elasticsearch:action:admin:index_management:optimize' => "The index '%s' was optimized",
 	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
 	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
 	'elasticsearch:action:admin:index_management:add_mappings' => "Mappings for the index '%s' are created",

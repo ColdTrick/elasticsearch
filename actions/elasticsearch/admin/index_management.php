@@ -33,23 +33,6 @@ switch ($task) {
 		}
 		
 		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:flush', [$index]));
-	case 'optimize':
-		
-		if (!$exists) {
-			return elgg_error_response(elgg_echo('elasticsearch:error:index_not_exists', [$index]));
-		}
-		
-		try {
-			$client->indices()->optimize(array(
-				'index' => $index,
-				'max_num_segments' => 1,
-				'wait_for_merge' => false
-			));
-		} catch (Exception $e) {
-			return elgg_error_response(elgg_echo('elasticsearch:action:admin:index_management:error:optimize', [$index]));
-		}
-		
-		return elgg_ok_response('', elgg_echo('elasticsearch:action:admin:index_management:optimize', [$index]));
 	case 'delete':
 		
 		if (!$exists) {

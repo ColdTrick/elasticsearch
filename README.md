@@ -32,7 +32,6 @@ The index management page (found under Administer -> ElasticSearch -> Indices in
 - Create: This action can only be performed if the index configured in the plugin settings page is not yet available. It will create the default index configuration to be used for search.
 - Alias: Add/remove the configured alias to the index (this allows searching across multiple indices)
 - Delete: This will remove the index from the server (this action can not be undone)
-- Optimize: This performs the [optimize](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-optimize.html) operation on the index
 - Flush: The performs the [flush](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-flush.html) operation on the index
  
 ## Administration
