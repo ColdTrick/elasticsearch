@@ -7,7 +7,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elgg\Logger;
 
-class SearchService {
+class ClientService {
 
 	use ServiceFacade;
 	
@@ -25,7 +25,7 @@ class SearchService {
 	 * {@inheritDoc}
 	 */
 	public static function name() {
-		return 'elasticsearch.searchservice';
+		return 'elasticsearch.clientservice';
 	}
 	
 	public function __construct(Logger $logger) {
