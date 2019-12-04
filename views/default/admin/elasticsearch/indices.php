@@ -144,7 +144,7 @@ if (!$elgg_index_found) {
 		]),
 		'confirm' => true,
 	]));
-	echo elgg_format_element('td', ['class' => 'center', 'colspan' => 5], '&nbsp;');
+	echo elgg_format_element('td', ['class' => 'center', 'colspan' => 4], '&nbsp;');
 	echo '</tr>';
 	echo '</tfoot>';
 }
