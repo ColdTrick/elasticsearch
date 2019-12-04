@@ -1,8 +1,8 @@
 <?php
 
-use ColdTrick\ElasticSearch\Di\ClientService;
+use ColdTrick\ElasticSearch\Di\IndexManagementService;
 
-$service = ClientService::instance();
+$service = IndexManagementService::instance();
 
 if (!$service->isClientReady()) {
 	echo elgg_echo('elasticsearch:error:no_client');

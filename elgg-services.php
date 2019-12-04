@@ -1,8 +1,8 @@
 <?php
 
-use ColdTrick\ElasticSearch\Di\ClientService;
+use ColdTrick\ElasticSearch\Di\IndexManagementService;
 
 return [
-	ClientService::name() => DI\object(ClientService::class)
+	IndexManagementService::name() => DI\object(IndexManagementService::class)
 		->constructor(DI\get('logger')),
 ];
