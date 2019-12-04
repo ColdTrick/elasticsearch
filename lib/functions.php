@@ -17,7 +17,7 @@ function elasticsearch_get_client() {
 	if (isset($client)) {
 		return $client;
 	}
-	
+	return false;
 	$client = false;
 	
 	// Check if the function 'curl_multi_exec' isn't blocked (for security reasons), this prevents error_log overflow
