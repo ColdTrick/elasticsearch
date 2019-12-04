@@ -1,34 +1,29 @@
 <?php
 
-$client = elgg_extract('client', $vars);
-if (empty($client) || !($client instanceof \ColdTrick\ElasticSearch\Client)) {
+use ColdTrick\ElasticSearch\Di\IndexManagementService;
+
+$service = elgg_extract('service', $vars);
+if (!$service instanceof IndexManagementService) {
 	return;
 }
 
-try {
-	$client->ping();
-} catch (Exception $e) {
+if (!$service->ping()) {
 	// server down
 	return;
 }
 
-try {
-	$stats = $client->indices()->stats();
-} catch (Exception $e) {
+$stats = $service->getIndexStatus();
+if (empty($stats)) {
+	// no indexes on server
 	return;
 }
 
-$indices = elgg_extract('indices', $stats);
-if (empty($indices)) {
-	return;
-}
-
-foreach ($indices as $index => $index_stats) {
+foreach ($stats as $index => $index_stats) {
 	
 	$content = '<thead>';
 	$content .= '<tr>';
-	$content .= '<th>' . elgg_echo('elasticsearch:stats:index:stat') . '</th>';
-	$content .= '<th>' . elgg_echo('elasticsearch:stats:index:value') . '</th>';
+	$content .= elgg_format_element('th', [], elgg_echo('elasticsearch:stats:index:stat'));
+	$content .= elgg_format_element('th', [], elgg_echo('elasticsearch:stats:index:value'));
 	$content .= '</tr>';
 	$content .= '</thead>';
 	
@@ -40,7 +35,7 @@ foreach ($indices as $index => $index_stats) {
 		$key = str_repeat('&nbsp;&nbsp;&nbsp;', $it->getDepth()) . $key;
 		
 		if ($it->callHasChildren()) {
-			$row[] = elgg_format_element('td', ['colspan' => 2], elgg_format_element('b', [], $key));
+			$row[] = elgg_format_element('td', ['colspan' => 2], elgg_format_element('strong', [], $key));
 		} else {
 			$row[] = elgg_format_element('td', [], $key);
 			$row[] = elgg_format_element('td', [], $value);
