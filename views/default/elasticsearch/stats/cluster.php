@@ -1,25 +1,22 @@
 <?php
 
-$client = elgg_extract('client', $vars);
-if (empty($client) || !($client instanceof \ColdTrick\ElasticSearch\Client)) {
+use ColdTrick\ElasticSearch\Di\IndexManagementService;
+
+$service = elgg_extract('service', $vars);
+if (!$service instanceof IndexManagementService) {
 	return;
 }
 
-$alive = false;
-try {
-	$alive = $client->ping();
-} catch (Exception $e) {
-
-}
+$alive = $service->ping();
 
 $content = '<table class="elgg-table">';
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('status') . '</td>';
+$content .= elgg_format_element('td', [], elgg_echo('status'));
 if ($alive) {
-	$content .= '<td>' . elgg_echo('ok') . '</td>';
+	$content .= elgg_format_element('td', [], elgg_echo('ok'));
 } else {
-	$content .= '<td>' . elgg_echo('unknown_error') . '</td>';
+	$content .= elgg_format_element('td', [], elgg_echo('unknown_error'));
 }
 $content .= '</tr>';
 
@@ -31,21 +28,21 @@ if (!$alive) {
 }
 
 // get server info
-$info = $client->info();
+$info = $service->getClusterInformation();
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('elasticsearch:stats:cluster_name') . '</td>';
-$content .= '<td>' . elgg_extract('cluster_name', $info) . '</td>';
+$content .= elgg_format_element('td', [], elgg_echo('elasticsearch:stats:cluster_name'));
+$content .= elgg_format_element('td', [], elgg_extract('cluster_name', $info));
 $content .= '</tr>';
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('elasticsearch:stats:es_version') . '</td>';
-$content .= '<td>' . elgg_extract('number', elgg_extract('version', $info)) . '</td>';
+$content .= elgg_format_element('td', [], elgg_echo('elasticsearch:stats:es_version'));
+$content .= elgg_format_element('td', [], elgg_extract('number', elgg_extract('version', $info)));
 $content .= '</tr>';
 
 $content .= '<tr>';
-$content .= '<td>' . elgg_echo('elasticsearch:stats:lucene_version') . '</td>';
-$content .= '<td>' . elgg_extract('lucene_version', elgg_extract('version', $info)) . '</td>';
+$content .= elgg_format_element('td', [], elgg_echo('elasticsearch:stats:lucene_version'));
+$content .= elgg_format_element('td', [], elgg_extract('lucene_version', elgg_extract('version', $info)));
 $content .= '</tr>';
 
 $content .= '</table>';

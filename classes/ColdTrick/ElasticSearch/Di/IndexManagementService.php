@@ -35,6 +35,25 @@ class IndexManagementService extends BaseClientService {
 	}
 	
 	/**
+	 * Get information about the cluster the client is connected to
+	 *
+	 * @return false|array
+	 */
+	public function getClusterInformation() {
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		try {
+			return $this->getClient()->info();
+		} catch (ElasticsearchException $e) {
+			$this->logger->error($e);
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Check if an index exists with the given name
 	 *
 	 * @param string $index index name to check
