@@ -98,17 +98,20 @@ abstract class BaseClientService {
 		// Hostnames
 		$hosts = explode(',', $hosts);
 		array_walk($hosts, function(&$value) {
-			trim($value);
+			$value = trim($value);
 		});
-			
-			$config['Hosts'] = $hosts;
-			
-			// SSL verification
-			$config['SSLVerification'] = !(bool) elgg_get_plugin_setting('ignore_ssl', 'elasticsearch');
-			
-			// Logger
-			$config['Logger'] = $this->logger;
-			
-			return $config;
+		array_walk($hosts, function(&$value) {
+			$value = rtrim($value, '/');
+		});
+		
+		$config['Hosts'] = $hosts;
+		
+		// SSL verification
+		$config['SSLVerification'] = !(bool) elgg_get_plugin_setting('ignore_ssl', 'elasticsearch');
+		
+		// Logger
+		$config['Logger'] = $this->logger;
+		
+		return $config;
 	}
 }

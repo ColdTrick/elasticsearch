@@ -10,6 +10,9 @@ return array(
 	'elasticsearch:upgrade:2019120300:title' => "Remove Elasticsearch logs",
 	'elasticsearch:upgrade:2019120300:description' => "Removes all the old style log files. As logging is handled differently",
 	
+	'elasticsearch:index_management:exception:config:index' => "The hook 'config:index', 'elasticsearch' should return an array for the index configuration",
+	'elasticsearch:index_management:exception:config:mapping' => "The hook 'config:mapping', 'elasticsearch' should return an array for the mapping configuration",
+	
 	'elasticsearch:admin_search:results' => "Search Results",
 	'elasticsearch:admin_search:results:info' => "Results will be shown here",
 	
@@ -86,9 +89,10 @@ return array(
 	
 	'elasticsearch:indices:index' => "Index",
 	'elasticsearch:indices:alias' => "Alias",
+	'elasticsearch:indices:aliases' => "aliases",
 	'elasticsearch:indices:create' => "Create",
-	'elasticsearch:indices:add_mappings' => "Add mappings",
-	'elasticsearch:indices:flush' => "Flush",
+	'elasticsearch:indices:mappings' => "Mappings",
+	'elasticsearch:indices:mappings:add' => "Add / update",
 	
 	'elasticsearch:inspect:guid' => "Please enter the GUID of the entity you wish to inspect",
 	'elasticsearch:inspect:guid:help' => "All entities in Elgg have a GUID, mostly you can find this in the URL to the entity (eg blog/view/1234)",
@@ -118,7 +122,6 @@ return array(
 	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
 	
 	// actions
-	'elasticsearch:action:admin:index_management:error:flush' => "An error occured during the flush of the index: %s",
 	'elasticsearch:action:admin:index_management:error:delete' => "An error occured during the deletion of the index: %s",
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
 	'elasticsearch:action:admin:index_management:error:create' => "An error occured during the creation of the index: %s",
@@ -129,7 +132,6 @@ return array(
 	'elasticsearch:action:admin:index_management:error:delete_alias:exists' => "The alias '%s' doesn't exists on the index '%s'",
 	'elasticsearch:action:admin:index_management:error:delete_alias' => "An error occured while deleting the alias '%s' from the index '%s'",
 	
-	'elasticsearch:action:admin:index_management:flush' => "The index '%s' was flushed",
 	'elasticsearch:action:admin:index_management:delete' => "The index '%s' was deleted",
 	'elasticsearch:action:admin:index_management:create' => "The index '%s' was created",
 	'elasticsearch:action:admin:index_management:add_mappings' => "Mappings for the index '%s' are created",

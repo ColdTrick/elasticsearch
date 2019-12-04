@@ -26,11 +26,9 @@ echo '<table class="elgg-table">';
 echo '<thead>';
 echo '<tr>';
 echo elgg_format_element('th', [], elgg_echo('elasticsearch:indices:index'));
-echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:create'));
-echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:add_mappings'));
+echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:mappings'));
 echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:alias'));
 echo elgg_format_element('th', ['class' => 'center'], elgg_echo('delete'));
-echo elgg_format_element('th', ['class' => 'center'], elgg_echo('elasticsearch:indices:flush'));
 echo '</tr>';
 echo '</thead>';
 
@@ -41,12 +39,14 @@ foreach ($indices as $name => $status) {
 	$current = false;
 	$alias_configured = false;
 	
+	$aliases = $service->getAliases($name);
+	
 	if ($name === $elgg_index) {
 		$elgg_index_found = true;
 		$current = true;
 	}
 	
-	if (!empty($search_alias) && $service->indexHasAlias($name, $search_alias)) {
+	if (!empty($search_alias) && in_array($search_alias, $aliases)) {
 		$alias_configured = true;
 	}
 	
@@ -56,21 +56,23 @@ foreach ($indices as $name => $status) {
 		$output_name = elgg_format_element('strong', [], $output_name);
 	}
 	
-	$cells[] = elgg_format_element('td', [], $output_name);
+	if (!empty($aliases)) {
+		$output_name .= ' [' . elgg_echo('elasticsearch:indices:aliases') . ': ' . implode(', ', $aliases) . ']';
+	}
 	
-	// create
-	$cells[] = elgg_format_element('td', ['class' => 'center'], '&nbsp;');
+	$cells[] = elgg_format_element('td', [], $output_name);
 	
 	// add mappings
 	$mapping = '&nbsp;';
 	if ($current) {
 		$mapping = elgg_view('output/url', [
-			'icon' => 'round-plus',
-			'text' => false,
+			'icon' => 'plus',
+			'text' => elgg_echo('elasticsearch:indices:mappings:add'),
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'add_mappings',
 				'index' => $name,
 			]),
+			'class' => 'elgg-button elgg-button-action',
 			'confirm' => true,
 		]);
 	}
@@ -81,22 +83,24 @@ foreach ($indices as $name => $status) {
 	$alias = '&nbsp;';
 	if (!empty($search_alias) && !$alias_configured) {
 		$alias = elgg_view('output/url', [
-			'icon' => 'round-plus',
-			'text' => false,
+			'icon' => 'plus',
+			'text' => elgg_echo('add'),
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'add_alias',
 				'index' => $name,
 			]),
+			'class' => 'elgg-button elgg-button-action',
 			'confirm' => true,
 		]);
 	} elseif (!empty($search_alias) && $alias_configured) {
 		$alias = elgg_view('output/url', [
-			'icon' => 'delete-alt',
-			'text' => false,
+			'icon' => 'delete',
+			'text' => elgg_echo('delete'),
 			'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 				'task' => 'delete_alias',
 				'index' => $name,
 			]),
+			'class' => 'elgg-button elgg-button-delete',
 			'confirm' => true,
 		]);
 	}
@@ -105,23 +109,13 @@ foreach ($indices as $name => $status) {
 	
 	// delete
 	$cells[] = elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
-		'icon' => 'delete-alt',
-		'text' => false,
+		'icon' => 'delete',
+		'text' => elgg_echo('delete'),
 		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 			'task' => 'delete',
 			'index' => $name,
 		]),
-		'confirm' => true,
-	]));
-	
-	// flush
-	$cells[] = elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
-		'icon' => 'round-checkmark',
-		'text' => false,
-		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
-			'task' => 'flush',
-			'index' => $name,
-		]),
+		'class' => 'elgg-button elgg-button-delete',
 		'confirm' => true,
 	]));
 	
@@ -130,23 +124,18 @@ foreach ($indices as $name => $status) {
 
 echo elgg_format_element('tbody', [], implode(PHP_EOL, $rows));
 // end content
+echo '</table>';
 
 if (!$elgg_index_found) {
-	echo '<tfoot>';
-	echo '<tr>';
-	echo elgg_format_element('td', [], elgg_format_element('strong', [], $elgg_index));
-	echo elgg_format_element('td', ['class' => 'center'], elgg_view('output/url', [
-		'icon' => 'round-plus',
-		'text' => false,
+	elgg_register_menu_item('title', [
+		'name' => 'add',
+		'icon' => 'plus',
+		'text' => elgg_echo('create'),
 		'href' => elgg_generate_action_url('elasticsearch/admin/index_management', [
 			'task' => 'create',
 			'index' => $elgg_index,
 		]),
+		'link_class' => 'elgg-button elgg-button-action',
 		'confirm' => true,
-	]));
-	echo elgg_format_element('td', ['class' => 'center', 'colspan' => 4], '&nbsp;');
-	echo '</tr>';
-	echo '</tfoot>';
+	]);
 }
-
-echo '</table>';
