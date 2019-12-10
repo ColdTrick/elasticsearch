@@ -350,7 +350,6 @@ class IndexManagementService extends BaseClientService {
 									'raw' => [
 										'type' => 'text',
 										'analyzer' => 'case_insensitive_sort',
-										'ignore_above' => 256,
 									]
 								]
 							]
