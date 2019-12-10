@@ -116,9 +116,8 @@ class EventDispatcher {
 			return;
 		}
 		
-		$entity_guid = $annotation->entity_guid;
-		$entity = get_entity($entity_guid);
-		if (!$entity) {
+		$entity = $annotation->getEntity();
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
@@ -139,7 +138,7 @@ class EventDispatcher {
 		}
 		
 		$container_entity = $entity->getContainerEntity();
-		if (!$container_entity) {
+		if (!$container_entity instanceof \ElggEntity) {
 			return;
 		}
 		
@@ -171,18 +170,18 @@ class EventDispatcher {
 	 */
 	protected static function deleteEntity(\ElggEntity $entity) {
 
-		if (!$entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME)) {
+		$last_indexed = $entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME);
+		if (elgg_is_empty($last_indexed)) {
 			return;
 		}
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
+		$index = elgg_get_plugin_setting('index', 'elasticsearch');
+		if (empty($index)) {
 			return;
 		}
 		
 		elasticsearch_add_document_for_deletion($entity->guid, [
-			'_index' => $client->getIndex(),
-			'_type' => 'entities',
+			'_index' => $index,
 			'_id' => $entity->guid,
 		]);
 	}
@@ -195,11 +194,6 @@ class EventDispatcher {
 	 * @return void
 	 */
 	protected static function disableEntity(\ElggEntity $entity) {
-	
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
-			return;
-		}
 	
 		// remove from index
 		self::deleteEntity($entity);
@@ -221,7 +215,7 @@ class EventDispatcher {
 		$entity_guid = $relationship->guid_one;
 		
 		$entity = get_entity($entity_guid);
-		if ($entity) {
+		if ($entity instanceof \ElggEntity) {
 			self::updateEntity($entity);
 		}
 		
@@ -229,32 +223,8 @@ class EventDispatcher {
 		$entity_guid = $relationship->guid_two;
 		
 		$entity = get_entity($entity_guid);
-		if ($entity) {
+		if ($entity instanceof \ElggEntity) {
 			self::updateEntity($entity);
 		}
-	}
-	
-	/**
-	 * Check if the given entity is searchable (and needs to be in Elasticsearch)
-	 *
-	 * @param \ElggEntity $entity the entity
-	 *
-	 * @return bool
-	 */
-	protected static function isSearchableEntity(\ElggEntity $entity) {
-		
-		$type = $entity->getType();
-		$type_subtypes = elasticsearch_get_registered_entity_types();
-		if (!isset($type_subtypes[$type])) {
-			return false;
-		}
-		
-		$subtype = $entity->getSubtype();
-		if (empty($subtype)) {
-			// eg. user, group, site
-			return true;
-		}
-		
-		return in_array($subtype, $type_subtypes[$type]);
 	}
 }

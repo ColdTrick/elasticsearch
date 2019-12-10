@@ -3,6 +3,7 @@
 namespace ColdTrick\ElasticSearch;
 
 use Elgg\Database\QueryBuilder;
+use ColdTrick\ElasticSearch\Di\IndexingService;
 
 class Cron {
 	
@@ -20,16 +21,20 @@ class Cron {
 			return;
 		}
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
+		$service = IndexingService::instance();
+		if (!$service->isClientReady()) {
 			return;
 		}
 		
 		$starttime = (int) $hook->getParam('time', time());
 		
 		// delete first
-		$client->bulkDeleteDocuments();
+		echo "Starting Elasticsearch indexing: delete" . PHP_EOL;
+		elgg_log("Starting Elasticsearch indexing: delete", 'NOTICE');
 		
+		$service->bulkDeleteDocuments();
+		
+		// indexing actions
 		$update_actions = [
 			'no_index_ts',
 			'update',
@@ -65,23 +70,18 @@ class Cron {
 	 *
 	 * @return bool|void
 	 */
-	protected static function batchSync($options, $crontime) {
+	protected static function batchSync(array $options, int $crontime) {
 		
-		if (empty($options) || !is_array($options)) {
+		if (empty($options)) {
 			return;
 		}
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
-			return;
-		}
-		
-		$crontime = (int) $crontime;
 		if ($crontime < 1) {
 			$crontime = time();
 		}
 		
 		if ((time() - $crontime) >= 30) {
+			// no time left
 			return false;
 		}
 		
@@ -91,8 +91,9 @@ class Cron {
 		
 		$options['limit'] = $batch_size;
 		
-		return elgg_call(ELGG_IGNORE_ACCESS, function() use ($options, $crontime, $client) {
+		return elgg_call(ELGG_IGNORE_ACCESS, function() use ($options, $crontime) {
 			$time_left = true;
+			$service = IndexingService::instance();
 			
 			$mark_entity_done = function (\ElggEntity $entity) {
 				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
@@ -114,7 +115,7 @@ class Cron {
 					}
 				}
 				
-				$result = $client->bulkIndexDocuments($entities);
+				$result = $service->addEntitiesToIndex($entities);
 				if (empty($result)) {
 					break;
 				}
