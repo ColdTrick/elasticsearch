@@ -315,7 +315,7 @@ class IndexManagementService extends BaseClientService {
 			],
 		];
 		
-		$return = elgg_trigger_plugin_hook('config:index', 'elasticsearch', $params, $return);
+		$return = $this->hooks->trigger('config:index', 'elasticsearch', $params, $return);
 		if (!is_array($return)) {
 			throw new \InvalidArgumentException(elgg_echo('elasticsearch:index_management:exception:config:index'));
 		}
@@ -391,7 +391,7 @@ class IndexManagementService extends BaseClientService {
 			],
 		];
 		
-		$return = elgg_trigger_plugin_hook('config:mapping', 'elasticsearch', $params, $return);
+		$return = $this->hooks->trigger('config:mapping', 'elasticsearch', $params, $return);
 		if (!is_array($return)) {
 			throw new \InvalidArgumentException(elgg_echo('elasticsearch:index_management:exception:config:mapping'));
 		}

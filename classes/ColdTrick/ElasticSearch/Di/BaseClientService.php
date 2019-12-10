@@ -7,6 +7,7 @@ use Elasticsearch\Client;
 use Elgg\Logger;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elasticsearch\ClientBuilder;
+use Elgg\PluginHooksService;
 
 abstract class BaseClientService {
 
@@ -22,8 +23,14 @@ abstract class BaseClientService {
 	 */
 	protected $logger;
 	
-	public function __construct(Logger $logger) {
+	/**
+	 * @var PluginHooksService
+	 */
+	protected $hooks;
+	
+	public function __construct(Logger $logger, PluginHooksService $hooks) {
 		$this->logger = $logger;
+		$this->hooks = $hooks;
 	}
 	
 	/**
