@@ -1,5 +1,7 @@
 <?php
 
+use ColdTrick\ElasticSearch\Di\SearchService;
+
 // form for inspect
 $form_vars = [
 	'method' => 'GET',
@@ -58,8 +60,9 @@ if (empty($entity)) {
 		]);
 	}
 	
-	$client = elasticsearch_get_client();
-	$elasticsearch_content = $client->inspect($guid);
+	$service = SearchService::instance();
+	
+	$elasticsearch_content = $service->inspect($guid);
 	if (empty($elasticsearch_content)) {
 		$result = elgg_view('output/longtext', [
 			'value' => elgg_echo('elasticsearch:inspect:result:error:not_indexed'),

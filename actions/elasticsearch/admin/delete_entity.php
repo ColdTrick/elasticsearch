@@ -1,4 +1,6 @@
 <?php
+use ColdTrick\ElasticSearch\Di\SearchService;
+
 /**
  * Schedule an entity to be removed from the index
  */
@@ -8,19 +10,18 @@ if ($guid < 1) {
 	return elgg_error_response(elgg_echo('error:missing_data'));
 }
 
-$client = elasticsearch_get_client();
-if (empty($client)) {
+$service = SearchService::instance();
+if (!$service->isClientReady()) {
 	return elgg_error_response(elgg_echo('elasticsearch:error:no_client'));
 }
 
-$es_data = $client->inspect($guid, true);
+$es_data = $service->inspect($guid, true);
 if (empty($es_data)) {
 	return elgg_error_response(elgg_echo('elasticsearch:error:search'));
 }
 
 elasticsearch_add_document_for_deletion($guid, [
 	'_index' => elgg_extract('_index', $es_data),
-	'_type' => elgg_extract('_type', $es_data),
 	'_id' => $guid,
 ]);
 

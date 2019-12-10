@@ -98,10 +98,9 @@ class IndexingService extends BaseClientService {
 			foreach ($items as $action) {
 				
 				$status = elgg_extract('status', $action['delete']);
-				$found = elgg_extract('found', $action['delete']);
 				$guid = (int) elgg_extract('_id', $action['delete']);
 				
-				if (($status === 200 && $found) || ($status === 404 && !$found)) {
+				if ($status === 200 || $status === 404) {
 					// document was removed
 					elasticsearch_remove_document_for_deletion($guid);
 				} else {
