@@ -16,7 +16,7 @@ abstract class BaseClientService {
 	/**
 	 * @var Client
 	 */
-	protected $client;
+	private $client;
 	
 	/**
 	 * @var Logger
