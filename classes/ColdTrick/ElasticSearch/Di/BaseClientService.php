@@ -19,6 +19,11 @@ abstract class BaseClientService {
 	private $client;
 	
 	/**
+	 * @var false|string
+	 */
+	private $index;
+	
+	/**
 	 * @var Logger
 	 */
 	protected $logger;
@@ -120,5 +125,25 @@ abstract class BaseClientService {
 		$config['Logger'] = $this->logger;
 		
 		return $config;
+	}
+	
+	/**
+	 * Get the name of the index that holds all information
+	 *
+	 * @return false|string
+	 */
+	protected function getIndex() {
+		if (isset($this->index)) {
+			return $this->index;
+		}
+		
+		$this->index = false;
+		
+		$index = elgg_get_plugin_setting('index', 'elasticsearch');
+		if (!empty($index)) {
+			$this->index = $index;
+		}
+		
+		return $this->index;
 	}
 }

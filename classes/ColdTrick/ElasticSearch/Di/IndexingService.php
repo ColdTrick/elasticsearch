@@ -7,11 +7,6 @@ use Elasticsearch\Common\Exceptions\ElasticsearchException;
 class IndexingService extends BaseClientService {
 
 	/**
-	 * @var false|string
-	 */
-	protected $index;
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	public static function name() {
@@ -139,25 +134,5 @@ class IndexingService extends BaseClientService {
 		elgg_pop_context();
 		
 		return $result;
-	}
-	
-	/**
-	 * Get the name of the index that holds all information
-	 *
-	 * @return false|string
-	 */
-	protected function getIndex() {
-		if (isset($this->index)) {
-			return $this->index;
-		}
-		
-		$this->index = false;
-		
-		$index = elgg_get_plugin_setting('index', 'elasticsearch');
-		if (!empty($index)) {
-			$this->index = $index;
-		}
-		
-		return $this->index;
 	}
 }
