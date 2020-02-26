@@ -44,13 +44,14 @@ trait Initialize {
 	protected function initializeQuery(array $search_params = []) {
 		
 		$query = elgg_extract('query', $search_params);
-		if (empty($query)) {
+		if (empty($query )) {
 			return;
 		}
-		
-		if (stristr($query, ' ')) {
-			// also include a full sentence as part of the search query
-			$query .= ' || "' . $query . '"';
+
+		if (elgg_extract('tokenize', $search_params) === false && stristr($query, ' ')) {
+			$query = '"' . $query . '"';
+		} elseif (stristr($query, ' ')) {
+			$query = $query . ' || "' . $query . '"';
 		}
 		
 		$elastic_query = [];
