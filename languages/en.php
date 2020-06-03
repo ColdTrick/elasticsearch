@@ -10,6 +10,8 @@ return array(
 	'elasticsearch:upgrade:2019120300:title' => "Remove Elasticsearch logs",
 	'elasticsearch:upgrade:2019120300:description' => "Removes all the old style log files. As logging is handled differently",
 	
+	'elasticsearch:menu:entity:inspect' => "Inspect in Elasticsearch",
+	
 	'elasticsearch:index_management:exception:config:index' => "The hook 'config:index', 'elasticsearch' should return an array for the index configuration",
 	'elasticsearch:index_management:exception:config:mapping' => "The hook 'config:mapping', 'elasticsearch' should return an array for the mapping configuration",
 	

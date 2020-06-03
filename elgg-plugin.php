@@ -84,6 +84,9 @@ return [
 			],
 		],
 		'register' => [
+			'menu:entity' => [
+				'\ColdTrick\ElasticSearch\Menus\Entity::inspect' => [],
+			],
 			'menu:page' => [
 				'\ColdTrick\ElasticSearch\Menus\Page::admin' => [],
 			],
