@@ -12,6 +12,7 @@ echo elgg_view_field([
 // build footer
 $footer = elgg_view_field([
 	'#type' => 'submit',
+	'icon' => 'search',
 	'value' => elgg_echo('elasticsearch:inspect:submit'),
 ]);
 
