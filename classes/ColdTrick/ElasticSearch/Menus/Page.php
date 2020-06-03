@@ -1,8 +1,8 @@
 <?php
 
-namespace ColdTrick\ElasticSearch;
+namespace ColdTrick\ElasticSearch\Menus;
 
-class Admin {
+class Page {
 
 	/**
 	 * Add menu items to the admin page menu
@@ -11,7 +11,7 @@ class Admin {
 	 *
 	 * @return void|\ElggMenuItem[]
 	 */
-	public static function pageMenu(\Elgg\Hook $hook) {
+	public static function admin(\Elgg\Hook $hook) {
 		
 		if (!elgg_in_context('admin') || !elgg_is_admin_logged_in()) {
 			return;
@@ -22,7 +22,7 @@ class Admin {
 		// parent
 		$returnvalue[] = \ElggMenuItem::factory([
 			'name' => 'elasticsearch',
-			'href' => '',
+			'href' => false,
 			'text' => elgg_echo('admin:elasticsearch'),
 			'section' => 'administer',
 		]);

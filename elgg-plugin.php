@@ -85,10 +85,10 @@ return [
 		],
 		'register' => [
 			'menu:page' => [
-				'\ColdTrick\ElasticSearch\Admin::pageMenu' => [],
+				'\ColdTrick\ElasticSearch\Menus\Page::admin' => [],
 			],
 			'menu:search_list' => [
-				'\ColdTrick\ElasticSearch\SearchHooks::registerSortMenu' => [],
+				'\ColdTrick\ElasticSearch\Menus\SearchList::registerSortMenu' => [],
 			],
 		],
 		'search:params' => [
