@@ -1,5 +1,7 @@
 <?php
 
+use ColdTrick\ElasticSearch\Di\SearchService;
+
 $q = get_input('q');
 $index = get_input('index');
 
@@ -18,8 +20,8 @@ $index = get_input('index');
  *
  */
 
-$client = elasticsearch_get_client();
-if (!$client) {
+$client = SearchService::instance();
+if (!$client->isClientReady()) {
 	return elgg_error_response(elgg_echo('elasticsearch:error:no_client'));
 }
 
@@ -32,8 +34,8 @@ if (is_array($json_data)) {
 } else {
 	$searchParams['body'] = [
 		'query' => [
-			'match' => [
-				'_all' => $q
+			'query_string' => [
+				'query' => $q
 			]
 		]
 	];
@@ -43,10 +45,12 @@ if (!empty($index)) {
 	$searchParams['index'] = $index;
 }
 
-$result = $client->search($searchParams);
+$result = $client->rawSearch($searchParams);
 $content = '';
-if ($result) {
-	$content = elgg_view('elasticsearch/admin_search/result', ['result' => $result]);
+if (!empty($result)) {
+	$content = elgg_view('elasticsearch/admin_search/result', [
+		'result' => $result,
+	]);
 }
 
 return elgg_ok_response($content);

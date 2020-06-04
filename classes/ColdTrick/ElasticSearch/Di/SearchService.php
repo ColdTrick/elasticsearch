@@ -44,4 +44,26 @@ class SearchService extends BaseClientService {
 		
 		return false;
 	}
+	
+	/**
+	 * Perform a search on the Elasticsearch client
+	 *
+	 * @param array $params search params
+	 *
+	 * @return false|array
+	 */
+	public function rawSearch(array $params = []) {
+		
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		try {
+			return $this->getClient()->search($params);
+		} catch (ElasticsearchException $e) {
+			$this->logger->error($e);
+		}
+		
+		return [];
+	}
 }

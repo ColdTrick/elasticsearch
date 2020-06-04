@@ -132,7 +132,7 @@ abstract class BaseClientService {
 	 *
 	 * @return false|string
 	 */
-	protected function getIndex() {
+	public function getIndex() {
 		if (isset($this->index)) {
 			return $this->index;
 		}

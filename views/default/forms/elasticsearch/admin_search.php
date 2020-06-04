@@ -1,12 +1,14 @@
 <?php
 
-$client = elasticsearch_get_client();
-if (empty($client)) {
+use ColdTrick\ElasticSearch\Di\IndexManagementService;
+
+$index_client = IndexManagementService::instance();
+if (!$index_client->isClientReady()) {
 	echo elgg_echo('elasticsearch:error:no_client');
 	return;
 }
 
-elgg_require_js('elasticsearch/admin_search');
+elgg_require_js('forms/elasticsearch/admin_search');
 
 echo elgg_view_field([
 	'#type' => 'plaintext',
@@ -15,18 +17,21 @@ echo elgg_view_field([
 ]);
 
 try {
-	$status = $client->indices()->status();
+	$status = $index_client->getIndexStatus();
 } catch (Exception $e){
 	elgg_log($e, 'ERROR');
+	
+	echo elgg_echo('elasticsearch:error:no_index');
+	return;
 }
 
-$indices = array_keys(elgg_extract('indices', $status));
+$indices = array_keys($status);
 
 echo elgg_view_field([
 	'#type' => 'select',
 	'name' => 'index',
 	'options' => $indices,
-	'value' => $client->getIndex(),
+	'value' => $index_client->getIndex(),
 ]);
 
 $footer = elgg_view_field([
