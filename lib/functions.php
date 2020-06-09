@@ -7,57 +7,6 @@ use Elgg\Database\QueryBuilder;
 use Elgg\Database\Select;
 
 /**
- * Get a working ElasticSearch client for further use
- *
- * @return false|ColdTrick\ElasticSearch\Client
- */
-function elasticsearch_get_client() {
-	static $client;
-	
-	if (isset($client)) {
-		return $client;
-	}
-	return false;
-	$client = false;
-	
-	// Check if the function 'curl_multi_exec' isn't blocked (for security reasons), this prevents error_log overflow
-	// this isn't caught by the \Elasticseach\Client
-	if (!function_exists('curl_multi_exec')) {
-		return false;
-	}
-	
-	$host = elgg_get_plugin_setting('host', 'elasticsearch');
-	if (empty($host)) {
-		return false;
-	}
-	
-	$params = [];
-	
-	$hosts = explode(',', $host);
-	array_walk($hosts, 'elasticsearch_cleanup_host');
-	
-	$params['hosts'] = $hosts;
-	
-	// check SSL setting
-	if ((int) elgg_get_plugin_setting('ignore_ssl', 'elasticsearch')) {
-		$params['guzzleOptions'] = [
-			\Guzzle\Http\Client::SSL_CERT_AUTHORITY => false,
-		];
-	}
-	
-	// trigger hook so other plugins can infuence the params
-	$params = elgg_trigger_plugin_hook('params', 'elasticsearch', $params, $params);
-	
-	try {
-		$client = new ColdTrick\ElasticSearch\Client($params);
-	} catch (Exception $e) {
-		elgg_log("Unable to create ElasticSearch client: {$e->getMessage()}", 'ERROR');
-	}
-	
-	return $client;
-}
-
-/**
  * Get the type/subtypes to index in ElasticSearch
  *
  *  @return false|array
