@@ -141,7 +141,7 @@ class SearchService extends BaseClientService {
 	 *
 	 * @param array $body optional search body
 	 *
-	 * @return \ColdTrick\ElasticSearch\SearchResult
+	 * @return false|\ColdTrick\ElasticSearch\SearchResult
 	 */
 	public function count(array $body = []) {
 		
