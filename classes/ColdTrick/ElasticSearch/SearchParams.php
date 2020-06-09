@@ -9,11 +9,11 @@ class SearchParams {
 	use Initialize;
 	
 	/**
-	 * The search client
+	 * The search service
 	 *
-	 * @var \ColdTrick\ElasticSearch\Client
+	 * @var \ColdTrick\ElasticSearch\Di\SearchService
 	 */
-	protected $client;
+	protected $service;
 	
 	/**
 	 * The search params
@@ -27,8 +27,8 @@ class SearchParams {
 	 *
 	 * @param array $params Array of injectable parameters
 	 */
-	public function __construct($params = []) {
-		$this->client = $params['client'];
+	public function __construct(array $params = []) {
+		$this->service = $params['service'];
 		$this->params = [];
 	}
 	
@@ -39,18 +39,15 @@ class SearchParams {
 	 *
 	 * @return array
 	 */
-	protected function getBody($count = false) {
+	public function getBody(bool $count = false) {
 		$result = [];
 		
 		// index
-		$index = $this->client->getIndex();
+		$index = $this->service->getIndex();
 		if (!empty($this->getParam('index'))) {
 			$index = $this->getParam('index');
 			$result['index'] = $index;
 		}
-		
-		// type
-		$result['type'] = 'entities';
 		
 		// query
 		if (!empty($this->getParam('query'))) {
@@ -74,20 +71,19 @@ class SearchParams {
 				$query = $result['body']['query'];
 				unset($result['body']['query']);
 				
-				$result['body']['query']['filtered'] = [
-					'query' => $query,
-					'filter' => [
-						'indices' => [
-							'index' => $index,
-							'filter' => $filter,
-							'no_match_filter' => $no_match_filter,
-						],
-					],
+				$result['body']['query']['bool'] = [
+					'must' => $query,
+// 					'filter' => [
+// 						'_index' => $index,
+						'filter' => $filter,
+// 						'no_match_filter' => $no_match_filter,
+// 					],
 				];
 			} else {
-				$result['body']['filter']['indices']['index'] = $index;
-				$result['body']['filter']['indices']['filter'] = $filter;
-				$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
+// 				$result['body']['filter']['indices']['index'] = $index;
+// 				$result['body']['filter']['indices']['filter'] = $filter;
+// 				$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
+// 				$result['body']['filter'] = $filter;
 			}
 		}
 		
@@ -117,7 +113,7 @@ class SearchParams {
 			}
 			
 			// suggestion
-			if (!empty($this->getParam('suggest')) && ($this->client->getSuggestions() == null)) {
+			if (!empty($this->getParam('suggest')) && ($this->service->getSuggestions() == null)) {
 				// only fetch suggestion once
 				$result['body']['suggest'] = $this->getParam('suggest');
 			}
@@ -207,65 +203,13 @@ class SearchParams {
 	}
 	
 	/**
-	 * Execute a search query
-	 *
-	 * @param array $body optional search body
-	 *
-	 * @return \ColdTrick\ElasticSearch\SearchResult
-	 */
-	public function execute($body = null) {
-		if ($body == null) {
-			$body = $this->getBody();
-		}
-		
-		$result = $this->client->search($body);
-		
-		$result = new SearchResult($result, $this->params);
-		
-		$suggest = $result->getSuggestions();
-		if (!empty($suggest)) {
-			$this->client->setSuggestions($suggest);
-		}
-		
-		$aggregations = $result->getAggregations();
-		if (!empty($aggregations)) {
-			$this->client->setAggregations(elgg_extract('wrapper', $aggregations));
-		}
-		
-		// reset search params after each search
-		$this->params = [];
-		
-		return $result;
-	}
-
-	/**
-	 * Execute a count query
-	 *
-	 * @param array $body optional search body
-	 *
-	 * @return \ColdTrick\ElasticSearch\SearchResult
-	 */
-	public function count($body = null) {
-		if ($body == null) {
-			$body = $this->getBody(true);
-		}
-		
-		$result = $this->client->count($body);
-		
-		// reset search params after each search
-		$this->params = [];
-		
-		return new SearchResult($result, $this->params);
-	}
-	
-	/**
 	 * Set the index to search in
 	 *
 	 * @param string $index the name of the index
 	 *
 	 * @return void
 	 */
-	public function setIndex($index) {
+	public function setIndex(string $index) {
 		$this->params['index'] = $index;
 	}
 	
@@ -276,7 +220,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addFilter($filter) {
+	public function addFilter(array $filter) {
 		$this->params['filter'] = array_merge_recursive($this->getParam('filter', []), $filter);
 	}
 	
@@ -287,7 +231,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setFilter($filter) {
+	public function setFilter(array $filter) {
 		$this->params['filter'] = $filter;
 	}
 	
@@ -307,7 +251,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addNoMatchFilter($filter) {
+	public function addNoMatchFilter(array $filter) {
 		$this->params['no_match_filter'] = array_merge_recursive($this->getParam('no_match_filter', []), $filter);
 	}
 	
@@ -318,7 +262,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setNoMatchFilter($filter) {
+	public function setNoMatchFilter(array $filter) {
 		$this->params['no_match_filter'] = $filter;
 	}
 	
@@ -338,7 +282,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addQuery($query = []) {
+	public function addQuery(array $query = []) {
 		$this->params['query'] = array_merge_recursive($this->getParam('query', []), $query);
 	}
 
@@ -349,7 +293,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setQuery($query = []) {
+	public function setQuery(array $query = []) {
 		$this->params['query'] = $query;
 	}
 
@@ -369,7 +313,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function trackScores($track_scores = true) {
+	public function trackScores(bool $track_scores = true) {
 		$this->params['track_scores'] = $track_scores;
 	}
 	
@@ -380,7 +324,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setSort($sort = []) {
+	public function setSort(array $sort = []) {
 		$this->params['sort'] = $sort;
 	}
 	
@@ -392,7 +336,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addSort($field, $sort_config = []) {
+	public function addSort(string $field, $sort_config = []) {
 		if (empty($field)) {
 			return;
 		}
@@ -428,8 +372,8 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setSize($size) {
-		$this->params['size'] = (int) $size;
+	public function setSize(int $size) {
+		$this->params['size'] = $size;
 	}
 	
 	/**
@@ -440,7 +384,7 @@ class SearchParams {
 	 * @return void
 	 * @see self::setSize()
 	 */
-	public function setLimit($limit) {
+	public function setLimit(int $limit) {
 		$this->setSize($limit);
 	}
 	
@@ -451,8 +395,8 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setFrom($from) {
-		$this->params['from'] = (int) $from;
+	public function setFrom(int $from) {
+		$this->params['from'] = $from;
 	}
 	
 	/**
@@ -463,7 +407,7 @@ class SearchParams {
 	 * @return void
 	 * @see self::setFrom()
 	 */
-	public function setOffset($offset) {
+	public function setOffset(int $offset) {
 		$this->setFrom($offset);
 	}
 	
@@ -474,19 +418,19 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setSuggestion($query) {
+	public function setSuggestion(string $query = null, array $fields = []) {
 		if (empty($query)) {
 			unset($this->params['suggest']);
 		}
 		
-		$this->params['suggest']['text'] = $query;
-		$this->params['suggest']['suggestions']['phrase'] = [
-			'field' => '_all',
-			'direct_generator' => [[
-				'field' => '_all',
-				'suggest_mode' => 'missing',
-			]],
-		];
+// 		$this->params['suggest']['text'] = $query;
+// 		$this->params['suggest']['suggestions']['phrase'] = [
+// 			'field' => 'title',
+// 			'direct_generator' => [[
+// 				'field' => 'title',
+// 				'suggest_mode' => 'missing',
+// 			]],
+// 		];
 	}
 
 	/**
@@ -496,7 +440,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function setHighlight($data) {
+	public function setHighlight(array $data = []) {
 	
 		if (empty($data)) {
 			unset($this->params['highlight']);
@@ -522,10 +466,8 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addEntityAccessFilter($user_guid = 0) {
-		$user_guid = sanitise_int($user_guid, false);
-		
-		if (empty($user_guid)) {
+	public function addEntityAccessFilter(int $user_guid = 0) {
+		if ($user_guid < 1) {
 			$user_guid = elgg_get_logged_in_user_guid();
 		}
 		
@@ -551,6 +493,7 @@ class SearchParams {
 		
 		$filter = [];
 		$filter['bool']['must'][]['bool']['should'] = $access_filter;
+		
 		$this->addFilter($filter);
 	}
 	
@@ -564,13 +507,22 @@ class SearchParams {
 	}
 	
 	/**
+	 * Reset the search params after a search
+	 *
+	 * @return void
+	 */
+	public function resetParams() {
+		$this->params = [];
+	}
+	
+	/**
 	 * Set aggregation search params
 	 *
 	 * @param array $aggregation aggregation
 	 *
 	 * @return void
 	 */
-	public function setAggregation($aggregation) {
+	public function setAggregation(array $aggregation = []) {
 		if (empty($aggregation)) {
 			unset($this->params['aggregation']);
 			return;
@@ -586,7 +538,7 @@ class SearchParams {
 	 *
 	 * @return void
 	 */
-	public function addAggregation($aggregation) {
+	public function addAggregation(array $aggregation) {
 		$this->params['aggregation'] = array_merge_recursive($this->getParam('aggregation', []), $aggregation);
 	}
 	

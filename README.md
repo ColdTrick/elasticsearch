@@ -149,7 +149,7 @@ Defaults to all registered searchable type/subtypes in Elgg.
 
 #### 'search_params', 'elasticsearch'
 
-Return an `\ColdTrick\ElasticSearch\Client` to be used for the search. This allows you to alter the search parameters in Elasticsearch.
+Return an `\ColdTrick\ElasticSearch\Di\SearchService` to be used for the search. This allows you to alter the search parameters in Elasticsearch.
 
 Params contain:
 - `search_params`: an array of the search parameters as provided by Elgg search

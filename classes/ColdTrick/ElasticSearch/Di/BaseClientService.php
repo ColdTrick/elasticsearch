@@ -24,6 +24,11 @@ abstract class BaseClientService {
 	private $index;
 	
 	/**
+	 * @var false|string
+	 */
+	private $search_alias;
+	
+	/**
 	 * @var Logger
 	 */
 	protected $logger;
@@ -145,5 +150,27 @@ abstract class BaseClientService {
 		}
 		
 		return $this->index;
+	}
+	
+	/**
+	 * Get the index (or alias) to perform search operations in
+	 *
+	 * @return false|string
+	 */
+	public function getSearchIndex() {
+		if (!isset($this->search_alias)) {
+			$this->search_alias = false;
+			
+			$setting = elgg_get_plugin_setting('search_alias', 'elasticsearch');
+			if (!empty($setting)) {
+				$this->search_alias = $setting;
+			}
+		}
+		
+		if (!empty($this->search_alias)) {
+			return $this->search_alias;
+		}
+		
+		return $this->getIndex();
 	}
 }

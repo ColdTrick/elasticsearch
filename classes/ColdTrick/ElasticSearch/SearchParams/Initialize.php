@@ -53,16 +53,18 @@ trait Initialize {
 			$query .= ' || "' . $query . '"';
 		}
 		
+		$query_fields = $this->getQueryFields($search_params);
+		
 		$elastic_query = [];
-					
+		
 		$elastic_query['bool']['must'][]['simple_query_string'] = [
-			'fields' => $this->getQueryFields($search_params),
+			'fields' => $query_fields,
 			'query' => $query,
 			'default_operator' => 'AND',
 		];
 											
 		if (!elgg_extract('count', $search_params, false)) {
-			$this->setSuggestion($query);
+			$this->setSuggestion($query, $query_fields);
 			$this->setHighlight($this->getDefaultHighlightParams($query));
 		}
 		
@@ -266,7 +268,7 @@ trait Initialize {
 		if (!empty($sort_field)) {
 			$this->addSort($sort_field, [
 				'order' => $order,
-				'ignore_unmapped' => true,
+				'unmapped_type' => 'long',
 				'missing' => '_last',
 			]);
 		}

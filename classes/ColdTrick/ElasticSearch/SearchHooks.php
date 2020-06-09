@@ -2,7 +2,7 @@
 
 namespace ColdTrick\ElasticSearch;
 
-use Elgg\Menu\MenuItems;
+use ColdTrick\ElasticSearch\Di\SearchService;
 
 class SearchHooks {
 	
@@ -430,20 +430,20 @@ class SearchHooks {
 		
 		$params = $hook->getParams();
 		
-		$client = self::getClientForHooks($params);
-		if (!$client) {
+		$service = self::getServiceForHooks($params);
+		if (!$service) {
 			return;
 		}
 		
-		$client = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $client);
-		if (!$client instanceof Client) {
-			throw new \InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Client');
+		$service = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $service);
+		if (!$service instanceof SearchService) {
+			throw new \InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Di\SearchService');
 		}
 		
 		if (elgg_extract('count', $params) == true) {
-			$result = $client->search_params->count();
+			$result = $service->count();
 		} else {
-			$result = $client->search_params->execute();
+			$result = $service->search();
 		}
 		
 		return self::transformSearchResults($result, $params);
@@ -464,13 +464,13 @@ class SearchHooks {
 	}
 	
 	/**
-	 * Get The Elasticsearch client for searches
+	 * Get the search service
 	 *
 	 * @param array $params search params
 	 *
-	 * @return false|\ColdTrick\ElasticSearch\Client
+	 * @return false|\ColdTrick\ElasticSearch\Di\SearchService
 	 */
-	protected static function getClientForHooks($params) {
+	protected static function getServiceForHooks($params) {
 		
 		if (!self::handleSearch()) {
 			return false;
@@ -480,15 +480,14 @@ class SearchHooks {
 			return false;
 		}
 		
-		$client = elasticsearch_get_client();
-		if (!$client) {
+		$service = SearchService::instance();
+		if (!$service) {
 			return false;
 		}
 		
-		$client->search_params->initializeSearchParams($params);
-		$client->search_params->addEntityAccessFilter();
+		$service->initializeSearchParams($params);
 	
-		return $client;
+		return $service;
 	}
 	
 	/**

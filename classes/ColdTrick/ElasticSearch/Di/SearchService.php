@@ -2,10 +2,31 @@
 
 namespace ColdTrick\ElasticSearch\Di;
 
-use \Elasticsearch\Common\Exceptions\ElasticsearchException;
+use ColdTrick\ElasticSearch\SearchParams;
+use ColdTrick\ElasticSearch\SearchResult;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
 
 class SearchService extends BaseClientService {
 
+	/**
+	 * Search aggregations
+	 *
+	 * @var array
+	 */
+	private $aggregations;
+	
+	/**
+	 * @var SearchParams
+	 */
+	private $search_params;
+	
+	/**
+	 * Search suggestions
+	 *
+	 * @var array
+	 */
+	private $suggestions;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -65,5 +86,181 @@ class SearchService extends BaseClientService {
 		}
 		
 		return [];
+	}
+	
+	/**
+	 * Provide the Elgg search parameters before executing a search operation
+	 *
+	 * @param array $search_params the Elgg search parameters
+	 *
+	 * @return void
+	 */
+	public function initializeSearchParams(array $search_params = []) {
+		$this->getSearchParams()->initializeSearchParams($search_params);
+		$this->getSearchParams()->addEntityAccessFilter();
+	}
+	
+	/**
+	 * Execute a search query
+	 *
+	 * @param array $body optional search body
+	 *
+	 * @return false|\ColdTrick\ElasticSearch\SearchResult
+	 */
+	public function search(array $body = []) {
+		
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		if (empty($body)) {
+			$body = $this->getSearchParams()->getBody();
+		}
+		
+		if (!isset($body['index'])) {
+			$body['index'] = $this->getSearchIndex();
+		}
+		
+		$this->requestToScreen($body, 'SEARCH');
+		
+		$result = [];
+		try {
+			$result = $this->getClient()->search($body);
+		} catch (ElasticsearchException $e) {
+			// exception already logged by Elasticsearch
+		}
+		
+		$result = new SearchResult($result, $this->getSearchParams()->getParams());
+		
+		$suggest = $result->getSuggestions();
+		if (!empty($suggest)) {
+			$this->setSuggestions($suggest);
+		}
+		
+		$aggregations = $result->getAggregations();
+		if (!empty($aggregations)) {
+			$this->setAggregations(elgg_extract('wrapper', $aggregations));
+		}
+		
+		// reset search params after each search
+		$this->getSearchParams()->resetParams();
+		
+		return $result;
+	}
+	
+	/**
+	 * Execute a count query
+	 *
+	 * @param array $body optional search body
+	 *
+	 * @return \ColdTrick\ElasticSearch\SearchResult
+	 */
+	public function count(array $body = []) {
+		
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		if (empty($body)) {
+			$body = $this->getSearchParams()->getBody(true);
+		}
+		
+		if (!isset($body['index'])) {
+			$body['index'] = $this->getSearchIndex();
+		}
+		
+		$this->requestToScreen($body, 'COUNT');
+		
+		$result = [];
+		try {
+			$result = $this->getClient()->count($body);
+		} catch (ElasticsearchException $e) {
+			// exception already logged by Elasticsearch
+		}
+		
+		// reset search params after each search
+		$this->getSearchParams()->resetParams();
+		
+		return new SearchResult($result, $this->getSearchParams()->getParams());
+	}
+	
+	/**
+	 * Set suggestions from search result
+	 *
+	 * @param array $data suggestions
+	 *
+	 * @return void
+	 */
+	public function setSuggestions(array $data) {
+		$this->suggestions = $data;
+	}
+	
+	/**
+	 * Get suggestions from search
+	 *
+	 * @return array
+	 */
+	public function getSuggestions() {
+		return $this->suggestions;
+	}
+	
+	/**
+	 * Set aggregations from search  result
+	 *
+	 * @param array $data
+	 *
+	 * @return void
+	 */
+	public function setAggregations(array $data) {
+		$this->aggregations = $data;
+	}
+	
+	/**
+	 * Get aggregations from search result
+	 *
+	 * @return array
+	 */
+	public function getAggregations() {
+		return $this->aggregations;
+	}
+	
+	/**
+	 * Get the search params helper class
+	 *
+	 * @return \ColdTrick\ElasticSearch\SearchParams
+	 */
+	public function getSearchParams() {
+		if (!isset($this->search_params)) {
+			$this->search_params = new SearchParams([
+				'service' => $this,
+			]);
+		}
+		
+		return $this->search_params;
+	}
+	
+	/**
+	 * Log the current request to developers log
+	 *
+	 * @param array $params  search params
+	 * @param string $action action name (search, count, etc)
+	 *
+	 * @return void
+	 */
+	protected function requestToScreen($params, $action = '') {
+		
+		$cache = elgg_get_config('log_cache');
+		if (empty($cache)) {
+			// developer tools log to screen is disabled
+			return;
+		}
+		
+		$msg = @json_encode($params, JSON_PRETTY_PRINT);
+		
+		if ($action) {
+			$msg = "{$action}:\n $msg";
+		}
+		
+		$this->logger->notice($msg);
 	}
 }

@@ -335,46 +335,6 @@ class Client extends \Elasticsearch\Client {
 	}
 	
 	/**
-	 * Set suggestions from search result
-	 *
-	 * @param array $data suggestions
-	 *
-	 * @return void
-	 */
-	public function setSuggestions($data) {
-		$this->suggestions = $data;
-	}
-	
-	/**
-	 * Get suggestions from search
-	 *
-	 * @return array
-	 */
-	public function getSuggestions() {
-		return $this->suggestions;
-	}
-	
-	/**
-	 * Set aggregations from search  result
-	 *
-	 * @param array $data
-	 *
-	 * @return void
-	 */
-	public function setAggregations($data) {
-		$this->aggregations = $data;
-	}
-	
-	/**
-	 * Get aggregations from search result
-	 *
-	 * @return array
-	 */
-	public function getAggregations() {
-		return $this->aggregations;
-	}
-	
-	/**
 	 * Inspect a GUID in Elasticsearch
 	 *
 	 * @param int $guid the GUID to inspect
