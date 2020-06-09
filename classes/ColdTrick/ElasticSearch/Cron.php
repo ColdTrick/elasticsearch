@@ -4,6 +4,8 @@ namespace ColdTrick\ElasticSearch;
 
 use Elgg\Database\QueryBuilder;
 use ColdTrick\ElasticSearch\Di\IndexingService;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
+use ColdTrick\ElasticSearch\Di\SearchService;
 
 class Cron {
 	
@@ -193,8 +195,8 @@ class Cron {
 	 */
 	protected static function cleanupElasticsearch() {
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
+		$service = SearchService::instance();
+		if (!$service->isClientReady()) {
 			return;
 		}
 		
@@ -203,39 +205,40 @@ class Cron {
 		
 		// prepare a search for all documents
 		$search_params = [
-			'index' => $client->getIndex(),
-			'search_type' => 'scan',
+			'index' => $service->getIndex(),
 			'scroll' => '2m',
 			'body' => [
 				'query' => [
-					'match_all' => [],
+					'match_all' => (object) [],
 				],
 			],
 		];
 		
 		try {
-			$scroll_setup = $client->search($search_params);
-		} catch (\Exception $e) {
+			$scroll_setup = $service->rawSearch($search_params);
+		} catch (ElasticsearchException $e) {
 			return;
 		}
 		
 		// now scroll through all results
 		$scroll_params = [
-			'scroll_id' => elgg_extract('_scroll_id', $scroll_setup),
 			'scroll' => '2m',
+			'body' => [
+				'scroll_id' => elgg_extract('_scroll_id', $scroll_setup),
+			],
 		];
 		
 		try {
 			// ignore Elgg access
-			elgg_call(ELGG_IGNORE_ACCESS, function() use ($client, &$scroll_params, $search_params) {
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($service, &$scroll_params, $search_params) {
 				
 				$searchable_types = elasticsearch_get_registered_entity_types();
 				
-				while ($result = $client->scroll($scroll_params)) {
+				while ($result = $service->scroll($scroll_params)) {
 					// update scroll_id
 					$new_scroll_id = elgg_extract('_scroll_id', $result);
 					if (!empty($new_scroll_id)) {
-						$scroll_params['scroll_id'] = $new_scroll_id;
+						$scroll_params['body']['scroll_id'] = $new_scroll_id;
 					}
 					
 					// process results
@@ -279,22 +282,22 @@ class Cron {
 						$hit = $search_result->getHit($guid);
 						
 						elasticsearch_add_document_for_deletion($guid, [
-							'_index' => $client->getIndex(),
+							'_index' => $service->getIndex(),
 							'_type' => elgg_extract('_type', $hit),
 							'_id' => $guid,
 						]);
 					}
 				}
 			});
-		} catch (\Exception $e) {
+		} catch (ElasticsearchException $e) {
 			// probably reached the end of the scroll
 			// elgg_log('Elasticsearch cleanup: ' . $e->getMessage(), 'ERROR');
 		}
 		
 		// clear scroll
 		try {
-			$client->clearScroll($scroll_params);
-		} catch (\Exception $e) {
+			$service->clearScroll($scroll_params);
+		} catch (ElasticsearchException $e) {
 			// unable to clean, could be because we came to the end of the scroll
 		}
 	}
@@ -311,7 +314,6 @@ class Cron {
 		
 		// ignore access
 		elgg_call(ELGG_IGNORE_ACCESS, function() {
-		
 			// find unindexed GUIDs
 			$guids = [];
 			$unindexed = [];
@@ -374,23 +376,23 @@ class Cron {
 	 *
 	 * @return int[]
 	 */
-	protected static function findUnindexedGUIDs($guids = []) {
+	protected static function findUnindexedGUIDs(array $guids = []) {
 		
-		if (empty($guids) || !is_array($guids)) {
+		if (empty($guids)) {
 			return [];
 		}
 		
-		$client = elasticsearch_get_client();
-		if (empty($client)) {
+		$service = SearchService::instance();
+		if (!$service->isClientReady()) {
 			return;
 		}
 		
 		$search_params = [
-			'index' => $client->getIndex(),
+			'index' => $service->getIndex(),
 			'size' => count($guids),
 			'body' => [
 				'query' => [
-					'filtered' => [
+					'bool' => [
 						'filter' => [
 							'terms' => [
 								'guid' => $guids,
@@ -402,7 +404,7 @@ class Cron {
 		];
 		
 		try {
-			$es_result = $client->search($search_params);
+			$es_result = $service->rawSearch($search_params);
 			
 			// process results
 			$search_result = new SearchResult($es_result, $search_params);
@@ -410,7 +412,7 @@ class Cron {
 			$elasticsearch_guids = $search_result->toGuids();
 			
 			return array_diff($guids, $elasticsearch_guids);
-		} catch (\Exception $e) {
+		} catch (ElasticsearchException $e) {
 			// some error occured
 		}
 		

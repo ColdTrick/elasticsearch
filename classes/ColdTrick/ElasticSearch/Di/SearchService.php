@@ -173,6 +173,36 @@ class SearchService extends BaseClientService {
 	}
 	
 	/**
+	 * Scroll through a search setup
+	 *
+	 * @param array $params search params
+	 *
+	 * @return false|array
+	 */
+	public function scroll(array $params) {
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		return $this->getClient()->scroll($params);
+	}
+	
+	/**
+	 * Clear a search scroll
+	 *
+	 * @param array $params search params
+	 *
+	 * @return false|array
+	 */
+	public function clearScroll(array $params) {
+		if (!$this->isClientReady()) {
+			return false;
+		}
+		
+		return $this->getClient()->clearScroll($params);
+	}
+	
+	/**
 	 * Set aggregations from search  result
 	 *
 	 * @param array $data
