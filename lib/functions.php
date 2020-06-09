@@ -211,24 +211,6 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 }
 
 /**
- * Do some cleanup on the host for use in the ElasticSearch client
- *
- * @param string $host the host url
- *
- * @return void
- */
-function elasticsearch_cleanup_host(&$host) {
-	// Elgg saves html encoded
-	$host = html_entity_decode($host, ENT_QUOTES, 'UTF-8');
-
-	// remove spaces
-	$host = trim($host);
-
-	// remove trailing / (ElasticSearch adds it again)
-	$host = rtrim($host, '/');
-}
-
-/**
  * Saves an array of documents to be deleted from the elastic index
  *
  * @param int   $guid guid of the document to be deleted
