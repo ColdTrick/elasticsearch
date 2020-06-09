@@ -143,6 +143,5 @@ return array(
 	'elasticsearch:action:admin:reindex_entity:success' => "The entity is scheduled for reindexing",
 	'elasticsearch:action:admin:delete_entity:success' => "The entity is scheduled for deletion from the index",
 	
-	'elasticsearch:suggest' => "Did you mean %s instead of %s?",
 	'elasticsearch:search_score' => "Score: %s",
 );

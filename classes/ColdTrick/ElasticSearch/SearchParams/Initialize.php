@@ -64,7 +64,6 @@ trait Initialize {
 		];
 											
 		if (!elgg_extract('count', $search_params, false)) {
-			$this->setSuggestion($query, $query_fields);
 			$this->setHighlight($this->getDefaultHighlightParams($query));
 		}
 		

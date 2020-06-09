@@ -21,13 +21,6 @@ class SearchService extends BaseClientService {
 	private $search_params;
 	
 	/**
-	 * Search suggestions
-	 *
-	 * @var array
-	 */
-	private $suggestions;
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	public static function name() {
@@ -132,11 +125,6 @@ class SearchService extends BaseClientService {
 		
 		$result = new SearchResult($result, $this->getSearchParams()->getParams());
 		
-		$suggest = $result->getSuggestions();
-		if (!empty($suggest)) {
-			$this->setSuggestions($suggest);
-		}
-		
 		$aggregations = $result->getAggregations();
 		if (!empty($aggregations)) {
 			$this->setAggregations(elgg_extract('wrapper', $aggregations));
@@ -182,26 +170,6 @@ class SearchService extends BaseClientService {
 		$this->getSearchParams()->resetParams();
 		
 		return new SearchResult($result, $this->getSearchParams()->getParams());
-	}
-	
-	/**
-	 * Set suggestions from search result
-	 *
-	 * @param array $data suggestions
-	 *
-	 * @return void
-	 */
-	public function setSuggestions(array $data) {
-		$this->suggestions = $data;
-	}
-	
-	/**
-	 * Get suggestions from search
-	 *
-	 * @return array
-	 */
-	public function getSuggestions() {
-		return $this->suggestions;
 	}
 	
 	/**

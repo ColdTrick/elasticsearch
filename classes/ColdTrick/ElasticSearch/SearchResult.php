@@ -79,15 +79,6 @@ class SearchResult {
 	}
 	
 	/**
-	 * Get search suggestions
-	 *
-	 * @return array
-	 */
-	public function getSuggestions() {
-		return elgg_extract('suggest', $this->result);
-	}
-	
-	/**
 	 * Get aggregations
 	 *
 	 * @return array
