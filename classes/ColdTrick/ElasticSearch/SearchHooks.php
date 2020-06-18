@@ -537,7 +537,7 @@ class SearchHooks {
 	 *
 	 * @param \Elgg\Hook $hook 'search_params', 'elasticsearch'
 	 *
-	 * @return void|\ColdTrick\ElasticSearch\Client
+	 * @return void|SearchService
 	 */
 	public static function filterProfileFields(\Elgg\Hook $hook) {
 		
@@ -603,11 +603,12 @@ class SearchHooks {
 			return;
 		}
 		
-		$client = $hook->getValue();
+		/* @var $service SearchService */
+		$service = $hook->getValue();
 		
-		$client->search_params->addQuery($queries);
+		$service->getSearchParams()->addQuery($queries);
 		
-		return $client;
+		return $service;
 	}
 		
 	/**
@@ -615,7 +616,7 @@ class SearchHooks {
 	 *
 	 * @param \Elgg\Hook $hook 'search_params', 'elasticsearch'
 	 *
-	 * @return void|Client
+	 * @return void|SearchService
 	 */
 	public static function sortByGroupMembersCount(\Elgg\Hook $hook) {
 		
@@ -633,11 +634,11 @@ class SearchHooks {
 			'unmapped_type' => 'long',
 		];
 		
-		/* @var $return Client */
+		/* @var $return SearchService */
 		$return = $hook->getValue();
 		
-		$return->search_params->addSort('counters.member_count', $sort_config);
-		$return->search_params->addSort('_score');
+		$return->getSearchParams()->addSort('counters.member_count', $sort_config);
+		$return->getSearchParams()->addSort('_score');
 		
 		return $return;
 	}
