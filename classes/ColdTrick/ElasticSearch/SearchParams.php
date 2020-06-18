@@ -51,39 +51,24 @@ class SearchParams {
 		
 		// query
 		if (!empty($this->getParam('query'))) {
-			$result['body']['query']['function_score']['query'] = $this->getParam('query');
+			$result['body']['query']['function_score']['query']['bool']['must'] = $this->getParam('query');
 		} else {
 			$result['body']['query']['function_score']['query']['bool']['must']['match_all'] = [];
 		}
 				
 		// filter
 		$filter = $this->getParam('filter');
-		$no_match_filter = $this->getParam('no_match_filter');
-		if (!empty($filter) || !empty($no_match_filter)) {
-			if (empty($filter)) {
-				$filter = 'all';
-			}
-			if (empty($no_match_filter)) {
-				$no_match_filter = 'all';
-			}
-			
+		if (!empty($filter)) {
 			if ($count) {
 				$query = $result['body']['query'];
 				unset($result['body']['query']);
 				
 				$result['body']['query']['bool'] = [
 					'must' => $query,
-// 					'filter' => [
-// 						'_index' => $index,
-						'filter' => $filter,
-// 						'no_match_filter' => $no_match_filter,
-// 					],
+					'filter' => $filter,
 				];
 			} else {
-// 				$result['body']['filter']['indices']['index'] = $index;
-// 				$result['body']['filter']['indices']['filter'] = $filter;
-// 				$result['body']['filter']['indices']['no_match_filter'] = $no_match_filter;
-// 				$result['body']['filter'] = $filter;
+				$result['body']['query']['function_score']['query']['bool']['filter'] = $filter;
 			}
 		}
 		
