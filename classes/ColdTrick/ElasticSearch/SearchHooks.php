@@ -43,7 +43,7 @@ class SearchHooks {
 	 */
 	protected static function transformSearchParamFields(array &$search_params) {
 		
-		if (!isset($search_params['fields'])) {
+		if (!isset($search_params['fields']) || !empty($search_params['_elasticsearch_no_transform_fields'])) {
 			return;
 		}
 		

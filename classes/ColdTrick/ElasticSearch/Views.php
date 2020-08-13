@@ -58,4 +58,29 @@ class Views {
 		
 		return $vars;
 	}
+	
+	/**
+	 * Prevent search param manipulation during presentation, to prevent unwanted
+	 * 'search_matched_extra' VolatileData
+	 *
+	 * @param \Elgg\Hook $hook 'view_vars', 'search/entity'
+	 *
+	 * @return void|array
+	 */
+	public static function preventSearchFieldChanges(\Elgg\Hook $hook) {
+		
+		if (elgg_get_plugin_setting('search', 'elasticsearch') !== 'yes') {
+			return;
+		}
+		
+		$vars = $hook->getValue();
+		$search_params = elgg_extract('params', $vars, []);
+		
+		$search_params['_elasticsearch_no_transform_fields'] = true;
+		unset($search_params['fields']['attributes']);
+		
+		$vars['params'] = $search_params;
+		
+		return $vars;
+	}
 }
