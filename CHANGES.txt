@@ -1,6 +1,11 @@
 Version history
 ===============
 
+4.2.2 (2020-08-18):
+
+- fixed: prevent double search highlight output
+- fixed: tags result output
+
 4.2.1 (2020-03-03):
 
 - fixed: respect tokenized search string behaviour
