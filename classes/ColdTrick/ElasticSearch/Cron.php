@@ -2,10 +2,10 @@
 
 namespace ColdTrick\ElasticSearch;
 
-use Elgg\Database\QueryBuilder;
 use ColdTrick\ElasticSearch\Di\IndexingService;
-use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use ColdTrick\ElasticSearch\Di\SearchService;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
+use Elgg\Database\QueryBuilder;
 
 class Cron {
 	
