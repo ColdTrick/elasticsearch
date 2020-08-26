@@ -304,7 +304,15 @@ class IndexManagementService extends BaseClientService {
 								],
 							],
 							'case_insensitive_sort' => [
-								'tokenizer'=> 'keyword',
+								'tokenizer' => 'keyword',
+								'filter' => [
+									'lowercase',
+								],
+							],
+						],
+						'normalizer' => [
+							'case_insensitive' => [
+								'type' => 'custom',
 								'filter' => [
 									'lowercase',
 								],
@@ -348,8 +356,8 @@ class IndexManagementService extends BaseClientService {
 								'type' => 'text',
 								'fields' => [
 									'raw' => [
-										'type' => 'text',
-										'analyzer' => 'case_insensitive_sort',
+										'type' => 'keyword',
+										'normalizer' => 'case_insensitive',
 									]
 								]
 							]
