@@ -53,7 +53,7 @@ class SearchParams {
 		if (!empty($this->getParam('query'))) {
 			$result['body']['query']['function_score']['query']['bool']['must'] = $this->getParam('query');
 		} else {
-			$result['body']['query']['function_score']['query']['bool']['must']['match_all'] = [];
+			$result['body']['query']['function_score']['query']['bool']['must']['match_all'] = (object) [];
 		}
 				
 		// filter
