@@ -18,6 +18,10 @@ class Entity {
 	 */
 	public static function inspect(\Elgg\Hook $hook) {
 		
+		if (!elgg_is_admin_logged_in()) {
+			return;
+		}
+		
 		$entity = $hook->getEntityParam();
 		if (!$entity instanceof \ElggEntity || !$entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME)) {
 			// no entity (??) or not indexed
