@@ -129,7 +129,7 @@ class Cron {
 					
 					if ($status !== 200) {
 						$error = elgg_extract('error', elgg_extract('index', $item));
-						elgg_log("Elasticsearch failed to index {$guid} with error [{$error['type']}]: {$error['reason']}", 'WARNING');
+						elgg_log("Elasticsearch failed to index {$guid} with error [{$status}][{$error['type']}]: {$error['reason']}", 'WARNING');
 						continue;
 					}
 					
