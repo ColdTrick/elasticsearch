@@ -93,11 +93,21 @@ if (empty($entity)) {
 		foreach ($merged as $key => $values) {
 			if (!is_array($values)) {
 				// main content
-				$rows[] = implode(PHP_EOL, [
+				$elgg_value = elgg_extract($key, $current_content);
+				if (is_array($elgg_value)) {
+					$elgg_value = implode(', ', $elgg_value);
+				}
+				$es_value = elgg_extract($key, $elasticsearch_content);
+				$class = [];
+				if ($elgg_value != $es_value) {
+					$class[] = 'elgg-state';
+					$class[] = 'elgg-state-error';
+				}
+				$rows[] = elgg_format_element('tr', ['class' => $class], implode(PHP_EOL, [
 					elgg_format_element('td', [], $key),
-					elgg_format_element('td', [], elgg_extract($key, $current_content)),
-					elgg_format_element('td', [], elgg_extract($key, $elasticsearch_content)),
-				]);
+					elgg_format_element('td', [], $elgg_value),
+					elgg_format_element('td', [], $es_value),
+				]));
 			} else {
 				// has subvalues
 				$subvalues = elasticsearch_inspect_show_values($key, $values, elgg_extract($key, $current_content), elgg_extract($key, $elasticsearch_content));
@@ -110,7 +120,7 @@ if (empty($entity)) {
 		$rows = array_merge($rows, $extras);
 		
 		$table_content = $header;
-		$table_content .= elgg_format_element('tbody', [], '<tr>' . implode('</tr><tr>', $rows) . '</tr>');
+		$table_content .= elgg_format_element('tbody', [], implode(PHP_EOL, $rows));
 		
 		$result .= elgg_format_element('table', ['class' => ['elgg-table', 'elasticsearch-inspect-table']], $table_content);
 	}

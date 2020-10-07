@@ -322,15 +322,15 @@ function elasticsearch_reschedule_document_for_deletion($guid) {
 /**
  * Make inspection values into a table structure
  *
- * @param mixed $key           the key to present
- * @param array $merged_values the base array to show from
- * @param array $elgg_values   the Elgg values
- * @param array $elgg_values   the Elasticsearch values
- * @param int   $depth         internal usage only
+ * @param mixed $key                      the key to present
+ * @param array $merged_values            the base array to show from
+ * @param array $elgg_values              the Elgg values
+ * @param array $elasticsearch_values the Elasticsearch values
+ * @param int   $depth                    internal usage only
  *
  * @return false|array
  */
-function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $elasticsearch_values, $depth = 0) {
+function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $elasticsearch_values, int $depth = 0) {
 	
 	if (empty($merged_values) || !is_array($merged_values)) {
 		return false;
@@ -338,9 +338,9 @@ function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $
 	
 	$rows = [];
 	if (empty($depth)) {
-		$rows[] = elgg_format_element('th', ['colspan' => 3], $key);
+		$rows[] = elgg_format_element('tr', [], elgg_format_element('th', ['colspan' => 3], $key));
 	} else {
-		$rows[] = elgg_format_element('td', ['colspan' => 3], elgg_format_element('b', [], $key));
+		$rows[] = elgg_format_element('tr', [], elgg_format_element('td', ['colspan' => 3], elgg_format_element('b', [], $key)));
 	}
 	
 	foreach ($merged_values as $key => $values) {
@@ -358,12 +358,18 @@ function elasticsearch_inspect_show_values($key, $merged_values, $elgg_values, $
 		if (is_array($elgg_value)) {
 			$elgg_value = implode(', ', $elgg_value);
 		}
+		$es_value = elgg_extract($key, $elasticsearch_values);
+		$class = [];
+		if ($elgg_value != $es_value) {
+			$class[] = 'elgg-state';
+			$class[] = 'elgg-state-error';
+		}
 		
-		$rows[] = implode(PHP_EOL, [
+		$rows[] = elgg_format_element('tr', ['class' => $class], implode(PHP_EOL, [
 			elgg_format_element('td', [], $key),
 			elgg_format_element('td', [], $elgg_value),
-			elgg_format_element('td', [], elgg_extract($key, $elasticsearch_values)),
-		]);
+			elgg_format_element('td', [], $es_value),
+		]));
 	}
 	
 	return $rows;
