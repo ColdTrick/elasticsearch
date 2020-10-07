@@ -315,6 +315,7 @@ class IndexManagementService extends BaseClientService {
 								'type' => 'custom',
 								'filter' => [
 									'lowercase',
+									'asciifolding',
 								],
 							],
 						],
@@ -358,6 +359,7 @@ class IndexManagementService extends BaseClientService {
 									'raw' => [
 										'type' => 'keyword',
 										'normalizer' => 'case_insensitive',
+										'ignore_above' => 8191,
 									]
 								]
 							]
