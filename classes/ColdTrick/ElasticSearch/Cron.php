@@ -102,6 +102,15 @@ class Cron {
 				$entity->invalidateCache();
 			};
 			
+			$skip_guids = [];
+			$options['wheres'][] = function(QueryBuilder $qb, $main_alias) use (&$skip_guids) {
+				if (empty($skip_guids)) {
+					return;
+				}
+				
+				return $qb->compare("{$main_alias}.guid", 'NOT IN', $skip_guids);
+			};
+			
 			while ($time_left && ($entities = elgg_get_entities($options))) {
 				
 				foreach ($entities as $index => $entity) {
@@ -127,7 +136,10 @@ class Cron {
 					$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
 					$status = elgg_extract('status', elgg_extract('index', $item));
 					
-					if ($status !== 200) {
+					$success = ($status >= 200) && ($status < 300);
+					if (!$success) {
+						$skip_guids[] = $guid;
+						
 						$error = elgg_extract('error', elgg_extract('index', $item));
 						elgg_log("Elasticsearch failed to index {$guid} with error [{$status}][{$error['type']}]: {$error['reason']}", 'WARNING');
 						continue;
@@ -135,6 +147,7 @@ class Cron {
 					
 					$entity = get_entity($guid);
 					if (!$entity instanceof \ElggEntity) {
+						$skip_guids[] = $guid;
 						continue;
 					}
 					
