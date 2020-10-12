@@ -196,11 +196,11 @@ class IndexingService extends BaseClientService {
 			while ($time_left && ($entities = elgg_get_entities($options))) {
 				
 				foreach ($entities as $index => $entity) {
-					$params = [
+					$hook_params = [
 						'entity' => $entity,
 					];
 					
-					if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $params, false)) {
+					if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $hook_params, false)) {
 						$mark_entity_done($entity);
 						
 						unset($entities[$index]);
