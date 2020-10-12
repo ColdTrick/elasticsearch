@@ -28,7 +28,7 @@ class Cron {
 			return;
 		}
 		
-		$starttime = (int) $hook->getParam('time', time());
+		$max_run_time = 30;
 		
 		// delete first
 		echo "Starting Elasticsearch indexing: delete" . PHP_EOL;
@@ -43,125 +43,24 @@ class Cron {
 			'reindex',
 		];
 		foreach ($update_actions as $action) {
+			$batch_starttime = time();
 			
 			echo "Starting Elasticsearch indexing: {$action}" . PHP_EOL;
 			elgg_log("Starting Elasticsearch indexing: {$action}", 'NOTICE');
 			
-			$options = elasticsearch_get_bulk_options($action);
-			if (empty($options)) {
-				continue;
-			}
+			$service->bulkIndexDocuments([
+				'type' => $action,
+				'max_run_time' => $max_run_time,
+			]);
 			
-			$time_left = self::batchSync($options, $starttime);
-			if ($time_left === false) {
+			$max_run_time = $max_run_time - (time() - $batch_starttime);
+			if ($max_run_time < 1) {
 				break;
 			}
 		}
 		
 		echo 'Done with Elasticsearch indexing' . PHP_EOL;
 		elgg_log('Done with Elasticsearch indexing', 'NOTICE');
-	}
-	
-	/**
-	 * Batch sync data to ElasticSearch
-	 *
-	 * This function is timed at a max runtime of 30sec
-	 *
-	 * @param array  $options  the options for elgg_get_entities()
-	 * @param int    $crontime the starttime of the cron in order to limit max runtime
-	 *
-	 * @return bool|void
-	 */
-	protected static function batchSync(array $options, int $crontime) {
-		
-		if (empty($options)) {
-			return;
-		}
-		
-		if ($crontime < 1) {
-			$crontime = time();
-		}
-		
-		if ((time() - $crontime) >= 30) {
-			// no time left
-			return false;
-		}
-		
-		set_time_limit(40);
-		
-		$batch_size = 100;
-		
-		$options['limit'] = $batch_size;
-		
-		return elgg_call(ELGG_IGNORE_ACCESS, function() use ($options, $crontime) {
-			$time_left = true;
-			$service = IndexingService::instance();
-			
-			$mark_entity_done = function (\ElggEntity $entity) {
-				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
-				$entity->invalidateCache();
-			};
-			
-			$skip_guids = [];
-			$options['wheres'][] = function(QueryBuilder $qb, $main_alias) use (&$skip_guids) {
-				if (empty($skip_guids)) {
-					return;
-				}
-				
-				return $qb->compare("{$main_alias}.guid", 'NOT IN', $skip_guids);
-			};
-			
-			while ($time_left && ($entities = elgg_get_entities($options))) {
-				
-				foreach ($entities as $index => $entity) {
-					$params = [
-						'entity' => $entity,
-					];
-					
-					if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $params, false)) {
-						$mark_entity_done($entity);
-						
-						unset($entities[$index]);
-						continue;
-					}
-				}
-				
-				$result = $service->addEntitiesToIndex($entities);
-				if (empty($result)) {
-					break;
-				}
-				
-				$items = elgg_extract('items', $result);
-				foreach ($items as $item) {
-					$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
-					$status = elgg_extract('status', elgg_extract('index', $item));
-					
-					$success = ($status >= 200) && ($status < 300);
-					if (!$success) {
-						$skip_guids[] = $guid;
-						
-						$error = elgg_extract('error', elgg_extract('index', $item));
-						elgg_log("Elasticsearch failed to index {$guid} with error [{$status}][{$error['type']}]: {$error['reason']}", 'WARNING');
-						continue;
-					}
-					
-					$entity = get_entity($guid);
-					if (!$entity instanceof \ElggEntity) {
-						$skip_guids[] = $guid;
-						continue;
-					}
-					
-					$mark_entity_done($entity);
-				}
-				
-				if ((time() - $crontime) >= 30) {
-					$time_left = false;
-					break;
-				}
-			}
-			
-			return $time_left;
-		});
 	}
 	
 	/**

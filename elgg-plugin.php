@@ -35,6 +35,9 @@ return [
 			'access' => 'admin',
 		],
 	],
+	'cli_commands' => [
+		\ColdTrick\ElasticSearch\Cli\Sync::class,
+	],
 	'events' => [
 		'ban' => [
 			'user' => [

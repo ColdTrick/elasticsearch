@@ -123,6 +123,24 @@ return array(
 	// forms
 	'elasticsearch:forms:admin_search:query:placeholder' => "Enter your search query here",
 	
+	// CLI
+	'elasticsearch:cli:error:client' => "The Elasticsearch client isn't ready yet, please check the plugin settings",
+	
+	'elasticsearch:progress:start:no_index_ts' => "Adding new documents to index",
+	'elasticsearch:progress:start:update' => "Updating documents in index",
+	'elasticsearch:progress:start:reindex' => "Reindexing documents in index",
+	
+	// Sync
+	'elasticsearch:cli:sync:description' => "Synchonize the Elgg database to the Elasticsearch index",
+	'elasticsearch:cli:sync:delete' => "Old documents have been removed from the index",
+	'elasticsearch:cli:sync:delete:error' => "An error occured while removing old documents from the index",
+	'elasticsearch:cli:sync:no_index_ts' => "Added new documents to the index",
+	'elasticsearch:cli:sync:no_index_ts:error' => "An error occured while adding new documents to the index",
+	'elasticsearch:cli:sync:update' => "Updated documents in the index",
+	'elasticsearch:cli:sync:update:error' => "An error occured while updating documents in the index",
+	'elasticsearch:cli:sync:reindex' => "Reindexed documents in the index",
+	'elasticsearch:cli:sync:reindex:error' => "An error occured while reindexing documents in the index",
+	
 	// actions
 	'elasticsearch:action:admin:index_management:error:delete' => "An error occured during the deletion of the index: %s",
 	'elasticsearch:action:admin:index_management:error:create:exists' => "You can't create the index '%s' it already exists",
