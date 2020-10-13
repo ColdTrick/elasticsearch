@@ -44,13 +44,14 @@ trait Initialize {
 	protected function initializeQuery(array $search_params = []) {
 		
 		$query = elgg_extract('query', $search_params);
-		if (empty($query)) {
+		if (empty($query )) {
 			return;
 		}
-		
-		if (stristr($query, ' ')) {
-			// also include a full sentence as part of the search query
-			$query .= ' || "' . $query . '"';
+
+		if (elgg_extract('tokenize', $search_params) === false && stristr($query, ' ')) {
+			$query = '"' . $query . '"';
+		} elseif (stristr($query, ' ')) {
+			$query = $query . ' || "' . $query . '"';
 		}
 		
 		$query_fields = $this->getQueryFields($search_params);
@@ -64,7 +65,9 @@ trait Initialize {
 		];
 											
 		if (!elgg_extract('count', $search_params, false)) {
-			$this->setHighlight($this->getDefaultHighlightParams($query));
+			$original_query = elgg_extract('query', $search_params);
+			
+			$this->setHighlight($this->getDefaultHighlightParams($original_query));
 		}
 		
 		$this->setQuery($elastic_query);

@@ -169,6 +169,9 @@ return [
 					'priority' => 600,
 				],
 			],
+			'search/entity' => [
+				'\ColdTrick\ElasticSearch\Views::preventSearchFieldChanges' => [],
+			],
 		],
 	],
 	'upgrades' => [
