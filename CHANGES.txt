@@ -1,6 +1,31 @@
 Version history
 ===============
 
+5.0 (2020-10-13):
+
+- added: basic search service
+- added: cli command to sync the index
+- added: entity menu item to inspect entity in Elasticsearch
+- added: indexing as a service
+- added: indicate difference in inspector
+- changed: get cluster information using service
+- changed: increased minimal Elgg version requirement to 3.2
+- changed: increased minimal ELgg version to 3.3
+- changed: index management uses service
+- changed: index stats use service
+- changed: inspect page uses service
+- changed: supported version of ElasticSearch now is 7.4.x
+- fixed: correctly index text fields to allow sorting
+- fixed: empty query support
+- fixed: group member count sorting
+- fixed: index configuration
+- fixed: inspect menu item visible for non admins
+- fixed: prevent endless loop during cron update
+- fixed: searching by content type
+- removed: custom log interface
+- removed: old client class moved to DI services
+- removed: search suggestions
+
 4.2.2 (2020-08-18):
 
 - fixed: prevent double search highlight output
