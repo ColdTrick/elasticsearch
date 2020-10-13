@@ -79,12 +79,18 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 		return false;
 	}
 	
+	$defaults = [
+		'type_subtype_pairs' => $type_subtypes,
+		'limit' => false,
+		'batch' => true,
+		'batch_size' => 100,
+		'batch_inc_offset' => false,
+	];
+	
 	switch ($type) {
 		case 'no_index_ts':
 			// new or updated entities
-			return [
-				'type_subtype_pairs' => $type_subtypes,
-				'limit' => false,
+			return array_merge($defaults, [
 				'wheres' => [
 					function (QueryBuilder $qb, $main_alias) {
 						$select = Select::fromTable('private_settings', 'ps');
@@ -104,7 +110,7 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 						return $qb->compare("{$main_alias}.guid", 'NOT IN', $select->getSQL());
 					},
 				],
-			];
+			]);
 			
 			break;
 		case 'reindex':
@@ -114,9 +120,7 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 				return false;
 			}
 			
-			return [
-				'type_subtype_pairs' => $type_subtypes,
-				'limit' => false,
+			return  array_merge($defaults, [
 				'private_setting_name_value_pairs' => [
 					[
 						'name' => ELASTICSEARCH_INDEXED_NAME,
@@ -129,21 +133,19 @@ function elasticsearch_get_bulk_options($type = 'no_index_ts') {
 						'operand' => '>'
 					],
 				],
-			];
+			]);
 			
 			break;
 		case 'update':
 			// content that was updated in Elgg and needs to be reindexed
-			return [
-				'type_subtype_pairs' => $type_subtypes,
-				'limit' => false,
+			return  array_merge($defaults, [
 				'private_setting_name_value_pairs' => [
 					[
 						'name' => ELASTICSEARCH_INDEXED_NAME,
 						'value' => 0,
 					],
 				],
-			];
+			]);
 			
 			break;
 		case 'count':

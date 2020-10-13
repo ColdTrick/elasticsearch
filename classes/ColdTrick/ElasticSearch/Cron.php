@@ -37,12 +37,7 @@ class Cron {
 		$service->bulkDeleteDocuments();
 		
 		// indexing actions
-		$update_actions = [
-			'no_index_ts',
-			'update',
-			'reindex',
-		];
-		foreach ($update_actions as $action) {
+		foreach (IndexingService::INDEXING_TYPES as $action) {
 			$batch_starttime = time();
 			
 			echo "Starting Elasticsearch indexing: {$action}" . PHP_EOL;

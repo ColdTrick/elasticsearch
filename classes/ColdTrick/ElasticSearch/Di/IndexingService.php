@@ -5,6 +5,7 @@ namespace ColdTrick\ElasticSearch\Di;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elgg\Database\QueryBuilder;
 use Elgg\Cli\Progress;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class IndexingService extends BaseClientService {
 
@@ -16,6 +17,16 @@ class IndexingService extends BaseClientService {
 		'update',
 		'reindex',
 	];
+	
+	/**
+	 * @var ProgressBar
+	 */
+	protected $progress_bar;
+	
+	/**
+	 * @var int[] GUIDs to skip during indexing
+	 */
+	protected $skip_guids;
 	
 	/**
 	 * {@inheritDoc}
@@ -133,11 +144,18 @@ class IndexingService extends BaseClientService {
 	 *
 	 * @param array $params indexing parameters
 	 *  - (string) type: the type of documents to index
-	 *  - (int) max_run_time: the maximum number of seconds to spend on the indexing action
+	 *  - (int) max_run_time: the maximum number of seconds to spend on the indexing action (default: 30)
+	 *  - (\Elgg\Cli\Progress) progress: a provided cli progress for nice output (default: false)
 	 *
 	 * @return bool
 	 */
 	public function bulkIndexDocuments(array $params) {
+		$defaults = [
+			'max_run_time' => 30,
+			'progress' => false,
+		];
+		$params = array_merge($defaults, $params);
+		
 		$type = elgg_extract('type', $params);
 		if (!in_array($type, self::INDEXING_TYPES)) {
 			return false;
@@ -145,7 +163,7 @@ class IndexingService extends BaseClientService {
 		
 		return elgg_call(ELGG_IGNORE_ACCESS, function() use ($params) {
 			// how long can this task run
-			$max_run_time = (int) elgg_extract('max_run_time', $params, 30);
+			$max_run_time = (int) elgg_extract('max_run_time', $params);
 			if (!empty($max_run_time)) {
 				set_time_limit($max_run_time + 10);
 			} else {
@@ -159,95 +177,66 @@ class IndexingService extends BaseClientService {
 				return false;
 			}
 			
-			// max number of entities in one run
-			$batch_size = 100;
-			$options['limit'] = $batch_size;
-			
 			// track progress
-			$time_left = true;
 			$starttime = time();
 			$progress = elgg_extract('progress', $params);
-			$progress_bar = false;
 			if ($progress instanceof Progress) {
 				$count = elgg_count_entities($options);
 				
-				$progress_bar = $progress->start(elgg_echo("elasticsearch:progress:start:{$type}"), $count);
+				$this->progress_bar = $progress->start(elgg_echo("elasticsearch:progress:start:{$type}"), $count);
 			}
 			
-			$mark_entity_done = function (\ElggEntity $entity) use ($progress_bar) {
-				$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
-				$entity->invalidateCache();
-				
-				// advance progress bar
-				if (!empty($progress_bar)) {
-					$progress_bar->advance();
-				}
-			};
-			
-			$skip_guids = [];
-			$options['wheres'][] = function(QueryBuilder $qb, $main_alias) use (&$skip_guids) {
-				if (empty($skip_guids)) {
+			$this->skip_guids = [];
+			$options['wheres'][] = function(QueryBuilder $qb, $main_alias) {
+				if (empty($this->skip_guids)) {
 					return;
 				}
 				
-				return $qb->compare("{$main_alias}.guid", 'NOT IN', $skip_guids);
+				return $qb->compare("{$main_alias}.guid", 'NOT IN', $this->skip_guids);
 			};
 			
-			while ($time_left && ($entities = elgg_get_entities($options))) {
+			$index_entities = [];
+			
+			/* @var $entities \ElggBatch */
+			$entities = elgg_get_entities($options);
+			
+			/* @var $entity \ElggEntity */
+			foreach ($entities as $entity) {
 				
-				foreach ($entities as $index => $entity) {
-					$hook_params = [
-						'entity' => $entity,
-					];
-					
-					if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $hook_params, false)) {
-						$mark_entity_done($entity);
-						
-						unset($entities[$index]);
-						continue;
-					}
+				// is this entity prevented from being indexed
+				$hook_params = [
+					'entity' => $entity,
+				];
+				
+				if ((bool) elgg_trigger_plugin_hook('index:entity:prevent', 'elasticsearch', $hook_params, false)) {
+					$this->markEntityDone($entity);
+					continue;
 				}
 				
-				$result = $this->addEntitiesToIndex($entities);
-				if (empty($result)) {
-					break;
-				}
-				
-				$items = elgg_extract('items', $result);
-				foreach ($items as $item) {
-					$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
-					$status = elgg_extract('status', elgg_extract('index', $item));
-					
-					$success = ($status >= 200) && ($status < 300);
-					if (!$success) {
-						$skip_guids[] = $guid;
-						
-						$error = elgg_extract('error', elgg_extract('index', $item));
-						elgg_log("Elasticsearch failed to index {$guid} with error [{$status}][{$error['type']}]: {$error['reason']}", 'WARNING');
-						continue;
-					}
-					
-					$entity = get_entity($guid);
-					if (!$entity instanceof \ElggEntity) {
-						$skip_guids[] = $guid;
-						continue;
-					}
-					
-					$mark_entity_done($entity);
+				// not prevented so add to the next batch
+				$index_entities[] = $entity;
+				if (count($index_entities) >= 100) {
+					// process a batch of allowed entities
+					$this->processBulkIndexEntities($index_entities);
+					// reset
+					$index_entities = [];
 				}
 				
 				if (!empty($max_run_time) && (time() - $starttime) >= $max_run_time) {
-					$time_left = false;
 					break;
 				}
+			}
+			
+			if (!empty($index_entities)) {
+				$this->processBulkIndexEntities($index_entities);
 			}
 			
 			// stop progress bar
 			if ($progress instanceof Progress) {
-				$progress->finish($progress_bar);
+				$progress->finish($this->progress_bar);
 			}
 			
-			return $time_left;
+			return true;
 		});
 	}
 	
@@ -267,5 +256,59 @@ class IndexingService extends BaseClientService {
 		elgg_pop_context();
 		
 		return $result;
+	}
+	
+	/**
+	 * Mark an entity as indexed
+	 *
+	 * @param \ElggEntity $entity the entity to mark
+	 *
+	 * @return void
+	 */
+	protected function markEntityDone(\ElggEntity $entity) {
+		$entity->setPrivateSetting(ELASTICSEARCH_INDEXED_NAME, time());
+		$entity->invalidateCache();
+		
+		// advance progress bar
+		if ($this->progress_bar instanceof ProgressBar) {
+			$this->progress_bar->advance();
+		}
+	}
+	
+	/**
+	 * Process a batch of entities for indexing
+	 *
+	 * @param \ElggEntity[] $entities
+	 *
+	 * @return void
+	 */
+	protected function processBulkIndexEntities(array $entities) {
+		$result = $this->addEntitiesToIndex($entities);
+		if (empty($result)) {
+			return;
+		}
+		
+		$items = elgg_extract('items', $result);
+		foreach ($items as $item) {
+			$guid = (int) elgg_extract('_id', elgg_extract('index', $item));
+			$status = elgg_extract('status', elgg_extract('index', $item));
+			
+			$success = ($status >= 200) && ($status < 300);
+			if (!$success) {
+				$this->skip_guids[] = $guid;
+				
+				$error = elgg_extract('error', elgg_extract('index', $item));
+				elgg_log("Elasticsearch failed to index {$guid} with error [{$status}][{$error['type']}]: {$error['reason']}", 'WARNING');
+				continue;
+			}
+			
+			$entity = get_entity($guid);
+			if (!$entity instanceof \ElggEntity) {
+				$this->skip_guids[] = $guid;
+				continue;
+			}
+			
+			$this->markEntityDone($entity);
+		}
 	}
 }
