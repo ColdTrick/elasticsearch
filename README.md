@@ -11,7 +11,8 @@ An Elasticsearch implementation for Elgg
 
 ## Requirements
 
-A working [ElasticSearch](https://www.elastic.co/) server is required. Also the minute cron has to be working on your Elgg installation. The minute cron is used to update the index with all the required changes (create/update/delete).
+A working [ElasticSearch](https://www.elastic.co/) server is required. Also the minute cron has to be working on your Elgg installation. 
+The minute cron is used to update the index with all the required changes (create/update/delete).
 
 The current supported version of ElasticSearch is: 7.4.x
 
@@ -27,9 +28,11 @@ The plugin settings allow you to configure the following:
 
 ### Index Management
 
-The index management page (found under Administer -> ElasticSearch -> Indices in the admin sidebar) allows you to perform various actions on all the indexes available on the ElastisSearch server. The following actions are supported:
+The index management page (found under Administer -> ElasticSearch -> Indices in the admin sidebar) allows you to perform various actions on 
+all the indexes available on the ElastisSearch server. The following actions are supported:
 
-- Create: This action can only be performed if the index configured in the plugin settings page is not yet available. It will create the default index configuration to be used for search.
+- Create: This action can only be performed if the index configured in the plugin settings page is not yet available. 
+It will create the default index configuration to be used for search.
 - Alias: Add/remove the configured alias to the index (this allows searching across multiple indices)
 - Delete: This will remove the index from the server (this action can not be undone)
  
@@ -42,15 +45,27 @@ Logging will appear in the same location as all other Elgg logs.
 
 ### Statistics
 
-You can find various statistics on the Administer -> ElasticSearch -> Statistics page. Elgg statistics report on the amount of entities found in the Elgg database that should be in the index. It also reports on the amount of entities that need to be added/updated/deleted in the index and that are currently waiting on the minute cron to process them.
+You can find various statistics on the Administer -> ElasticSearch -> Statistics page. Elgg statistics report on the amount of 
+entities found in the Elgg database that should be in the index. It also reports on the amount of entities that need to be 
+added/updated/deleted in the index and that are currently waiting on the minute cron to process them.
 
 Also some statistics from the Elastic Cluster are shown like the status and the version information.
 
 You can also find statistics for all available indexes on this page.
 
+### CLI commands
+
+CLI commands are available to be used with the default `elgg-cli` command
+
+#### elasticsearch:sync
+
+This command will synchronize all pending entities to the Elasticsearch index. This is especialy usefull during the reindexing 
+process of the database because a lot of entities need to be indexed. Using the normal cron task in this case could take a long time.
+
 ## Recommendations
 
-Use the [Search Advanced](http://github.com/ColdTrick/search_advanced) plugin to add extra features to search. If both are enabled this plugin provides a menu to sort/order the results.
+Use the [Search Advanced](http://github.com/ColdTrick/search_advanced) plugin to add extra features to search. If both are enabled this 
+plugin provides a menu to sort/order the results.
 
 ## Developers
 
@@ -149,7 +164,8 @@ Defaults to all registered searchable type/subtypes in Elgg.
 
 #### 'search_params', 'elasticsearch'
 
-Return an `\ColdTrick\ElasticSearch\Di\SearchService` to be used for the search. This allows you to alter the search parameters in Elasticsearch.
+Return an `\ColdTrick\ElasticSearch\Di\SearchService` to be used for the search. This allows you to alter the search parameters 
+in Elasticsearch.
 
 Params contain:
 - `search_params`: an array of the search parameters as provided by Elgg search
