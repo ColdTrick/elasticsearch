@@ -220,6 +220,7 @@ class IndexingService extends BaseClientService {
 					$this->processBulkIndexEntities($index_entities);
 					// reset
 					$index_entities = [];
+					$this->clearCaches();
 				}
 				
 				if (!empty($max_run_time) && (time() - $starttime) >= $max_run_time) {
@@ -310,5 +311,18 @@ class IndexingService extends BaseClientService {
 			
 			$this->markEntityDone($entity);
 		}
+	}
+	
+	/**
+	 * Clear caches to save memory
+	 *
+	 * @return void
+	 */
+	protected function clearCaches() {
+		_elgg_services()->accessCache->clear();
+		_elgg_services()->dataCache->clear();
+		_elgg_services()->entityCache->clear();
+		_elgg_services()->sessionCache->clear();
+		_elgg_services()->queryCache->clear();
 	}
 }
