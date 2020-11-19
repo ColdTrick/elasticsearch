@@ -23,8 +23,7 @@ class Entity {
 		}
 		
 		$entity = $hook->getEntityParam();
-		if (!$entity instanceof \ElggEntity || $entity->getPrivateSetting(ELASTICSEARCH_INDEXED_NAME) === null) {
-			// no entity (??) or not indexed
+		if (!$entity instanceof \ElggEntity) {
 			return;
 		}
 		
