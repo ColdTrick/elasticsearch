@@ -99,7 +99,7 @@ class SearchHooks {
 		$query = trim($query);
 		$query = rtrim($query, '*');
 		
-		$search_params['query'] = $query . '*';
+		$search_params['query'] = "{$query}|{$query}*";
 	}
 	
 	/**
