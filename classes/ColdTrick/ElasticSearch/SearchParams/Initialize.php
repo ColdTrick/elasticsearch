@@ -189,7 +189,7 @@ trait Initialize {
 		}
 		
 		$container_filter = [];
-		$container_filter['bool']['must'][]['term']['container_guid'] = $container_guid;
+		$container_filter['bool']['must'][]['terms']['container_guid'] = $container_guid;
 		$this->addFilter($container_filter);
 	}
 	
@@ -211,7 +211,7 @@ trait Initialize {
 		}
 		
 		$owner_filter = [];
-		$owner_filter['bool']['must'][]['term']['owner_guid'] = $owner_guid;
+		$owner_filter['bool']['must'][]['terms']['owner_guid'] = $owner_guid;
 		$this->addFilter($owner_filter);
 	}
 	
@@ -395,7 +395,7 @@ trait Initialize {
 	 */
 	protected function initializeAccessConstraints(array $search_params = []) {
 		
-		$access_ids = elgg_extract('access_ids', $search_params);
+		$access_ids = (array) elgg_extract('access_ids', $search_params);
 		if (empty($access_ids)) {
 			return;
 		}
