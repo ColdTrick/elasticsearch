@@ -1,6 +1,10 @@
 Version history
 ===============
 
+5.0.3 (2021-01-05):
+
+- fixed: owner and container filter
+
 5.0.2 (2020-12-08):
 
 - fixed: do not check private settings to add a menu item
