@@ -2,12 +2,12 @@
 
 namespace ColdTrick\ElasticSearch\Di;
 
-use Elgg\Di\ServiceFacade;
 use Elasticsearch\Client;
-use Elgg\Logger;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elasticsearch\ClientBuilder;
+use Elgg\Logger;
 use Elgg\PluginHooksService;
+use Elgg\Traits\Di\ServiceFacade;
 
 abstract class BaseClientService {
 

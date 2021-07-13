@@ -152,10 +152,9 @@ class Export {
 			return;
 		}
 		
-		if ($entity instanceof \ElggUser) {
-			$profile_fields = elgg_get_config('profile_fields');
-		} elseif ($entity instanceof \ElggGroup) {
-			$profile_fields = elgg_get_config('group');
+		$profile_fields = false;
+		if ($entity instanceof \ElggUser || $entity instanceof \ElggGroup) {
+			$profile_fields = elgg()->fields->get($entity->getType(), $entity->getSubtype());
 		}
 		
 		if (empty($profile_fields)) {
@@ -163,11 +162,13 @@ class Export {
 		}
 		
 		$tags = [];
-		foreach ($profile_fields as $field_name => $type) {
+		foreach ($profile_fields as $field) {
+			$type = elgg_extract('#type', $field);
 			if ($type !== 'tags') {
 				continue;
 			}
 
+			$field_name = elgg_extract('name', $field);
 			$field_tags = (array) $entity->$field_name;
 			if (!empty($field_tags)) {
 				$tags = array_merge($tags, $field_tags);
@@ -324,19 +325,20 @@ class Export {
 			return;
 		}
 		
-		$config_field = '';
-		if ($entity instanceof \ElggUser) {
-			$config_field = 'profile_fields';
-		} elseif ($entity instanceof \ElggGroup) {
-			$config_field = 'group';
+		$fields = false;
+		if ($entity instanceof \ElggUser || $entity instanceof \ElggGroup) {
+			$fields = elgg()->fields->get($entity->getType(), $entity->getSubtype());
 		}
 		
-		if (empty($config_field)) {
+		if (empty($fields)) {
 			return;
 		}
 		
-		$profile_fields = elgg_get_config($config_field);
-		$field_names = array_keys($profile_fields);
+		$field_names = [];
+		foreach ($fields as $field) {
+			$field_names[] = elgg_extract('name', $field);
+		}
+		$field_names = array_filter($field_names);
 		
 		return array_merge($hook->getValue(), $field_names);
 	}

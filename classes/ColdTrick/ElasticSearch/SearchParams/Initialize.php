@@ -2,7 +2,8 @@
 
 namespace ColdTrick\ElasticSearch\SearchParams;
 
-use Elgg\Database\LegacyQueryOptionsAdapter;
+use Elgg\Exceptions\DataFormatException;
+use Elgg\Traits\Database\LegacyQueryOptionsAdapter;
 use Elgg\Values;
 
 trait Initialize {
@@ -149,6 +150,7 @@ trait Initialize {
 		$result['type'] = 'plain';
 		
 		// title
+		$title_query = [];
 		$title_query['bool']['must']['match']['title']['query'] = $query;
 		$result['fields']['title'] = [
 			'number_of_fragments' => 0,
@@ -156,12 +158,14 @@ trait Initialize {
 		];
 		
 		// description
+		$description_query = [];
 		$description_query['bool']['must']['match']['description']['query'] = $query;
 		$result['fields']['description'] = [
 			'highlight_query' => $description_query,
 		];
 		
 		// tags
+		$tags_query = [];
 		$tags_query['bool']['must']['match']['tags']['query'] = $query;
 		$result['fields']['tags'] = [
 			'number_of_fragments' => 0,
@@ -303,7 +307,10 @@ trait Initialize {
 			}
 		}
 		
+		$type_filter = [];
 		$type_filter['terms']['indexed_type'] = $types;
+		
+		$filter = [];
 		$filter['bool']['must'][] = $type_filter;
 		
 		$this->addFilter($filter);
@@ -321,11 +328,14 @@ trait Initialize {
 		$make_filter = function($time, $time_field, $direction) {
 			try {
 				$date = Values::normalizeTime($time);
-			} catch (\DataFormatException $e) {
+			} catch (DataFormatException $e) {
 				return false;
 			}
 			
+			$range = [];
 			$range['range'][$time_field][$direction] = $date->format('c');
+			
+			$range_filter = [];
 			$range_filter['bool']['must'][] = $range;
 			
 			return $range_filter;

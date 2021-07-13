@@ -5,10 +5,10 @@ use ColdTrick\ElasticSearch\Di\IndexingService;
 use ColdTrick\ElasticSearch\Di\SearchService;
 
 return [
-	IndexManagementService::name() => DI\object(IndexManagementService::class)
+	IndexManagementService::name() => DI\create(IndexManagementService::class)
 		->constructor(DI\get('logger'), DI\get('hooks')),
-	IndexingService::name() => DI\object(IndexingService::class)
+	IndexingService::name() => DI\create(IndexingService::class)
 		->constructor(DI\get('logger'), DI\get('hooks')),
-	SearchService::name() => DI\object(SearchService::class)
+	SearchService::name() => DI\create(SearchService::class)
 		->constructor(DI\get('logger'), DI\get('hooks')),
 ];

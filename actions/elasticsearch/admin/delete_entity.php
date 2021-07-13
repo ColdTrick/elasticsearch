@@ -1,9 +1,9 @@
 <?php
-use ColdTrick\ElasticSearch\Di\SearchService;
-
 /**
  * Schedule an entity to be removed from the index
  */
+
+use ColdTrick\ElasticSearch\Di\SearchService;
 
 $guid = (int) get_input('guid');
 if ($guid < 1) {

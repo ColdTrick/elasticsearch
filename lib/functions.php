@@ -5,6 +5,7 @@
 
 use Elgg\Database\QueryBuilder;
 use Elgg\Database\Select;
+use Elgg\Values;
 
 /**
  * Get the type/subtypes to index in ElasticSearch
@@ -314,7 +315,7 @@ function elasticsearch_reschedule_document_for_deletion($guid) {
 	}
 	
 	// try again in an hour
-	$contents['time'] = time() + (60 * 60);
+	$contents['time'] = Values::normalizeTimestamp('+1 hour');
 	
 	$fh->open('write');
 	$fh->write(serialize($contents));

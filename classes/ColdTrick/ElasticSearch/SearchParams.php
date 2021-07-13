@@ -144,7 +144,7 @@ class SearchParams {
 		$types = elasticsearch_get_types_for_boosting();
 		if (!empty($types)) {
 			foreach ($types as $type) {
-				$weight = (float) elgg_get_plugin_setting("type_boosting_$type", 'elasticsearch');
+				$weight = (float) elgg_get_plugin_setting("type_boosting_{$type}", 'elasticsearch');
 				if (!($weight > 0) || $weight == 1) {
 					continue;
 				}

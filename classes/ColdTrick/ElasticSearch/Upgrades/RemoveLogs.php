@@ -11,15 +11,15 @@ class RemoveLogs implements AsynchronousUpgrade {
 	 * {@inheritDoc}
 	 * @see \Elgg\Upgrade\Batch::getVersion()
 	 */
-	public function getVersion() {
-		return '2019120300';
+	public function getVersion(): int {
+		return 2019120300;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 * @see \Elgg\Upgrade\Batch::needsIncrementOffset()
 	 */
-	public function needsIncrementOffset() {
+	public function needsIncrementOffset(): bool {
 		return false;
 	}
 	
@@ -27,7 +27,7 @@ class RemoveLogs implements AsynchronousUpgrade {
 	 * {@inheritDoc}
 	 * @see \Elgg\Upgrade\Batch::countItems()
 	 */
-	public function countItems() {
+	public function countItems(): int {
 		return 1;
 	}
 	
@@ -35,7 +35,7 @@ class RemoveLogs implements AsynchronousUpgrade {
 	 * {@inheritDoc}
 	 * @see \Elgg\Upgrade\Batch::run()
 	 */
-	public function run(Result $result, $offset) {
+	public function run(Result $result, $offset): Result {
 		
 		if (elgg_delete_directory($this->getLogLocation())) {
 			$result->addSuccesses();
@@ -48,7 +48,7 @@ class RemoveLogs implements AsynchronousUpgrade {
 	 * {@inheritDoc}
 	 * @see \Elgg\Upgrade\Batch::shouldBeSkipped()
 	 */
-	public function shouldBeSkipped() {
+	public function shouldBeSkipped(): bool {
 		return !is_dir($this->getLogLocation());
 	}
 	

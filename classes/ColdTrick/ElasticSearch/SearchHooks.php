@@ -3,6 +3,7 @@
 namespace ColdTrick\ElasticSearch;
 
 use ColdTrick\ElasticSearch\Di\SearchService;
+use Elgg\Exceptions\InvalidParameterException;
 
 class SearchHooks {
 	
@@ -225,9 +226,14 @@ class SearchHooks {
 			return;
 		}
 		
-		$group_fields = elgg_get_config('group', []);
+		$group_fields = elgg()->fields->get('group', 'group');
+		$group_names = [];
+		foreach ($group_fields as $field) {
+			$group_names[] = elgg_extract('name', $field);
+		}
+		
 		foreach ($value['metadata'] as $index => $metadata_name) {
-			if (isset($group_fields[$metadata_name]) || !in_array($metadata_name, $user_tags)) {
+			if (in_array($metadata_name, $group_names) || !in_array($metadata_name, $user_tags)) {
 				continue;
 			}
 			
@@ -372,18 +378,19 @@ class SearchHooks {
 	 */
 	protected static function getUserProfileTagsFields() {
 		
-		$fields = elgg_get_config('profile_fields');
+		$fields = elgg()->fields->get('user', 'user');
 		if (empty($fields)) {
 			return [];
 		}
 		
 		$result = [];
-		foreach ($fields as $metadata_name => $type) {
+		foreach ($fields as $field) {
+			$type = elgg_extract('#type', $field);
 			if (!in_array($type, ['tags', 'tag', 'location'])) {
 				continue;
 			}
 			
-			$result[] = $metadata_name;
+			$result[] = elgg_extract('name', $field);
 		}
 		
 		return $result;
@@ -396,18 +403,18 @@ class SearchHooks {
 	 */
 	protected static function getGroupProfileTagsFields() {
 		
-		$fields = elgg_get_config('group');
+		$fields = elgg()->fields->get('group', 'group');
 		if (empty($fields)) {
 			return [];
 		}
 		
 		$result = [];
-		foreach ($fields as $metadata_name => $type) {
-			if ($type !== 'tags') {
+		foreach ($fields as $field) {
+			if (elgg_extract('#type', $field) !== 'tags') {
 				continue;
 			}
 			
-			$result[] = $metadata_name;
+			$result[] = elgg_extract('name', $field);
 		}
 		
 		return $result;
@@ -419,7 +426,7 @@ class SearchHooks {
 	 * @param \Elgg\Hook $hook 'search:result', 'entities'
 	 *
 	 * @return void|\ElggEntity[]|int
-	 * @throws \InvalidParameterException
+	 * @throws InvalidParameterException
 	 */
 	public static function searchEntities(\Elgg\Hook $hook) {
 		
@@ -437,7 +444,7 @@ class SearchHooks {
 		
 		$service = elgg_trigger_plugin_hook('search_params', 'elasticsearch', ['search_params' => $params], $service);
 		if (!$service instanceof SearchService) {
-			throw new \InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Di\SearchService');
+			throw new InvalidParameterException('The return value of the search_params elasticsearch hook should return an instanceof \ColdTrick\Elasticsearch\Di\SearchService');
 		}
 		
 		if (elgg_extract('count', $params) == true) {

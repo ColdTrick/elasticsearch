@@ -2,11 +2,21 @@
 
 use ColdTrick\ElasticSearch\Upgrades\RemoveLogs;
 
-define('ELASTICSEARCH_INDEXED_NAME', 'elasticsearch_last_indexed');
+if (!defined('ELASTICSEARCH_INDEXED_NAME')) {
+	define('ELASTICSEARCH_INDEXED_NAME', 'elasticsearch_last_indexed');
+}
 
 require_once(__DIR__ . '/lib/functions.php');
 
 return [
+	'plugin' => [
+		'version' => '5.0.3',
+		'dependencies' => [
+			'search' => [
+				'position' => 'after',
+			],
+		],
+	],
 	'settings' => [
 		'sync' => 'no',
 		'search' => 'no',
