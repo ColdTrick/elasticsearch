@@ -1,10 +1,31 @@
 <?php
 /**
- * This file was created by Translation Editor v7.0.2
- * On 2019-04-29 12:05
+ * This file was created by Translation Editor v8.0
+ * On 2021-08-06 10:21
  */
 
 return array (
+  'elasticsearch:upgrade:2019120300:title' => 'Verwijder Elasticsearch logs',
+  'elasticsearch:upgrade:2019120300:description' => 'Verwijder alle oude logbestanden, aangezien logging nu anders wordt geregeld',
+  'elasticsearch:menu:entity:inspect' => 'Inspecteer in Elasticsearch',
+  'elasticsearch:index_management:exception:config:index' => 'Het resultaat van de \'config:index\', \'elasticsearch\' hook moet een array zijn voor de index configuratie',
+  'elasticsearch:index_management:exception:config:mapping' => 'Het resultaat van de \'config:mapping\', \'elasticsearch\' hook moet een array zijn voor de mapping configuratie',
+  'elasticsearch:indices:aliases' => 'aliassen',
+  'elasticsearch:indices:mappings' => 'Mappings',
+  'elasticsearch:indices:mappings:add' => 'Toevoegen / bijwerken',
+  'elasticsearch:cli:error:client' => 'De Elasticsearch client is nog niet klaar, controleer de plugin instellingen',
+  'elasticsearch:progress:start:no_index_ts' => 'Nieuwe documenten toevoegen aan de index',
+  'elasticsearch:progress:start:update' => 'Documenten in de index bijwerken',
+  'elasticsearch:progress:start:reindex' => 'Herindexeren van documenten in de index',
+  'elasticsearch:cli:sync:description' => 'Synchroniseer de Elgg database naar de Elasticsearch index',
+  'elasticsearch:cli:sync:delete' => 'Oude documenten zijn verwijderd uit de index',
+  'elasticsearch:cli:sync:delete:error' => 'Er is een fout opgetreden tijdens het verwijderen van oude documenten uit de index',
+  'elasticsearch:cli:sync:no_index_ts' => 'Nieuwe documenten zijn toegevoegd aan de index',
+  'elasticsearch:cli:sync:no_index_ts:error' => 'Er is een fout opgetreden tijdens het toevoegen van nieuwe documenten aan de index',
+  'elasticsearch:cli:sync:update' => 'Documenten in de index zijn bijgewerkt',
+  'elasticsearch:cli:sync:update:error' => 'Er is een fout opgetreden tijdens het bijwerken van documenten in de index',
+  'elasticsearch:cli:sync:reindex' => 'Herindexeren van document in de index is afgerond',
+  'elasticsearch:cli:sync:reindex:error' => 'Er is een fout opgetreden tijdens het herindexeren van documenten in de index',
   'elasticsearch:settings:pattern:float' => 'Alleen getallen (0-9) en een punt (.) zijn toegestaan',
   'elasticsearch:settings:ignore_ssl' => 'Schakel SSL verificatie uit',
   'elasticsearch:settings:ignore_ssl:description' => 'Indien de host HTTPS gebruikt, maar dit gebeurt middels een self-signed certificaat kun je SSL verificatie uitschakelen middels deze instelling.',
@@ -54,7 +75,6 @@ Meer informatie over content type boosting kun je kijken op de Elasticsearch doc
   'admin:elasticsearch' => 'ElasticSearch',
   'admin:elasticsearch:statistics' => 'Statistieken',
   'admin:elasticsearch:search' => 'Zoeken',
-  'admin:elasticsearch:logging' => 'Log',
   'admin:elasticsearch:indices' => 'Indices',
   'elasticsearch:admin_search:results' => 'Zoek Resultaten',
   'elasticsearch:admin_search:results:info' => 'Resultaten worden hier getoond',
@@ -93,12 +113,7 @@ Meer informatie over content type boosting kun je kijken op de Elasticsearch doc
   'elasticsearch:stats:elgg:delete' => 'Content die nog verwijderd moet worden',
   'elasticsearch:indices:index' => 'Index',
   'elasticsearch:indices:alias' => 'Alias',
-  'elasticsearch:logging:root' => 'Log begin',
-  'elasticsearch:logging:description' => 'Hier kun je de logs vinden van de ElasicSearch API interface. Logbestanden zijn gescheiden op jaar, maand en dag.',
   'elasticsearch:indices:create' => 'Aanmaken',
-  'elasticsearch:indices:add_mappings' => 'Mappings toevoegen',
-  'elasticsearch:indices:optimize' => 'Optimaliseren',
-  'elasticsearch:indices:flush' => 'Flush',
   'elasticsearch:menu:search_list:sort:title' => 'Wijzig de volgorde van de zoekresultaten',
   'elasticsearch:menu:search_list:sort:relevance' => 'Relevantie',
   'elasticsearch:menu:search_list:sort:alpha_az' => 'Alfabetisch (A-Z)',
@@ -107,8 +122,6 @@ Meer informatie over content type boosting kun je kijken op de Elasticsearch doc
   'elasticsearch:menu:search_list:sort:oldest' => 'Oudste eerst',
   'elasticsearch:menu:search_list:sort:member_count' => 'Aantal leden',
   'elasticsearch:forms:admin_search:query:placeholder' => 'Voer hier je zoekopdracht in',
-  'elasticsearch:action:admin:index_management:error:flush' => 'Er is een fout opgetreden tijdens het flushen van de index: %s',
-  'elasticsearch:action:admin:index_management:error:optimize' => 'Er is een fout opgetreden tijdens het optimaliseren van de index: %s',
   'elasticsearch:action:admin:index_management:error:delete' => 'Er is een fout opgetreden tijdens het deleten van de index: %s',
   'elasticsearch:action:admin:index_management:error:create:exists' => 'Je kunt index \'%s\' niet aanmaken, want hij bestaat al.',
   'elasticsearch:action:admin:index_management:error:create' => 'Er is een fout opgetreden tijdens het aanmaken van de index: %s',
@@ -118,8 +131,6 @@ Meer informatie over content type boosting kun je kijken op de Elasticsearch doc
   'elasticsearch:action:admin:index_management:error:delete_alias:exists' => 'De alias \'%s\' bestaat niet voor de index \'%s\'',
   'elasticsearch:action:admin:index_management:error:add_alias' => 'Er is een fout opgetreden tijdens het aanmaken van de alias \'%s\' voor de index: %s',
   'elasticsearch:action:admin:index_management:error:delete_alias' => 'Er is een fout opgetreden tijdens het verwijderen van de alias \'%s\' voor de index: %s',
-  'elasticsearch:action:admin:index_management:flush' => 'De index \'%s\' is geflushed',
-  'elasticsearch:action:admin:index_management:optimize' => 'De index \'%s\' is geoptimaliseerd',
   'elasticsearch:action:admin:index_management:delete' => 'De index \'%s\' is verwijderd',
   'elasticsearch:action:admin:index_management:create' => 'De index \'%s\' is aangemaakt',
   'elasticsearch:action:admin:index_management:add_mappings' => 'Mappings voor de index \'%s\' zijn aangemaakt',
