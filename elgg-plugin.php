@@ -35,9 +35,6 @@ return [
 		'elasticsearch/admin/reindex' => [
 			'access' => 'admin',
 		],
-		'elasticsearch/admin/download_log' => [
-			'access' => 'admin',
-		],
 		'elasticsearch/admin/reindex_entity' => [
 			'access' => 'admin',
 		],
