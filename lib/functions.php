@@ -14,7 +14,7 @@ use Elgg\Values;
  */
 function elasticsearch_get_registered_entity_types() {
 	
-	$type_subtypes = get_registered_entity_types();
+	$type_subtypes = elgg_entity_types_with_capability('searchable');
 	foreach ($type_subtypes as $type => $subtypes) {
 		if (empty($subtypes)) {
 			// repair so it can be used in elgg_get_entities*
@@ -32,7 +32,7 @@ function elasticsearch_get_registered_entity_types() {
  */
 function elasticsearch_get_registered_entity_types_for_search() {
 
-	$type_subtypes = get_registered_entity_types();
+	$type_subtypes = elgg_entity_types_with_capability('searchable');
 	foreach ($type_subtypes as $type => $subtypes) {
 		if (empty($subtypes)) {
 			// repair so it can be used in elgg_get_entities*
