@@ -1,6 +1,11 @@
 Version history
 ===============
 
+7.0 (2022-02-16):
+
+- changed: increased minimal Elgg version to 4.1
+- fixed: replaced deprecated function for searchable entities
+
 6.0 (2021-09-27):
 
 - changed: updated for Elgg 4.0
