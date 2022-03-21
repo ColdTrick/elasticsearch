@@ -384,7 +384,11 @@ class Export {
 			return;
 		}
 		
-		if (!(bool) elgg_trigger_plugin_hook('likes:is_likable', "{$entity->getType()}:{$entity->getSubtype()}", [], false)) {
+		$entity_type = $entity->getType();
+		$entity_subtype = $entity->getSubtype();
+		$default_likes_allowed = $entity->hasCapability('likable');
+		
+		if (!(bool) elgg_trigger_deprecated_plugin_hook('likes:is_likable', "{$entity_type}:{$entity_subtype}", [], $default_likes_allowed, "Use the capabilities system to register your entity ('{$entity_type}:{$entity_subtype}') as likable.", '4.1')) {
 			$count = 0;
 		} else {
 			$count = elgg_call(ELGG_IGNORE_ACCESS, function () use ($entity) {
